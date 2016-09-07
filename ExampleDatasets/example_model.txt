@@ -1,5 +1,0 @@
-A	->	M	k1	N	H
-B	->	M	k2	N	L
-C	-|	M	ki	N	D
-M	->	T	kA	A	D
-N	->	T	kA	A	D
