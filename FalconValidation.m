@@ -20,7 +20,7 @@ state_names=estim.state_names;
 
 %=========================================
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % getting the info from the measurement file
 
 Point=find(ismember(MeasFile,'.'),1,'last'); %finding the last point in the file name

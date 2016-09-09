@@ -114,10 +114,10 @@
                     end
                 end
                 
-                %%%%%%%%%%%%%%%%%%%%%
+                %%%%%%%%%%%%%%%%%%%%
                 %%% core equation %%%
                 x=(ma*x).*(ones(numel(x),1)-mi*x);
-                %%%%%%%%%%%%%%%%%%%%%
+                %%%%%%%%%%%%%%%%%%%%
 
                 if BoolMax>0 %if there are Boolean gates
                     for counter3=1:size(Gate_fill_indices,1)

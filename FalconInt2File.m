@@ -1,5 +1,6 @@
 function [] = FalconInt2File(Interactions,fileName)
-%%% SDL 22/5/2015
+% still needs a help fuction
+%
 fileID=fopen(fileName,'w');
 formatSpec = '%s\t%s\t%s\t%s\t%s\t%s\n';
 [nrows,~] = size(Interactions);

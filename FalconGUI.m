@@ -19,6 +19,11 @@ function varargout = FalconGUI(varargin)
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
+%
+% :: Contact ::
+% Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
+% Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
+
 
 % Last Modified by GUIDE v2.5 11-Aug-2016 15:04:58
 

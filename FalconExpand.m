@@ -1,7 +1,7 @@
 function [DidChange, I2]=FalconExpand(Interactions)
 % FalconExpand allows for the automatic expansion of logical networks in order to facilitate rapid computation
 % [DidChange, I2]=FalconExpand(Interactions)
-
+%
 % :: Input values ::
 % Interactions      list of interactions, as provided in a InputFile (see FalconMakeModel)
 %

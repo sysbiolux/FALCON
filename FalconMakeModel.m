@@ -71,7 +71,7 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
     
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% QUALITY CONTROL %%%
 
 state_names=unique([Interactions(:,2);Interactions(:,4)]'); % extract state names

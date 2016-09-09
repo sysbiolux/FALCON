@@ -2,7 +2,7 @@ function [xval,fval]=FalconObjFunPlus(estim,k)
 % FalconObjFunPlus serves as the objective function for the optimisation
 % Apply the non-linear optimiser 'fmincon' with the default algorithm (interior-point)
 % Return the optimised parameters values and fitting cost calculated from the sum-of-squared error (SSE)
-% ! Same as FalconObjFun with integrated 'Costs' as a global variable to collect fitting costs !
+% !! Same as FalconObjFun with integrated 'Costs' as a global variable to collect fitting costs !!
 % [xval,fval]=FalconObjFunPlus(estim,k)
 
 % :: Input ::
