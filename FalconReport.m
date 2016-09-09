@@ -1,6 +1,6 @@
 %% FALCON Network optimization report
 %%
-% Report performed by Philippe at:
+% Report created by Philippe at:
 datestr(clock,0)
 
 %% Network structure
@@ -14,7 +14,7 @@ Nr_of_nodes = estim.NrStates
 Node_names = estim.state_names
 %%
 % 
-% <<Biograph_Exp1.tif>>
+% <<Biograph_Exp1.jpg>>
 % 
 %% Network optimzation results
 % Time the optimzation, best fitting cost and the weights of the
