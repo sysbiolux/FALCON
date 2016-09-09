@@ -1,7 +1,7 @@
-﻿FALCON v1.2 (to be downgraded to v1.0 upon submission)
+FALCON
 Fast algorithm for the contextualisation of logical networks.
 
-Sébastien De Landtsheer, sebastien.delandtsheer@uni.lu
+S�bastien De Landtsheer, sebastien.delandtsheer@uni.lu
 
 ::: Contents :::
 

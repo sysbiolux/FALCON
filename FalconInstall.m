@@ -1,5 +1,5 @@
 % Installation script for FALCON
-% Usage: Type "FalconInstall" to execute the script
+% Usage: Type "FalconInstall" to execute the script.
 %
 % :: Contact ::
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu

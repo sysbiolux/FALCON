@@ -1,5 +1,7 @@
 function FalconPlots(estim)
-% FalconPlots displays all the different graphs at the end of the optimization
+% FalconPlots displays all the different graphs at the end of the
+% optimization.
+% This script re-plots all the different graphs.
 % FalconPlots(estim)
 %
 % :: Input values ::

@@ -1,7 +1,7 @@
 function [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(varargin)
 % FalconSimul resimulates the optimized network and displays the summarised results as plots
 % [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(estim,bestx,[PlotFitSummary PlotFitIndividual PlotHeatmapCost PlotStateSummary PlotStateEvolution],FinalFolderName);
-
+%
 % :: Input values ::
 % estim                     complete model definition
 % bestx                     the vector of best optimised parameters
