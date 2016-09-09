@@ -235,8 +235,9 @@ for counter =  1:size(p_SA,2) %for each parameter
         plot(p_SA(:,counter),cost_SA(:,counter))
         hold on, plot(p_SA(p_increment+1,counter),cost_SA(p_increment+1,counter),'b*','MarkerSize',15)
         min_val=min(cost_SA(:,counter));
-        min_index=find(min_val==cost_SA(:,counter));
-        hold on, plot(p_SA(min_index,counter),cost_SA(min_index,counter),'rs','MarkerSize',15)
+        %%% remove red box not to confuse user with optimum
+        % min_index=find(min_val==cost_SA(:,counter));
+        % hold on, plot(p_SA(min_index,counter),cost_SA(min_index,counter),'rs','MarkerSize',15)
         
         xlabel('Parameter range')
         ylabel('SSE')
