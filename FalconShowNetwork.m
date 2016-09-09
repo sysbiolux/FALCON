@@ -99,6 +99,8 @@ if ~isempty(estim.MeanStateValueAll)
             try                
                 print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
                 print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
+                print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
+
                 warning(['Please ignore the error messages above (if any), Biograph figure #' num2str(rep) ' is correctly saved'])
                 
                 % Close biograph and copied figure after saving
@@ -119,6 +121,8 @@ if ~isempty(estim.MeanStateValueAll)
                 try
                     print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
                     print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
+                    print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
+
                     warning(['Biograph figure #' num2str(rep) ' is now saved'])
                 catch
                     warning(['Not enough graphical memory for saving - Biograph #' num2str(rep) ' is NOT saved'])
@@ -145,6 +149,7 @@ if ~isempty(estim.MeanStateValueAll)
             try
                 print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
                 print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
+                print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
                 warning(['Please ignore the error messages above (if any), Biograph figure #' num2str(rep) ' is correctly saved'])
                                 
             catch
@@ -158,6 +163,7 @@ if ~isempty(estim.MeanStateValueAll)
                 try
                     print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
                     print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
+                    print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
                     warning(['Biograph figure #' num2str(rep) ' is now saved'])
                 catch
                     warning(['Not enough graphical memory for saving - Biograph #' num2str(rep) ' is NOT saved'])
