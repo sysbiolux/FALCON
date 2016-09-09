@@ -260,6 +260,8 @@ end
 if ToSave
     saveas(thisfig,[Folder, filesep, 'Identifiability'],'tif')
     saveas(thisfig,[Folder, filesep, 'Identifiability'],'fig')
+    saveas(thisfig,[Folder, filesep, 'Identifiability'],'jpg')
+
 end
 
 
@@ -284,6 +286,8 @@ end
 % if ToSave
 %     saveas(thisfig2,[Folder, filesep, 'Covariance'],'tif')
 %     saveas(thisfig2,[Folder, filesep, 'Covariance'],'fig')
+%     saveas(thisfig2,[Folder, filesep, 'Covariance'],'jpg')
+
 % end
 
 estim=estim_orig;

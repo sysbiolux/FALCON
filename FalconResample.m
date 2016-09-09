@@ -83,6 +83,8 @@ if nargin>4
     if ToSave
         saveas(h1,[Folder, filesep, 'Resampling'],'tif');
         saveas(h1,[Folder, filesep, 'Resampling'],'fig');
+        saveas(h1,[Folder, filesep, 'Resampling'],'jpg');
+
     end
     
     estim.Results.Resampling.Parameters=estim.param_vector';

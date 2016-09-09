@@ -119,6 +119,8 @@ for counter =  1:size(p_KD,2)
     if ToSave
         saveas(figko,[Folder,filesep,'Knock-Outs'],'tif')
         saveas(figko,[Folder,filesep,'Knock-Outs'],'fig')
+        saveas(figko,[Folder,filesep,'Knock-Outs'],'jpg')
+
     end
     
 end

@@ -222,7 +222,7 @@ if graphs(1)
     if ToSave
         saveas(h1,[Folder,filesep,'Fitting_plot'],'tif')
         saveas(h1,[Folder,filesep,'Fitting_plot'],'fig')
-
+        saveas(h1,[Folder,filesep,'Fitting_plot'],'jpg')
     end
 end
 
@@ -265,6 +265,7 @@ if graphs(2)
         if ToSave
             saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'tif')
             saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'fig')
+            saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'jpg')
 
         end
 
@@ -289,6 +290,8 @@ if graphs(3) && sum(std(estim.Output_idx))==0
         fighm=hm;
         saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'tif');
         saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'fig');
+        saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'jpg');
+
     end
 %     figure, hist(Diffs(:)); title('Cross-error Analysis: Histogram')
 %     if ToSave
@@ -335,6 +338,7 @@ if graphs(4)
     if ToSave
         saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'tif')
         saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'fig')
+        saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'jpg')
 
     end
 end
@@ -376,6 +380,7 @@ if graphs(5)
     if ToSave
         saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'tif')
         saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'fig')
+        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'jpg')
 
     end
 
@@ -401,6 +406,7 @@ if graphs(5)
     if ToSave
         saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'tif')
         saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'fig')
+        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'jpg')
 
     end
 end
