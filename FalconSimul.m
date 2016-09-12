@@ -223,6 +223,7 @@ if graphs(1)
         saveas(h1,[Folder,filesep,'Fitting_plot'],'tif')
         saveas(h1,[Folder,filesep,'Fitting_plot'],'fig')
         saveas(h1,[Folder,filesep,'Fitting_plot'],'jpg')
+        saveas(h1,[Folder,filesep,'Fitting_plot'],'svg')
     end
 end
 
@@ -266,6 +267,8 @@ if graphs(2)
             saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'tif')
             saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'fig')
             saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'jpg')
+            saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'svg')
+
 
         end
 
@@ -291,6 +294,7 @@ if graphs(3) && sum(std(estim.Output_idx))==0
         saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'tif');
         saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'fig');
         saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'jpg');
+        saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'svg');
 
     end
 %     figure, hist(Diffs(:)); title('Cross-error Analysis: Histogram')
@@ -339,6 +343,7 @@ if graphs(4)
         saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'tif')
         saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'fig')
         saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'jpg')
+        saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'svg')
 
     end
 end
@@ -381,6 +386,7 @@ if graphs(5)
         saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'tif')
         saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'fig')
         saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'jpg')
+        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'svg')
 
     end
 
@@ -407,6 +413,7 @@ if graphs(5)
         saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'tif')
         saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'fig')
         saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'jpg')
+        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'svg')
 
     end
 end

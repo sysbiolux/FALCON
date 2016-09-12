@@ -52,6 +52,8 @@ title('SSE convergence during optimization')
 xlabel('iteration'); ylabel('SSE');
 saveas(hconv,[FinalFolderName, filesep, 'OptimiserConvergence'],'tif')
 saveas(hconv,[FinalFolderName, filesep, 'OptimiserConvergence'],'fig')
+saveas(hconv,[FinalFolderName, filesep, 'OptimiserConvergence'],'jpg')
+saveas(hconv,[FinalFolderName, filesep, 'OptimiserConvergence'],'svg')
 
 estim.Results.FitEvol.PlotCosts = PlotCosts;
 estim.Results.FitEvol.Cost1 = Cost1;

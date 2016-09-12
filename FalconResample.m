@@ -84,6 +84,7 @@ if nargin>4
         saveas(h1,[Folder, filesep, 'Resampling'],'tif');
         saveas(h1,[Folder, filesep, 'Resampling'],'fig');
         saveas(h1,[Folder, filesep, 'Resampling'],'jpg');
+        saveas(h1,[Folder, filesep, 'Resampling'],'svg');
         
     end
     

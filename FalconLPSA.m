@@ -261,6 +261,7 @@ if ToSave
     saveas(thisfig,[Folder, filesep, 'Identifiability'],'tif')
     saveas(thisfig,[Folder, filesep, 'Identifiability'],'fig')
     saveas(thisfig,[Folder, filesep, 'Identifiability'],'jpg')
+    saveas(thisfig,[Folder, filesep, 'Identifiability'],'svg')
 
 end
 
@@ -287,6 +288,7 @@ end
 %     saveas(thisfig2,[Folder, filesep, 'Covariance'],'tif')
 %     saveas(thisfig2,[Folder, filesep, 'Covariance'],'fig')
 %     saveas(thisfig2,[Folder, filesep, 'Covariance'],'jpg')
+%     saveas(thisfig2,[Folder, filesep, 'Covariance'],'svg')
 
 % end
 

@@ -1,7 +1,7 @@
 function [estim] = FalconKO(varargin)
 % FalconKO creates new models for each knock-outed parameter by setting parameter value to 0 and re-optimise
 % [estim] = FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO,FinalFolderName)
-% 
+%
 % :: Input values ::
 % estim             complete model definition
 % bestx             the vector of best optimised parameters
@@ -59,7 +59,7 @@ suptitle('Knock-out analysis');
 wb = waitbar(0,'Please wait...');
 for counter =  1:size(p_KD,2)
     waitbar(counter/p,wb,sprintf('Running Knock-out Round %d out of %d ...',counter,p))
-        
+    
     %     for counter2 =  1:size(p_KD,1)
     Interactions=Interactions_original;
     replace_idx=find(ismember(Interactions_original(:,5),Param_original(counter)));
@@ -74,7 +74,7 @@ for counter =  1:size(p_KD,2)
     estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',3000,'MaxIter',1000); % Default
     estim.SSthresh=1e-3;
     fval_all=[];
-
+    
     for counterround=1:optRound_KO
         k=FalconIC(estim); %initial conditions
         [xval,fval]=FalconObjFun(estim,k); %objective function
@@ -84,7 +84,7 @@ for counter =  1:size(p_KD,2)
     cost_KD(1,counter)=min(fval_all);
     
     %% reduced model (-1 parameter)
-        
+    
     N_r = numel(estim.Output);
     p_r= (numel(estim.param_vector));
     
@@ -120,7 +120,8 @@ for counter =  1:size(p_KD,2)
         saveas(figko,[Folder,filesep,'Knock-Outs'],'tif')
         saveas(figko,[Folder,filesep,'Knock-Outs'],'fig')
         saveas(figko,[Folder,filesep,'Knock-Outs'],'jpg')
-
+        saveas(figko,[Folder,filesep,'Knock-Outs'],'svg')
+        
     end
     
 end
@@ -134,6 +135,23 @@ estim.Results.KnockOut.Parameters=Xtitles';
 estim.Results.KnockOut.AIC_values=AIC_merge;
 estim.Results.KnockOut.KO_effect=AIC_merge>=AIC_merge(1);
 estim.Results.KnockOut.Interpretation={'0 = no KO effect','1 = KO effect'};
+
+% Heading=cell(1,3);
+% Heading(1,1)={'parameters'};
+% Heading(1,2)={'AIC'};
+% Heading(1,3)={'KO_effect'};
+% 
+% KO=[Xtitles num2cell(AIC_merge') {'0 = no KO effect','1 = KO effect'}];
+% 
+% disp('Summary of Knock out analysis:')
+% disp(' ')
+% disp([Heading;KO])
+% disp(' ')
+% 
+% if length(varargin)> 6 
+%     xlswrite([pwd filesep Folder filesep 'Summary_KO.xls'],[Heading;KO])
+% end
+
 
 delete('KD_TempFile.txt')
 
