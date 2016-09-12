@@ -300,6 +300,25 @@ estim.Results.LPSA.cost_SA = cost_SA;
 estim.Results.LPSA.CutOff = CutOff;
 estim.Results.LPSA.Interpretation={'1=Identifiable','2=Partially identifiable','3=Non-identifiable'};
 
+   
+Heading=cell(1,2);
+Heading(1,1)={'parameters'};
+Heading(1,2)={'Identifiable?'};
+
+
+LPSA=[estim.param_vector num2cell(estim.Results.LPSA.Identifiability') ];
+
+disp('Summary of local parameter sensistivity analysis:')
+disp(' ')
+disp([Heading;LPSA])
+disp(' ')
+
+if length(varargin)>8
+    xlswrite([pwd filesep Folder filesep 'Summary_LPSA.xls'],[Heading;LPSA])
+end
+
+
+
 delete('LPSA_TempFile.txt')
 delete('TempFile.txt')
 
