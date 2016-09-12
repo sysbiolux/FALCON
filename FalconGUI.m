@@ -316,7 +316,7 @@ function AnalyseUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-set(handles.AbortUI,'Value',0)
+% set(handles.AbortUI,'Value',0)
 
 % FalconInstall; clc % In case the toolbox is not yet installed
 
