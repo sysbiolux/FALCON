@@ -133,7 +133,7 @@ estim = estim_orig;
 estim.Results.KnockOut.Parameters=Xtitles';
 estim.Results.KnockOut.AIC_values=AIC_merge;
 estim.Results.KnockOut.KO_effect=AIC_merge>=AIC_merge(1);
-
+estim.Results.KnockOut.Interpretation={'0 = no KO effect','1 = KO effect'};
 
 delete('KD_TempFile.txt')
 

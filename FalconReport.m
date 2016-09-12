@@ -45,9 +45,21 @@ FalconResults(fxt_all,estim.param_vector,FinalFolderName)
 % The resampled parameter values basd on the mean and the standard
 % deviation are the following:
 if isfield(estim.Results,'Resampling')
-Parameter_names = estim.Results.Resampling.Parameters
-Resampling_results = estim.Results.Resampling.OptimisedParameter
-Resampling_SD = estim.Results.Resampling.OptimisedSD
+Parameter_names = estim.Results.Resampling.Parameters;
+Resampling_results = estim.Results.Resampling.OptimisedParameter;
+Resampling_SD = estim.Results.Resampling.OptimisedSD;
+
+Heading=cell(1,3);
+Heading(1,1)={'parameters'};
+Heading(1,2)={'mean'};
+Heading(1,3)={'S.D.'};
+
+Resampling=[Parameter_names' num2cell(mean(Resampling_results)') num2cell(Resampling_SD')];
+
+disp('Summary of resampling:')
+disp(' ')
+disp([Heading;Resampling])
+disp(' ')
 end
 %%
 % The figures correspond to the new artificial datasets created based on
@@ -59,10 +71,25 @@ end
 %% Local parameter sensitivity results
 % FalconLPSA performs a local parameters sensitivity analysis (LPSA) on an optimized model
 if isfield(estim.Results,'LPSA')
-   Parameter_names = estim.Results.LPSA.ParamNames
+   Parameter_names = estim.Results.LPSA.ParamNames;
    Resampling_cutoff = estim.Results.LPSA.CutOff
    LPSA_interpretation = estim.Results.LPSA.Interpretation
-   LPSA_identifability = estim.Results.LPSA.Identifiability
+   LPSA_identifability = estim.Results.LPSA.Identifiability;
+   
+   
+Heading=cell(1,2);
+Heading(1,1)={'parameters'};
+Heading(1,2)={'Identifiable?'};
+
+
+LPSA=[Parameter_names' num2cell(LPSA_identifability') ];
+
+disp('Summary of local parameter sensistivity analysis:')
+disp(' ')
+disp([Heading;LPSA])
+disp(' ')
+   
+   
 end
 %%
 % The figure displays the different parameters of the model. From the
@@ -86,9 +113,24 @@ end
 % compared t the reference model.
 % 
 if isfield(estim.Results,'KnockOut')
-    Parameter_names = estim.Results.KnockOut.Parameters
-    AIC_values = estim.Results.KnockOut.AIC_values
-    KO_effect = estim.Results.KnockOut.KO_effect
+    Parameter_names = estim.Results.KnockOut.Parameters;
+    AIC_values = estim.Results.KnockOut.AIC_values;
+    KO_effect = estim.Results.KnockOut.KO_effect;
+    KO_interpretation = estim.Results.KnockOut.Interpretation
+
+    
+Heading=cell(1,3);
+Heading(1,1)={'parameters'};
+Heading(1,2)={'AIC?'};
+Heading(1,3)={'KO_effect'};
+
+KO=[Parameter_names' num2cell(AIC_values') num2cell(KO_effect')];
+
+disp('Summary of Knock out analysis:')
+disp(' ')
+disp([Heading;KO])
+disp(' ')
+    
 end
 
 %%
