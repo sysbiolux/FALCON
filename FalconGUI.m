@@ -420,9 +420,9 @@ if ~StopCommand
     warning off
     if ResultsSummary
         ResultFileName=['Summary',datestr(now, 'yyyymmddTHHMMSS'),'.xlsx'];
-        xlswrite([handles.SaveFolderName, '\',ResultFileName],{'Parameter','Best','Average','Std'},'1','A1');
-        xlswrite([handles.SaveFolderName, '\',ResultFileName],estim.param_vector,'1','A2');
-        xlswrite([handles.SaveFolderName, '\',ResultFileName],[bestx',meanx',stdx'],'1','B2');    
+        xlswrite([handles.SaveFolderName, filesep, ResultFileName],{'Parameter','Best','Average','Std'},'1','A1');
+        xlswrite([handles.SaveFolderName, filesep, ResultFileName],estim.param_vector,'1','A2');
+        xlswrite([handles.SaveFolderName, filesep, ResultFileName],[bestx',meanx',stdx'],'1','B2');    
     end
     warning on
 else
@@ -500,6 +500,7 @@ if ~StopCommand
         set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
         set(handles.ProgressDisplay2,'String',['Computing identifiability of parameters...']); drawnow
         [~,estim]=FalconLPSA(estim, bestx, handles.MeasFile, HLbound,1,LPSARep,UseFast,Parallel,handles.SaveFolderName);
+        
     end
 else
     error('Terminated by the user')
