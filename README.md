@@ -6,7 +6,6 @@ Contact info: thomas.sauter@uni.lu
 Please cite this software as follows: De Landtsheer et al., XXX  
 Copyright: This software is freely available for non-commercial users under the GPLv3 license
   
-#1)	Introduction
 
 FALCON is a toolbox for the efficient contextualization of logical network models. 
 Contextualized network models provide important qualitative and quantitative information about the system being modelled.
