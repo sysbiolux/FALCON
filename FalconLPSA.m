@@ -227,12 +227,12 @@ for counter =  1:size(p_SA,2) %for each parameter
     end
     
     Ident_All(counter)=Identifiability;
-
+    
     try
         % plot the results
         figure(thisfig), hold on,
         subplot(NLines,NCols,counter), hold on
-        plot(p_SA(:,counter),cost_SA(:,counter))
+        plot(p_SA(:,counter),cost_SA(:,counter), '-o','MarkerSize',5)
         hold on, plot(p_SA(p_increment+1,counter),cost_SA(p_increment+1,counter),'b*','MarkerSize',15)
         min_val=min(cost_SA(:,counter));
         %%% remove red box not to confuse user with optimum
@@ -262,7 +262,7 @@ if ToSave
     saveas(thisfig,[Folder, filesep, 'Identifiability'],'fig')
     saveas(thisfig,[Folder, filesep, 'Identifiability'],'jpg')
     saveas(thisfig,[Folder, filesep, 'Identifiability'],'svg')
-
+    
 end
 
 
@@ -302,7 +302,7 @@ estim.Results.LPSA.cost_SA = cost_SA;
 estim.Results.LPSA.CutOff = CutOff;
 estim.Results.LPSA.Interpretation={'1=Identifiable','2=Partially identifiable','3=Non-identifiable'};
 
-   
+
 Heading=cell(1,2);
 Heading(1,1)={'parameters'};
 Heading(1,2)={'Identifiable?'};
