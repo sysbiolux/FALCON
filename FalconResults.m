@@ -2,7 +2,7 @@ function [bestx, meanx, stdx] = FalconResults(varargin)
 % FalconResults summarises the optimisation outputs and displays the their best and average values.
 % [bestx,meanx,stdx]=FalconResults(fxt_all,param_vector,FinalFolderName)
 %
-% :: Input values :: 
+% :: Input values ::
 % fxt_all           all fitting costs, parameters and time during optimisations
 % param_vector      parameter names (estim.param_vector)
 % FinalFolderName   name of the folder for saving results
