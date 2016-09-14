@@ -2,9 +2,9 @@
 FAst Logical COntextualization  of Networks
 
 
-Contact info: thomas.sauter@uni.lu  
-Please cite this software as follows: De Landtsheer et al., XXX  
-Copyright: This software is freely available for non-commercial users under the GPLv3 license
+**Contact info**: thomas.sauter@uni.lu  
+Please **cite** this software as follows: De Landtsheer et al., XXX  
+**Copyright**: This software is freely available for non-commercial users under the GPLv3 license
   
 
 FALCON is a toolbox for the efficient contextualization of logical network models. 
