@@ -14,7 +14,7 @@ IG=(estim.ma'>0)|(estim.mi'>0); % Interaction graph
 IDs=estim.state_names; % Names
 
 Net=biograph(IG,IDs); % Make network file
-
+Net
 if ~isempty(estim.MeanStateValueAll)
     
     estim.MeanStateValueAll(estim.MeanStateValueAll>1)=1;

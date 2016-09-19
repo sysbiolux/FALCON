@@ -83,7 +83,6 @@
     TimeSoFar=tic;
     
     for counter_exp=1:size(Measurements,1)
-
         x=rand(1,size(ma,2))'; %initial random values for the nodes
         x(Input_index(counter_exp,:))=Inputs(counter_exp,:); %fixing input nodes
         xmeas=Measurements(counter_exp,:); %expected values for output nodes

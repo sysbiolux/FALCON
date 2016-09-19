@@ -42,7 +42,7 @@ FalconResults(fxt_all,estim.param_vector,FinalFolderName)
 % FalconResample creates a new dataset based on the mean and standard deviation of the original dataset. 
 % Useful to assess the variability of the parameter estimates, in
 % conjunction with FalconLPSA.
-% The resampled parameter values basd on the mean and the standard
+% The resampled parameter values based on the mean and the standard
 % deviation are the following:
 if isfield(estim.Results,'Resampling')
 Parameter_names = estim.Results.Resampling.Parameters;
