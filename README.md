@@ -9,10 +9,10 @@
 ***
 # Example Applications
 
-* [Toy model](https://github.com/sysbiolux/FALCON/wiki/Toy-example)
-* [PDGF](https://github.com/sysbiolux/FALCON/wiki/PDGF)(Trairatphisan,P. et al. (2016))
-* [MAPK](https://github.com/sysbiolux/FALCON/wiki/MAPK)(Saez-Rodriguez,J. et al. (2009))
-* [Apoptosis](https://github.com/sysbiolux/FALCON/wiki/Apoptosis)(Schlatter,R. et al. (2009))
+* [Toy model] (https://github.com/sysbiolux/FALCON/wiki/Toy-example)
+* [PDGF] (https://github.com/sysbiolux/FALCON/wiki/PDGF)(Trairatphisan,P. et al. (2016))
+* [MAPK] (https://github.com/sysbiolux/FALCON/wiki/MAPK)(Saez-Rodriguez,J. et al. (2009))
+* [Apoptosis] (https://github.com/sysbiolux/FALCON/wiki/Apoptosis)(Schlatter,R. et al. (2009))
 
 ***
 
