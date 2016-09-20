@@ -1,0 +1,141 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on https://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Falcon</title>
+  <meta name="description" content="FAst Logical COntextualization  of Networks">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Falcon</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">FAst Logical COntextualization  of Networks</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/sysbiolux/FALCON/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/sysbiolux/FALCON/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/sysbiolux/FALCON" class="code">View Falcon on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <p><strong>Contact info</strong>: <a href="mailto:thomas.sauter@uni.lu">thomas.sauter@uni.lu</a><br>
+<strong>Please cite</strong> : De Landtsheer et al., XXX<br>
+<strong>Copyright</strong>: This software is freely available for non-commercial users under the GPLv3 license  </p>
+
+<h1>
+<a id="falcon" class="anchor" href="#falcon" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>FALCON</h1>
+
+<blockquote>
+<p>FALCON is a toolbox for the efficient contextualization of logical network models. Contextualized network models provide important qualitative and quantitative information about the system being modelled. Specifically, FALCON is well suited to assess the relative contributions of different signal transduction mechanisms to the behavior of the system at steady-state. The logical formulation of the interaction between different molecules is intuitive, and often is the only available information to systems biologists. A Bayesian interpretation of the logical ‘gates’ allows for an algebraic formulation of the system and an efficient calculation of the long-term steady-state of the system given the specified inputs. A gradient-descent optimizer (fmincon) is used to minimize the error function calculated as the sum of squared residuals between the simulated and experimentally measured nodes of interest. FALCON offers multiple types of analysis including identifiability analysis, systematic knock-out and differential regulation which can be applied to various biological applications.</p>
+</blockquote>
+
+<hr>
+
+<h1>
+<a id="example-applications" class="anchor" href="#example-applications" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example Applications</h1>
+
+<ul>
+<li><a href="https://github.com/sysbiolux/FALCON/wiki/Toy-example">Toy model</a></li>
+<li>
+<a href="https://github.com/sysbiolux/FALCON/wiki/PDGF">PDGF </a>(Trairatphisan,P. et al. (2016))</li>
+<li>
+<a href="https://github.com/sysbiolux/FALCON/wiki/MAPK">MAPK </a>(Saez-Rodriguez,J. et al. (2009))</li>
+<li>
+<a href="https://github.com/sysbiolux/FALCON/wiki/Apoptosis">Apoptosis </a>(Schlatter,R. et al. (2009))</li>
+</ul>
+
+<hr>
+
+<h1>
+<a id="installation-and-requirements" class="anchor" href="#installation-and-requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation and requirements</h1>
+
+<p>In order to use the FALCON toolbox, the necessary scripts need to be included in the Matlab path. This can be done automatically by typing “FalconInstall” on the Matlab command window. The pipeline was developed under Matlab R2014b and has been successfully tested under Matlab R2015a and R2016a. It requires the build-in Matlab solver “fmincon”, which is a part of the Optimization Toolbox (<a href="http://nl.mathworks.com/products/optimization/">http://nl.mathworks.com/products/optimization/</a>), during the optimisation process. The parallel computing option in the FALCON pipeline which uses the “parfor” function requires the Parallel Computing Toolbox (<a href="http://nl.mathworks.com/help/distcomp/">http://nl.mathworks.com/help/distcomp/</a>) and the plotting of network structure with optimised parameters requires the “biograph” function integrated in the Bioinformatics toolbox (<a href="http://nl.mathworks.com/help/bioinfo/">http://nl.mathworks.com/help/bioinfo/</a>) to be present.  </p>
+
+<p>In case you encounter any problems while running the FALCON pipeline on earlier of later versions of Matlab, please do not hesitate to contact the authors.</p>
+
+<hr>
+
+<h1>
+<a id="running-the-falcon-pipeline" class="anchor" href="#running-the-falcon-pipeline" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running the Falcon pipeline</h1>
+
+<ul>
+<li><a href="https://github.com/sysbiolux/FALCON/wiki/Input-files">Input files</a></li>
+<li><a href="https://github.com/sysbiolux/FALCON/wiki/The-FALCON-functions">Falcon functions</a></li>
+<li><a href="https://github.com/sysbiolux/FALCON/wiki/Running-FALCON">Running Falcon</a></li>
+</ul>
+
+<hr>
+
+<h1>
+<a id="troubleshooting" class="anchor" href="#troubleshooting" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Troubleshooting</h1>
+
+<p>The FALCON pipeline was rigorously tested before its release into the modelling community. Nevertheless, users might still encounter a few issues in the FALCON pipeline and we provide some potential solutions in this section.</p>
+
+<ul>
+<li><a href="https://github.com/sysbiolux/FALCON/wiki/The-FALCON-scripts-and-examples-are-not-added-to-the-path">The FALCON scripts and examples are not added to the path</a></li>
+<li><a href="https://github.com/sysbiolux/FALCON/wiki/The-FALCON-pipeline-does-not-accept-certain-logical-gate-combinations">The FALCON pipeline does not accept certain logical gate combinations</a></li>
+<li><a href="https://github.com/sysbiolux/FALCON/wiki/The-FALCON-pipeline-crashed-during-the-analytical-process">The FALCON pipeline crashed during the analytical process</a></li>
+</ul>
+
+<hr>
+
+<h1>
+<a id="bibliography" class="anchor" href="#bibliography" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bibliography</h1>
+
+<ul>
+<li>Lommel,M.J. et al. (2016) L-plastin Ser5 phosphorylation in breast cancer cells and in vitro is mediated by RSK downstream of the ERK/MAPK pathway. FASEB J., 30, 1218–33. 
+<a href="http://www.fasebj.org/content/30/3/1218.long">Link</a> </li>
+<li>Saez-Rodriguez,J. et al. (2009) Discrete logic modelling as a means to link protein signalling networks with functional analysis of mammalian signal transduction. Mol. Syst. Biol., 5, 331. 
+<a href="http://msb.embopress.org/content/5/1/331.long">Link</a>
+</li>
+<li>Schlatter,R. et al. (2009) ON/OFF and beyond--a boolean model of apoptosis. PLoS Comput. Biol., 5, e1000595. 
+<a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1000595">Link</a>
+</li>
+<li>Trairatphisan,P. et al. (2016) A Probabilistic Boolean Network Approach for the Analysis of Cancer-Specific Signalling: A Case Study of Deregulated PDGF Signalling in GIST. PLoS One, 11, e0156223. 
+<a href="http://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0156223">Link</a>
+</li>
+<li>Trairatphisan,P. et al. (2014) optPBN: an optimisation toolbox for probabilistic Boolean networks. PLoS One, 9, e98001.
+<a href="http://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0098001">Link</a>
+</li>
+</ul>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/sysbiolux" class="avatar"><img src="https://avatars2.githubusercontent.com/u/20515754?v=3&amp;s=60" width="48" height="48"></a> <a href="https://github.com/sysbiolux">sysbiolux</a> maintains <a href="https://github.com/sysbiolux/FALCON">Falcon</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/sysbiolux/FALCON/tarball/master" class="tar">tar</a><a href="https://github.com/sysbiolux/FALCON/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
