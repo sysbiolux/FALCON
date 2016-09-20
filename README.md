@@ -9,10 +9,10 @@
 ***
 # Example Applications
 
-* [Toy model](wiki/Toy-example)
-* [PDGF](./wiki/PDGF)(Trairatphisan,P. et al. (2016))
-* [MAPK](./wiki/MAPK)(Saez-Rodriguez,J. et al. (2009))
-* [Apoptosis](./wiki/Apoptosis)(Schlatter,R. et al. (2009))
+* [Toy model](https://github.com/sysbiolux/FALCON/wiki/Toy-example)
+* [PDGF ](https://github.com/sysbiolux/FALCON/wiki/PDGF)(Trairatphisan,P. et al. (2016))
+* [MAPK ](https://github.com/sysbiolux/FALCON/wiki/MAPK)(Saez-Rodriguez,J. et al. (2009))
+* [Apoptosis ](https://github.com/sysbiolux/FALCON/wiki/Apoptosis)(Schlatter,R. et al. (2009))
 
 ***
 
@@ -25,18 +25,18 @@ In case you encounter any problems while running the FALCON pipeline on earlier 
 ***
 
 # Running the Falcon pipeline
-* [Input files](wiki/Input-files)
-* [Falcon functions](wiki/The-FALCON-functions)
-* [Running Falcon](wiki/Running-FALCON)
+* [Input files](https://github.com/sysbiolux/FALCON/wiki/Input-files)
+* [Falcon functions](https://github.com/sysbiolux/FALCON/wiki/The-FALCON-functions)
+* [Running Falcon](https://github.com/sysbiolux/FALCON/wiki/Running-FALCON)
 
 ***
 
 # Troubleshooting
 The FALCON pipeline was rigorously tested before its release into the modelling community. Nevertheless, users might still encounter a few issues in the FALCON pipeline and we provide some potential solutions in this section.
 
-* [The FALCON scripts and examples are not added to the path](wiki/The-FALCON-scripts-and-examples-are-not-added-to-the-path)
-* [The FALCON pipeline does not accept certain logical gate combinations](wiki/The-FALCON-pipeline-does-not-accept-certain-logical-gate-combinations)
-* [The FALCON pipeline crashed during the analytical process](wiki/The-FALCON-pipeline-crashed-during-the-analytical-process)
+* [The FALCON scripts and examples are not added to the path](https://github.com/sysbiolux/FALCON/wiki/The-FALCON-scripts-and-examples-are-not-added-to-the-path)
+* [The FALCON pipeline does not accept certain logical gate combinations](https://github.com/sysbiolux/FALCON/wiki/The-FALCON-pipeline-does-not-accept-certain-logical-gate-combinations)
+* [The FALCON pipeline crashed during the analytical process](https://github.com/sysbiolux/FALCON/wiki/The-FALCON-pipeline-crashed-during-the-analytical-process)
 
 ***
 
