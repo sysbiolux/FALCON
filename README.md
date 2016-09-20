@@ -9,10 +9,10 @@
 ***
 # Example Applications
 
-* [Toy model](wiki/Toy-example)
-* [PDGF](wiki/PDGF)(Trairatphisan,P. et al. (2016))
-* [MAPK](wiki/MAPK)(Saez-Rodriguez,J. et al. (2009))
-* [Apoptosis](wiki/Apoptosis)(Schlatter,R. et al. (2009))
+* [Toy model](/wiki/Toy-example)
+* [PDGF](/wiki/PDGF)(Trairatphisan,P. et al. (2016))
+* [MAPK](/wiki/MAPK)(Saez-Rodriguez,J. et al. (2009))
+* [Apoptosis](/wiki/Apoptosis)(Schlatter,R. et al. (2009))
 
 ***
 
