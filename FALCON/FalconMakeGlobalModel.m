@@ -9,7 +9,7 @@ function [estim] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,C
 % ContextList is a cell with names of cell lines, time points, etc..
 % HLBound, Forced, see 'FalconMakeModel'
 
-estim=FalconMakeModel(InputFile,cell2mat(MeasFileList(1)),HLbound,Forced);
+estim=FalconMakeModel(InputFile,cell2mat(MeasFileList(1)),HLbound,Forced)
 
 
 %%% Reading the fixed interactions file
