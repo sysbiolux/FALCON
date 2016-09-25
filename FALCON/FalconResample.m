@@ -51,13 +51,6 @@ for exp=1:Rep
     end
     
     estim.Output=mean(new,3);
-    %     for v=1:size(estim.Output,1)
-    %         for vv=1:size(estim.Output,2)
-    %             if ~isnan(estim.Output(v,vv))
-    %                 estim.Output(v,vv)=max(0,min(1,estim.Output(v,vv)));
-    %             end
-    %         end
-    %     end
     estim.SD=std(new,0,3);
     k=FalconIC(estim);
     [xval,fval]=FalconObjFun(estim,k);
@@ -99,15 +92,13 @@ if nargin>4
     Heading(1,2)={'mean'};
     Heading(1,3)={'S.D.'};
     
-    Resampling=[estim.param_vector num2cell(mean(Ks)') num2cell(std(Ks)')];
+    Resampling=[estim.param_vector num2cell(mean(Ks,1)') num2cell(std(Ks,0,1)')];
     
     disp('Summary of resampling:')
     disp(' ')
     disp([Heading;Resampling])
     disp(' ')
-    
-    % xlswrite([pwd filesep Folder filesep 'Summary_Resampling.xls'],[Heading;Resampling])
-    
+        
 end
 
 if length(varargin)>5
