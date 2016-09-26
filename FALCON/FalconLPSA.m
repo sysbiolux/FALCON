@@ -316,7 +316,7 @@ disp([Heading;LPSA])
 disp(' ')
 
 if length(varargin)>8
-    xlswrite([pwd filesep Folder filesep 'Summary_LPSA.xls'],[Heading;LPSA])
+    xlswrite([Folder filesep 'Summary_LPSA.xls'],[Heading;LPSA])
 end
 
 

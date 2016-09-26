@@ -92,8 +92,20 @@ function Loadbutton2_Callback(hObject, eventdata, handles)
 % hObject    handle to Loadbutton2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[handles.MeasFile, handles.DataPath]=uigetfile({'*.*';'*.txt';'*.xls';'*.xlsx'},'Select your data file');
+[handles.MeasFile, handles.DataPath]=uigetfile({'*.*';'*.txt';'*.xls';'*.xlsx'},'Select your data file','MultiSelect','on');
 set(handles.DataFileDisplay,'String',[handles.DataPath, handles.MeasFile])
+if iscell(handles.MeasFile)
+    handles.FixedEdgesList=uigetfile({'*.*';'*.txt';'*.xls';'*.xlsx'},'Select your fixed edges file');
+end
+if iscell(handles.MeasFile)
+    Min_=max(cell2mat((strfind(handles.MeasFile,'_'))'),[],2);
+    Max_=max(cell2mat((strfind(handles.MeasFile,'.'))'),[],2);
+    handles.ContextsList={};
+    for Context=1:length(handles.MeasFile)
+        M=char(handles.MeasFile(Context));
+        handles.ContextsList=[handles.ContextsList;M(Min_(Context)+1:Max_(Context)-1)];
+    end
+end
 guidata(hObject,handles)
 
 % --- Executes on button press in SaveUI.
@@ -349,7 +361,14 @@ AllPlots=get(handles.AllPlots,'Value');
 %%% set-up
 set(handles.ProgressDisplay2,'String','Creating Model...'); drawnow
 set(handles.ProgressDisplay,'String',''); drawnow
-estim=FalconMakeModel(handles.InputFile,handles.MeasFile,HLbound,1); %make the model
+if ischar(handles.MeasFile)
+    estim=FalconMakeModel(handles.InputFile,handles.MeasFile,HLbound,1); %make the model
+elseif iscell(handles.MeasFile)
+    MeasFileList=handles.MeasFile;
+    [estim, stamp] = FalconMakeGlobalModel(handles.InputFile,handles.FixedEdgesList,MeasFileList,handles.ContextsList,HLbound,1);
+    MeasFile=['Results_' stamp '_.xlsx'];
+end
+
 estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEval,'MaxIter',MaxIter); % Default
 estim.SSthresh=SSthresh;
 if UseNormal
@@ -476,7 +495,7 @@ if ~StopCommand
     if DoResample
         set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
         set(handles.ProgressDisplay2,'String',['Computing Resampling of datapoints...']); drawnow
-        
+        handles.SaveFolderName
         CV_cutoff = 10; % Percent cut-off for large coefficient of variation
         [~,~,estim]=FalconResample(estim, bestx, 3, ResampleRep, CV_cutoff, handles.SaveFolderName);
                 
