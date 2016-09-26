@@ -62,7 +62,7 @@ mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Build a FALCON model for optimisation
 [estim, stamp] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced);
-MeasFile=['GlobalInputFile_' stamp '.txt'];
+MeasFile=['Results_' stamp '_.xlsx'];
 
 % Define optimisation options
 estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEvals,'MaxIter',MaxIter); % Default setting
