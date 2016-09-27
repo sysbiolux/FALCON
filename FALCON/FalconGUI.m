@@ -1,5 +1,18 @@
 function varargout = FalconGUI(varargin)
-% FALCONGUI MATLAB code for FalconGUI.fig
+% Run FALCON from the Graphical User Interface
+%
+% :: To be set ::
+% Load Network      select the network to be optimized
+% Load Data         select the experimental data for your network
+%                   1) if you select one experimental file, only this file will considered
+%                   2) if you select multiple experimental files,
+%                      you have to add in a second pop-up window the fixed edges list
+% Save in           select a folder to save the optimization results
+%
+% :: Contact ::
+% Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
+% Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
+
 %      FALCONGUI, by itself, creates a new FALCONGUI or raises the existing
 %      singleton*.
 %
@@ -20,9 +33,6 @@ function varargout = FalconGUI(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 %
-% :: Contact ::
-% Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
-% Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
 
 
 % Last Modified by GUIDE v2.5 11-Aug-2016 15:04:58
