@@ -9,7 +9,7 @@
 ***
 
 # FALCON 
-The FALCON toolbox was developed based on Systems Biology applications. Some of the key features are displayed in the following figure:
+The FALCON toolbox was developed based on Systems Biology applications. Some of the key features are displayed in the following figure:  
 [[images/Falcon_pipeline.jpg]]
 
 ***
