@@ -69,7 +69,7 @@
             Gate_fill_indices=[Gate_fill_indices; Current_fill_indices];
         end
 
-        Temp_BoolVal=zeros(1,BoolMax);
+        Temp_BoolVal=zeros(n,size(estim.Output_idx,1));
     end
 
     % Load input and output
@@ -82,65 +82,58 @@
     diff=0; % Initialize fitting cost
     TimeSoFar=tic;
     
-    for counter_exp=1:size(Measurements,1)
-        x=rand(1,size(ma,2))'; %initial random values for the nodes
-        x(Input_index(counter_exp,:))=Inputs(counter_exp,:); %fixing input nodes
-        xmeas=Measurements(counter_exp,:); %expected values for output nodes
-        break_point_ss=1;
-        idx_NaN=find(isnan(xmeas));
-        runs=initial_t; % Initialize number of time steps
+    x=rand(n,size(Measurements,1)); %initial random values for the nodes
+    x(Input_index(1,:),:)=Inputs';%(counter_exp,:); %fixing input nodes
+    xmeas=Measurements; %expected values for output nodes
+    break_point_ss=1;
+    runs=initial_t; % Initialize number of time steps
 
-        while break_point_ss
-            if MaxTime>0
-                if toc(TimeSoFar)>MaxTime
-                    break
-                end
+    while break_point_ss
+        if MaxTime>0
+            if toc(TimeSoFar)>MaxTime
+                break
             end
-            pre_x=x;
-            for counter=1:runs
-                if BoolMax>0 %calculate values for Boolean gates
-                    for counter2=1:size(Gate_fill_indices,1)
-                        if Gate_fill_indices(counter2,4)==1 % OR gate
+        end
+        pre_x=x;
+        for counter=1:runs
+            if BoolMax>0 %calculate values for Boolean gates
+                for counter2=1:size(Gate_fill_indices,1)
+                    if Gate_fill_indices(counter2,4)==1 % OR gate
 
-                            Temp_BoolVal(counter2)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2))*...
-                                (1-(1-(x(Gate_fill_indices(counter2,2))))*(1-x(Gate_fill_indices(counter2,3))));
+                        Temp_BoolVal(Gate_fill_indices(counter2,1),:)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2)).*...
+                            (1-(1-(x(Gate_fill_indices(counter2,2),:))).*(1-x(Gate_fill_indices(counter2,3),:)));
 
-                        elseif Gate_fill_indices(counter2,4)==2 % AND gate
+                    elseif Gate_fill_indices(counter2,4)==2 % AND gate
 
-                            Temp_BoolVal(counter2)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2))*...
-                                (x(Gate_fill_indices(counter2,2))*x(Gate_fill_indices(counter2,3)));
-                        end
+                        Temp_BoolVal(Gate_fill_indices(counter2,1),:)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2)).*...
+                            (x(Gate_fill_indices(counter2,2),:).*x(Gate_fill_indices(counter2,3),:));
                     end
                 end
-                
-                %%%%%%%%%%%%%%%%%%%%
-                %%% core equation %%%
-                x=(ma*x).*(ones(numel(x),1)-mi*x);
-                %%%%%%%%%%%%%%%%%%%%
-
-                if BoolMax>0 %if there are Boolean gates
-                    for counter3=1:size(Gate_fill_indices,1)
-                        x(Gate_fill_indices(counter3,1))=Temp_BoolVal(counter3);
-                    end
-                end                    
             end
 
-            if sum(abs(pre_x-x))>estim.SSthresh %if the network did not reach steady-state
-                runs=runs+step_t;
-            else %if we are at steady-state
-                break_point_ss=0;
-            end
+            %%%%%%%%%%%%%%%%%%%%
+            %%% core equation %%%
+            x=(ma*x).*(ones(size(x))-mi*x);
+            %%%%%%%%%%%%%%%%%%%%
 
+            if BoolMax>0 %if there are Boolean gates
+                x(Gate_fill_indices(:,1),:)=Temp_BoolVal(Gate_fill_indices(:,1),:);
+            end                    
         end
-        if ~isempty(idx_NaN) %discount nodes with no measurement
-            x(Output_index(counter_exp,idx_NaN))=0;
-            xmeas(idx_NaN)=0;
+
+        if any(sum(abs(pre_x-x))>estim.SSthresh) %if the network did not reach steady-state
+            runs=runs+step_t;
+        else %if we are at steady-state
+            break_point_ss=0;
         end
-        
-        %calculate the sum-of-squared errors
-        diff=diff+sum((x(Output_index(counter_exp,:))'-xmeas).^2);
 
     end
+    xsim=x(Output_index(1,:),:)';
+    mask=isnan(xmeas);
+    xsim(mask)=0; xmeas(mask)=0;
+
+    %calculate the sum-of-squared errors
+    diff=sum(sum((xsim-xmeas).^2));
 
     disp(diff)
 
