@@ -26,12 +26,12 @@ bestx=varargin{2};
 MeasFile=varargin{3};
 HLbound=varargin{4};
 optRound_LPSA=varargin{5};
-p_increment=varargin{6};
+LPSA_Increments=varargin{6};
 ToSave=0;
 if nargin>6
     option=varargin{7};
     if nargin>7
-        Parallisation=varargin{8};
+        Parallelisation=varargin{8};
         if nargin>8
             Folder=varargin{9};
             ToSave=1;
@@ -50,8 +50,8 @@ disp(['Cost for perturbated measurements: ', num2str(mean(Costs)), ' +- ', num2s
 SSthresh=estim.SSthresh;
 
 p = bestx;
-p_SA = zeros(2*p_increment+1,length(p));
-p_SA(p_increment+1,:) = p;
+p_SA = zeros(2*LPSA_Increments+1,length(p));
+p_SA(LPSA_Increments+1,:) = p;
 
 for counter = 1:length(p)
     Min=estim.LB(counter);
@@ -64,11 +64,11 @@ for counter = 1:length(p)
         end
     end
     
-    for counter2 = 1:p_increment
-        p_pert_values_pos =p(counter)+ ((Max-p(counter))/p_increment*counter2);
-        p_pert_values_neg =p(counter)-((p(counter)-Min)/p_increment*counter2);
-        p_SA(p_increment+1+counter2,counter) = p_pert_values_pos;
-        p_SA(p_increment+1-counter2,counter) = p_pert_values_neg;
+    for counter2 = 1:LPSA_Increments
+        p_pert_values_pos =p(counter)+ ((Max-p(counter))/LPSA_Increments*counter2);
+        p_pert_values_neg =p(counter)-((p(counter)-Min)/LPSA_Increments*counter2);
+        p_SA(LPSA_Increments+1+counter2,counter) = p_pert_values_pos;
+        p_SA(LPSA_Increments+1-counter2,counter) = p_pert_values_neg;
     end
 end
 
@@ -113,7 +113,7 @@ for counter =  1:size(p_SA,2) %for each parameter
             x_all=[];
             fval_all=[];
             
-            if Parallisation == 1
+            if Parallelisation == 1
                 
                 parfor Round=1:optRound_LPSA %'parfor' will run the parallel computing toolbox
                     tic
@@ -172,7 +172,7 @@ for counter =  1:size(p_SA,2) %for each parameter
             fval_all=[];
             
             
-            if Parallisation == 1
+            if Parallelisation == 1
                 
                 parfor Round=1:optRound_LPSA %'parfor' will run the parallel computing toolbox
                     tic
@@ -233,7 +233,7 @@ for counter =  1:size(p_SA,2) %for each parameter
         figure(thisfig), hold on,
         subplot(NLines,NCols,counter), hold on
         plot(p_SA(:,counter),cost_SA(:,counter), '-o','MarkerSize',5)
-        hold on, plot(p_SA(p_increment+1,counter),cost_SA(p_increment+1,counter),'b*','MarkerSize',15)
+        hold on, plot(p_SA(LPSA_Increments+1,counter),cost_SA(LPSA_Increments+1,counter),'b*','MarkerSize',15)
         min_val=min(cost_SA(:,counter));
         %%% remove red box not to confuse user with optimum
         % min_index=find(min_val==cost_SA(:,counter));
@@ -296,7 +296,7 @@ estim=estim_orig;
 
 estim.Results.LPSA.ParamNames=estim.param_vector';
 estim.Results.LPSA.Identifiability=Ident_All;
-estim.Results.LPSA.p_increment=p_increment;
+estim.Results.LPSA.LPSA_Increments=LPSA_Increments;
 estim.Results.LPSA.p_SA = p_SA;
 estim.Results.LPSA.cost_SA = cost_SA;
 estim.Results.LPSA.CutOff = CutOff;
