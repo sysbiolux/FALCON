@@ -29,7 +29,7 @@ optRound_LPSA=varargin{5};
 LPSA_Increments=varargin{6};
 ToSave=0;
 if nargin>6
-    option=varargin{7};
+    IsFast=varargin{7};
     if nargin>7
         Parallelisation=varargin{8};
         if nargin>8
@@ -42,7 +42,7 @@ end
 estim_orig=estim;
 
 %%%1) Resampling to choose cut-off
-% if strcmp(option,'fast')
+% if strcmp(IsFast,'fast')
 [~,Costs]=FalconResample(estim,bestx, 3,10);
 CutOff=mean(Costs)+std(Costs);
 disp(['Cost for perturbated measurements: ', num2str(mean(Costs)), ' +- ', num2str(std(Costs))])
@@ -64,7 +64,7 @@ for counter = 1:length(p)
         end
     end
     
-    for counter2 = 1:LPSA_Increments
+    for counter2 = 1:(LPSA_Increments-1)
         p_pert_values_pos =p(counter)+ ((Max-p(counter))/LPSA_Increments*counter2);
         p_pert_values_neg =p(counter)-((p(counter)-Min)/LPSA_Increments*counter2);
         p_SA(LPSA_Increments+1+counter2,counter) = p_pert_values_pos;
@@ -142,7 +142,7 @@ for counter =  1:size(p_SA,2) %for each parameter
             fxt_all=[fval_all x_all toc_all];
             cost_SA(counter2,counter)=min(fval_all);
             params_SA(counter2,counter,find(ismember(Param_original,estim.param_vector)))=x_all(min(find(ismember(fval_all,min(fval_all)))),:)
-            if strcmp(option,'fast')
+            if strcmp(IsFast,'fast')
                 if min(fval_all)>CutOff
                     OK=0;
                 end
@@ -203,7 +203,7 @@ for counter =  1:size(p_SA,2) %for each parameter
             cost_SA(counter2,counter)=min(fval_all);
             params_SA(counter2,counter,find(ismember(Param_original,estim.param_vector)))=x_all(min(find(ismember(fval_all,min(fval_all)))),:);
             
-            if strcmp(option,'fast')
+            if strcmp(IsFast,'fast')
                 if min(fval_all)>CutOff
                     OK=0;
                 end
