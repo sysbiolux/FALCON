@@ -3,7 +3,7 @@
 % ======================================
 
 % FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
-clc, clear all % clear screen and workspace 
+clc, clear all % clear screen and workspace
 
 % Choose your model example [1-4]
 Model_Example = 2;
@@ -14,12 +14,12 @@ Model_Example = 2;
 % 4 = Apoptosis model
 
 % Define optmisation options
-optRound=10; % Number of optimisation round
+optRound=1; % Number of optimisation round
 MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
 Parallelisation=0; % Use multiple cores for optimisation? (0=no, 1=yes)
 HLbound=0.5; % Qualitative threshold between high and low inputs
-Forced=1; % Define whether single inputs and Boolean gates are forced to probability 1 
+Forced=1; % Define whether single inputs and Boolean gates are forced to probability 1
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
 
 % Define plotting and saving (0=no, 1=yes)
@@ -36,21 +36,20 @@ PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biograp
 Resampling_Analysis = 0; % Resampling of experimental data and re-optimise
 NDatasets           = 10;% Number of artificial datasets from which to resample.
 
-LPSA_Analysis       = 0; % Local parameter sensitivity analysis
+LPSA_Analysis       = 1; % Local parameter sensitivity analysis
 Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
-LPSA_Increments     = 2; % Number of increments for LPSA. Increase for finer resolution
 
 KO_Analysis         = 0; % Parameter knock-out analysis
 
-% ===================================================
-% |||||||||||||||||||||||||||||||||||||||||||||||||||
+% ==================================================
+% ||||||||||||||||||||||||||||||||||||||||||||||||||
 % Click "Run" or press "F5" to start the optimisation
-% |||||||||||||||||||||||||||||||||||||||||||||||||||
-% ===================================================
+% ||||||||||||||||||||||||||||||||||||||||||||||||||
+% ==================================================
 
 %% Please modify the following part of the script for manual tuning
 
-% Read model and measurement files 
+% Read model and measurement files
 if Model_Example == 1
     InputFile=[filesep 'ExampleDatasets' filesep 'example_model.txt'];
     MeasFile=[filesep 'ExampleDatasets' filesep 'example_meas.txt'];
@@ -69,7 +68,7 @@ end
 
 % Create a save folder
 SaveFolderName=['Results_' char(datetime)];
-FinalFolderName=strrep(SaveFolderName, ':', '.'); 
+FinalFolderName=strrep(SaveFolderName, ':', '.');
 mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Build a FALCON model for optimisation
@@ -90,7 +89,7 @@ end
 toc_all=[];
 x_all=[];
 fval_all=[];
-
+    
 if Parallelisation == 1
 
     parfor counter=1:optRound %'parfor' will run the parallel computing toolbox
@@ -103,7 +102,7 @@ if Parallelisation == 1
         x_all=[x_all; xval];
         fval_all=[fval_all; fval];
     end
- 
+    
 else
     h = waitbar(0,'Please wait...');
     for counter=1:optRound %'parfor' will run the parallel computing toolbox
@@ -136,7 +135,7 @@ estim.Results.Optimisation.StateNames = estim.state_names;
 
 % Analyzing the evolution of fitting cost
 if PlotFitEvolution == 1
-  estim=FalconFitEvol(estim,IC_Dist,FinalFolderName);
+    estim=FalconFitEvol(estim,IC_Dist,FinalFolderName);
 end
 
 %% Re-simulate results based on the best optimised parameter set
@@ -156,16 +155,15 @@ if Resampling_Analysis == 1;
 end
 
 %% Sensitivity analysis
-if LPSA_Analysis == 1 
+if LPSA_Analysis == 1
     optRound_LPSA=1;
-    p_increment=2;
     if Fast_Option == 1
         IsFast='fast';
     else
         IsFast='slow';
     end
-    Estimated_Time_LPSA=mean(fxt_all(:,end))*optRound_LPSA*p_increment*3*length(estim.param_vector);
-    disp(['Estimated Time for LPSA analysis (fast): ' num2str(Estimated_Time_LPSA) ' seconds']); beep; pause(3); beep; 
+    Estimated_Time_LPSA=mean(fxt_all(:,end))*optRound_LPSA*LPSA_Increments*3*length(estim.param_vector);
+    disp(['Estimated Time for LPSA analysis (fast): ' num2str(Estimated_Time_LPSA) ' seconds']); beep; pause(3); beep;
     [~, estim]=FalconLPSA(estim, bestx, MeasFile, HLbound, optRound_LPSA, LPSA_Increments, IsFast, Parallelisation, FinalFolderName);
 end
 
@@ -173,7 +171,7 @@ end
 if KO_Analysis == 1;
     optRound_KO=1;
     Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*length(estim.param_vector);
-    disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
+    disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep;
     estim=FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
 
@@ -188,6 +186,8 @@ disp('Please also check the results in "estim.Results"')
 disp(estim.Results)
 save([pwd filesep FinalFolderName filesep 'estim_Results'])
 disp('================================================')
+
+
 
 %% Model Prediction
 
