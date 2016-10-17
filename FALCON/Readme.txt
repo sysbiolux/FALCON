@@ -5,9 +5,9 @@ Sébastien De Landtsheer, sebastien.delandtsheer@uni.lu
 
 ::: Contents :::
 
-**FalconInstall.m**     : add Falcon scripts and example to the path (type FalconInstall on the Command Window)
+FalconInstall.m     : add Falcon scripts and example to the path (type FalconInstall on the Command Window)
 
-**DriverFalcon.m**      : run-through script with provided examples, also possible to integrate more example and to       perform    manual tuning
+** DriverFalcon.m **     : run-through script with provided examples, also possible to integrate more example and to       perform    manual tuning
 
 **FalconMakeModel.m**   : creates the optimization problem from a list of interactions (InputFile) and a list of measured nodes in different conditions (MeasFile). The files can be .txt (see 'example_mod.txt' and 'example_meas.txt') or Excel (see 'PDGF.xlsx' and 'PDGF_meas.xlsx'). Automatically assigns the weights of interactions for single-input nodes and creates the constrains for the optimization problem.
 
