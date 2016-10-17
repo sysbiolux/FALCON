@@ -1,4 +1,4 @@
-**Contact info**: thomas.sauter@uni.lu  
+**Contact info**: thomas.sauter@uni.lu or sebastien.delandtsheer@uni.lu  
 **Please cite** : De Landtsheer et al., XXX  
 **Copyright**: This software is freely available for non-commercial users under the GPLv3 license  
 
