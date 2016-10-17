@@ -52,10 +52,11 @@ SSthresh=estim.SSthresh;
 p = bestx;
 p_SA = zeros(2*LPSA_Increments+1,length(p));
 p_SA(LPSA_Increments+1,:) = p;
-
+estim_orig.LB(:) = 0; % fix lower bound to 0 over-writes condition if there are bounds fixed
+estim_orig.UB (:) = 1; % fix upper bound to 1 over-writes condition if there are bounds fixed
 for counter = 1:length(p)
-    Min=estim.LB(counter);
-    Max=estim.UB(counter);
+    Min=estim_orig.LB(counter);
+    Max=estim_orig.UB(counter);
     
     if ~isempty(estim.A)
         if sum(estim.A(:,counter))>0
@@ -70,6 +71,8 @@ for counter = 1:length(p)
         p_SA(LPSA_Increments+1+counter2,counter) = p_pert_values_pos;
         p_SA(LPSA_Increments+1-counter2,counter) = p_pert_values_neg;
     end
+    p_SA(end,:)=1;
+    p_SA(1,:)=0;
 end
 
 %%% Pick index and evaluate
