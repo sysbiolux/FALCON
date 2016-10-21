@@ -38,6 +38,7 @@ NDatasets           = 10;% Number of artificial datasets from which to resample.
 
 LPSA_Analysis       = 1; % Local parameter sensitivity analysis
 Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
+LPSA_Increments     = 3; % Number of increments for LPSA. Increase for finer resolution
 
 KO_Analysis         = 0; % Parameter knock-out analysis
 
@@ -89,9 +90,9 @@ end
 toc_all=[];
 x_all=[];
 fval_all=[];
-    
-if Parallelisation == 1
 
+if Parallelisation == 1
+    
     parfor counter=1:optRound %'parfor' will run the parallel computing toolbox
         tic
         k=FalconIC(estim,IC_Dist); %initial conditions
