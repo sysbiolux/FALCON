@@ -21,7 +21,7 @@
 
 In order to use the FALCON toolbox, the necessary scripts need to be included in the Matlab path. This can be done automatically by typing “FalconInstall” on the Matlab command window. The pipeline was developed under Matlab R2014b and has been successfully tested under Matlab R2015a and R2016a. It requires the build-in Matlab solver “fmincon”, which is a part of the Optimization Toolbox (http://nl.mathworks.com/products/optimization/), during the optimisation process. The parallel computing option in the FALCON pipeline which uses the “parfor” function requires the Parallel Computing Toolbox (http://nl.mathworks.com/help/distcomp/) and the plotting of network structure with optimised parameters requires the “biograph” function integrated in the Bioinformatics toolbox (http://nl.mathworks.com/help/bioinfo/) to be present.  
 
-In case you encounter any problems while running the FALCON pipeline on earlier of later versions of Matlab, please do not hesitate to contact the authors.
+In case you encounter any problems while running the FALCON pipeline on earlier of later versions of Matlab, please do not hesitate to contact the authors or post an issue under: https://github.com/sysbiolux/FALCON/issues.
 
 ***
 
