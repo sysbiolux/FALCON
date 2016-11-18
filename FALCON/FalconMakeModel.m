@@ -427,11 +427,11 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
     for jj=2:length(OtherIn(:,1))
         Input_index_coll=[];
         for j=1:length(OtherIn(1,:))
-            if ~isnan(cell2mat(OtherIn(jj,j)))
+%             if ~isnan(cell2mat(OtherIn(jj,j)))
                 Input_index_coll=[Input_index_coll,find(ismember(state_names,OtherIn(1,j)))];
-            else
-                Input_index_coll=[Input_index_coll,NaN];
-            end
+%             else
+%                 Input_index_coll=[Input_index_coll,NaN];
+%             end
         end
         Input_index=[Input_index;Input_index_coll];
     end
@@ -440,11 +440,11 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
     for jj=2:length(OtherOut(:,1))
         Output_index_coll=[];
         for j=1:length(OtherOut(1,:))
-            if ~isnan(cell2mat(OtherOut(jj,j)))
+%             if ~isnan(cell2mat(OtherOut(jj,j)))
                 Output_index_coll=[Output_index_coll,find(ismember(state_names,OtherOut(1,j)))];
-            else
-                Output_index_coll=[Output_index_coll,NaN];
-            end
+%             else
+%                 Output_index_coll=[Output_index_coll,NaN];
+%             end
         end
         Output_index=[Output_index;Output_index_coll];
     end

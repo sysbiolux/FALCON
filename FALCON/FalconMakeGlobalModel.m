@@ -1,4 +1,4 @@
-function [estim, stamp] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced)
+function [estim] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced)
 % Allows for the expansion of logical networks from one seed network.
 % InputFile is a interaction list (txt or xlsx). See 'FalconMakeModel'
 % FixedEdgesList is an interaction list of only the edges that should
@@ -191,11 +191,11 @@ for m=1:length(MeasFileList)
         for jj=2:length(OtherIn(:,1))
             Input_index_coll=[];
             for j=1:length(OtherIn(1,:))
-                if ~isnan(cell2mat(OtherIn(jj,j)))
+%                 if ~isnan(cell2mat(OtherIn(jj,j)))
                     Input_index_coll=[Input_index_coll,find(ismember(estim.state_names,OtherIn(1,j)))];
-                else
-                    Input_index_coll=[Input_index_coll,NaN]
-                end
+%                 else
+%                     Input_index_coll=[Input_index_coll,NaN]
+%                 end
             end
             Input_index=[Input_index;Input_index_coll];
         end
@@ -204,11 +204,11 @@ for m=1:length(MeasFileList)
         for jj=2:length(OtherOut(:,1))
             Output_index_coll=[];
             for j=1:length(OtherOut(1,:))
-                if ~isnan(cell2mat(OtherOut(jj,j)))
+%                 if ~isnan(cell2mat(OtherOut(jj,j)))
                     Output_index_coll=[Output_index_coll,find(ismember(estim.state_names,OtherOut(1,j)))];
-                else
-                    Output_index_coll=[Output_index_coll,NaN];
-                end
+%                 else
+%                     Output_index_coll=[Output_index_coll,NaN];
+%                 end
             end
             Output_index=[Output_index;Output_index_coll];
         end
@@ -252,6 +252,16 @@ for m=1:length(MeasFileList)
 end
 stamp=mat2str((floor(now*10000))/10000);
 tempfile=['Results_' stamp '_.xlsx'];
+
+Page1nan=[zeros(1,size(Page1,2));cell2mat(cellfun(@isnan,Page1(2:end,:),'UniformOutput',0))];
+Page1(Page1nan>0) ={'NaN'};
+
+Page2nan=[zeros(1,size(Page2,2));cell2mat(cellfun(@isnan,Page2(2:end,:),'UniformOutput',0))];
+Page2(Page2nan>0) ={'NaN'};
+
+Page3nan=[zeros(1,size(Page3,2));cell2mat(cellfun(@isnan,Page3(2:end,:),'UniformOutput',0))];
+Page3(Page3nan>0) ={'NaN'};
+
 xlswrite(tempfile,Page1,1)
 xlswrite(tempfile,Page2,2)
 xlswrite(tempfile,Page3,3)
