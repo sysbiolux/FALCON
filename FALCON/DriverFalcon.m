@@ -6,7 +6,7 @@
 clc, clear all % clear screen and workspace
 
 % Choose your model example [1-4]
-Model_Example = 2;
+Model_Example = 1;
 
 % 1 = Pipeline example
 % 2 = PDGF model
@@ -36,7 +36,7 @@ PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biograp
 Resampling_Analysis = 0; % Resampling of experimental data and re-optimise
 NDatasets           = 10;% Number of artificial datasets from which to resample.
 
-LPSA_Analysis       = 1; % Local parameter sensitivity analysis
+LPSA_Analysis       = 0; % Local parameter sensitivity analysis
 Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
 LPSA_Increments     = 3; % Number of increments for LPSA. Increase for finer resolution
 

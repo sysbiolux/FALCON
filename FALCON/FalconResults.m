@@ -68,7 +68,7 @@ disp(' ')
 disp([Heading;param_name_best_mean_std])
 
 if length(varargin)>2
-    xlswrite([pwd filesep FinalFolderName filesep 'Summary_Optimised_Parameters.xls'],[Heading;param_name_best_mean_std])
+    xlswrite([pwd filesep FinalFolderName filesep 'Summary_Optimised_Parameters.xls'],[Heading;param_name_best_mean_std]);
 end
 
 disp('==============================================')

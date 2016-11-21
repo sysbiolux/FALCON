@@ -283,11 +283,11 @@ if graphs(3) && sum(std(estim.Output_idx))==0
     colorbar
     X_axis_name=estim.state_names(estim.Output_idx(1,:));
     
-    set(gca,'XTick',1:size(estim.Output_idx,1))
-    set(gca,'xticklabel',X_axis_name)
-    colormap('hot')
-    title('Cross-error Analysis: Heatmap')
-    ylabel('Experiments')
+    set(gca,'XTick',1:size(estim.Output_idx,1));
+    set(gca,'xticklabel',X_axis_name);
+    colormap('hot');
+    title('Cross-error Analysis: Heatmap');
+    ylabel('Experiments');
     
     if ToSave
         fighm=hm;
@@ -369,24 +369,24 @@ if graphs(5)
         NrExps = 5;
     end
     for p=1:NrExps %for each exp
-        subplot(NrExps,1,p)
-        plot(squeeze(estim.AllofTheXs(p,1:T,Output_index(p,:))))
-        legend(state_names(Output_index(p,:)),'Location','EastOutside')
-        ylabel(['Exp' num2str(p)])
+        subplot(NrExps,1,p);
+        plot(squeeze(estim.AllofTheXs(p,1:T,Output_index(p,:))));
+        legend(state_names(Output_index(p,:)),'Location','EastOutside');
+        ylabel(['Exp' num2str(p)]);
         axis([0, T+1, 0, 1]);
         hold off
     end
     if NrExps > 5
-        suptitle('Dynamics through the simulation (outputs)')
+        suptitle('Dynamics through the simulation (outputs)');
     else
-        suptitle('Examples of dynamics through the simulation (outputs)')        
+        suptitle('Examples of dynamics through the simulation (outputs)')  ;      
     end    
     
     if ToSave
-        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'tif')
-        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'fig')
-        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'jpg')
-        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'svg')
+        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'tif');
+        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'fig');
+        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'jpg');
+        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'svg');
 
     end
 
@@ -396,28 +396,28 @@ if graphs(5)
         NrExps = 5;
     end
     for p=1:NrExps %for each exp
-        subplot(NrExps,1,p)
-        plot(squeeze(estim.AllofTheXs(p,1:T,:)))
-        legend(state_names(:),'Location','EastOutside')
-        ylabel(['Exp' num2str(p)])
+        subplot(NrExps,1,p);
+        plot(squeeze(estim.AllofTheXs(p,1:T,:)));
+        legend(state_names(:),'Location','EastOutside');
+        ylabel(['Exp' num2str(p)]);
         axis([0, T+1, 0, 1]);
         hold off
     end
     if NrExps > 5
-        suptitle('Dynamics through the simulation (all nodes)')
+        suptitle('Dynamics through the simulation (all nodes)');
     else
-        suptitle('Examples of dynamics through the simulation (all nodes)')        
+        suptitle('Examples of dynamics through the simulation (all nodes)')    ;    
     end    
     
     if ToSave
-        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'tif')
-        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'fig')
-        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'jpg')
-        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'svg')
+        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'tif');
+        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'fig');
+        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'jpg');
+        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'svg');
 
     end
 end
 
-estim.Results.Optimisation.Diffs = Diffs
-estim.Results.Optimisation.StdStateValueAll = StdStateValueAll
+estim.Results.Optimisation.Diffs = Diffs;
+estim.Results.Optimisation.StdStateValueAll = StdStateValueAll;
 end
