@@ -45,7 +45,8 @@ disp('Summarized fitting cost and time:')
 disp(' ')
 disp([Heading;FitCost_Time])
 disp(' ')
-
+if length(varargin)>2
+end
 % Second Table: Parameter values
 
 % Convert parameter names from symbolic to string
