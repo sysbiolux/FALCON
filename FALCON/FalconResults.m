@@ -46,6 +46,7 @@ disp(' ')
 disp([Heading;FitCost_Time])
 disp(' ')
 if length(varargin)>2
+    xlswrite([pwd filesep FinalFolderName filesep 'Summary_Fitting.xls'],[Heading;FitCost_Time]);
 end
 % Second Table: Parameter values
 
