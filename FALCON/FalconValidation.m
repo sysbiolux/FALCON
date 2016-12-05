@@ -161,7 +161,6 @@ estim.Output_idx=Output_index;
 % Initialize necessary parameter and retrieve best parameter set (optParams)
 tic
 k=optParams;
-MeanStateValueAll=[];
 StdStateValueAll=[];
 MeanCostAll=[];
 StdCostAll=[];
@@ -180,12 +179,17 @@ mi=estim.mi;
 % Perform simulation based on the best parameter set
 
 n=estim.NrStates;
-
+if isfield(estim,'MaxTime')
+    MaxTime=estim.MaxTime;
+else
+    MaxTime=0;
+end
 %initial and successive number of steps for evaluation
 if n<=25, initial_t=10; step_t=10;
 elseif n>25 && n<=100, initial_t=100; step_t=10;
 elseif n>100, initial_t=300; step_t=150;
 end
+TimeSoFar=tic;
 
 k2=k(estim.kInd)'; %extend k including boolean gates. Now k2 has the same length as param_index
 
@@ -218,98 +222,80 @@ if BoolMax>0
         Gate_fill_indices=[Gate_fill_indices; Current_fill_indices];
     end
     
-    Temp_BoolVal=zeros(1,BoolMax);
+    Temp_BoolVal=zeros(n,size(estim.Output_idx,1));
 end
 
 % Note: it is possible to perform multiple simulations and collect results here
 estim.AllofTheXs=zeros(size(Measurements,1),Max,length(state_names));
+x=rand(n,size(Measurements,1)); %initial random values for the nodes
+x(Input_index(1,:),:)=Inputs';%(counter_exp,:); %fixing input nodes
+xmeas=Measurements; %expected values for output nodes
+break_point_ss=1;
+runs=initial_t; % Initialize number of time steps
 
-for counter_exp=1:size(Measurements,1)
-    Collect_x=[];
-    diff_ALL=[];
-    x=rand(1,size(ma,2))';
-    x(Input_index(counter_exp,:))=Inputs(counter_exp,:);
-    cur=1;
-    estim.AllofTheXs(counter_exp,cur,:)=x';
-    xmeas=Measurements(counter_exp,:);
-    
-    idx_NaN=find(isnan(xmeas));
-    
-    diff=0; % Initialize fitting cost
-    break_point_ss=1;
-    
-    runs=initial_t; % Initialize number of time steps
-    
-    while  break_point_ss
-        pre_x=x;
-        for counter=1:runs
-            if BoolMax>0
-                for counter2=1:size(Gate_fill_indices,1)
-                    if Gate_fill_indices(counter2,4)==1 % OR gate
-                        
-                        Temp_BoolVal(counter2)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2))*...
-                            (1-(1-(x(Gate_fill_indices(counter2,2))))*(1-x(Gate_fill_indices(counter2,3))));
-                        
-                    elseif Gate_fill_indices(counter2,4)==2 % AND gate
-                        
-                        Temp_BoolVal(counter2)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2))*...
-                            (x(Gate_fill_indices(counter2,2))*x(Gate_fill_indices(counter2,3)));
-                    end
+while break_point_ss
+    if MaxTime>0
+        if toc(TimeSoFar)>MaxTime
+            break
+        end
+    end
+    pre_x=x;
+    for counter=1:runs
+        if BoolMax>0 %calculate values for Boolean gates
+            for counter2=1:size(Gate_fill_indices,1)
+                if Gate_fill_indices(counter2,4)==1 % OR gate
+
+                    Temp_BoolVal(Gate_fill_indices(counter2,1),:)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2)).*...
+                        (1-(1-(x(Gate_fill_indices(counter2,2),:))).*(1-x(Gate_fill_indices(counter2,3),:)));
+
+                elseif Gate_fill_indices(counter2,4)==2 % AND gate
+
+                    Temp_BoolVal(Gate_fill_indices(counter2,1),:)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2)).*...
+                        (x(Gate_fill_indices(counter2,2),:).*x(Gate_fill_indices(counter2,3),:));
                 end
             end
-            
-            x=(ma*x).*(ones(numel(x),1)-mi*x);
-            
-            if BoolMax>0
-                for counter3=1:size(Gate_fill_indices,1)
-                    x(Gate_fill_indices(counter3,1))=Temp_BoolVal(counter3);
-                end
-            end
-            cur=cur+1;
-            if cur<Max
-                estim.AllofTheXs(counter_exp,cur,:)=x';
-            end
         end
-        if sum(abs(pre_x-x))>estim.SSthresh
-            runs=runs+step_t;
-        else
-            break_point_ss=0;
-        end
-        
+
+        %%%%%%%%%%%%%%%%%%%%
+        %%% core equation %%%
+        x=(ma*x).*(ones(size(x))-mi*x);
+        %%%%%%%%%%%%%%%%%%%%
+
+        if BoolMax>0 %if there are Boolean gates
+            x(Gate_fill_indices(:,1),:)=Temp_BoolVal(Gate_fill_indices(:,1),:);
+        end                    
     end
-    
-    if ~isempty(idx_NaN)
-        OutNaN=x(Output_index(counter_exp,idx_NaN));
-        x(Output_index(counter_exp,idx_NaN))=0;
-        xmeas(idx_NaN)=0;
+
+    if any(sum(abs(pre_x-x))>estim.SSthresh) %if the network did not reach steady-state
+        runs=runs+step_t;
+    else %if we are at steady-state
+        break_point_ss=0;
     end
-    
-    diff=diff+sum((x(Output_index(counter_exp,:))'-xmeas).^2);
-    Collect_x=[Collect_x; x'];
-    diff_ALL=[diff_ALL; diff];
-    
-    % Collect state values in each round of simulation
-    
-    if ~isempty(idx_NaN)
-        for counter=1:length(idx_NaN)
-            Collect_x(:,Output_index(counter_exp,idx_NaN(counter)))=OutNaN(counter);
-        end
-    end
-    
-    MeanAllState=mean(Collect_x,1);
-    StdAllState=std(Collect_x,0,1);
-    Diffs=[Diffs;(x(Output_index(counter_exp,:))'-xmeas).^2];
-    mean_diff_ALL=mean(diff_ALL,1);
-    std_diff_ALL=std(diff_ALL,0,1);
-    
-    MeanStateValueAll=[MeanStateValueAll; MeanAllState];
-    StdStateValueAll=[StdStateValueAll; StdAllState];
-    MeanCostAll=[MeanCostAll; mean_diff_ALL];
-    StdCostAll=[StdCostAll; std_diff_ALL];
-    
+
 end
+xsim=x(Output_index(1,:),:)';
+mask=isnan(xmeas);
+xsim(mask)=0; xmeas(mask)=0;
 
-estim.Results.Optimisation.BestStates = Collect_x;
+%calculate the sum-of-squared errors
+diff=sum(sum((xsim-xmeas).^2));
+
+disp(diff)
+    
+% MeanAllState=mean(Collect_x,1);
+% StdAllState=std(Collect_x,0,1);
+% Diffs=[Diffs;(x(Output_index(counter_exp,:))'-xmeas).^2];
+% mean_diff_ALL=mean(diff_ALL,1);
+% std_diff_ALL=std(diff_ALL,0,1);
+% 
+% MeanStateValueAll=[MeanStateValueAll; MeanAllState];
+% StdStateValueAll=[StdStateValueAll; StdAllState];
+% MeanCostAll=[MeanCostAll; mean_diff_ALL];
+% StdCostAll=[StdCostAll; std_diff_ALL];
+%     
+
+x=x';
+estim.Results.Optimisation.BestStates = x;
 
 % PlotFitSummary: graph of state values at steady-state versus measurements in validation dataset
 num_plots=size(estim.Output,2);
@@ -330,25 +316,46 @@ for counter=1:num_plots
         errorbar(1:size(Measurements,1),Measurements(:,counter),zeros(size(Measurements,1),1),'gs','LineWidth',3,'MarkerSize',5), hold on,
     end
     
-    % Plot simulated data on top (error bar in red, mean in blue)
-    errorbar(1:size(Measurements,1),MeanStateValueAll(:,Output_index(1,counter)),StdStateValueAll(:,Output_index(1,counter)),'r.','LineWidth',3), hold on,
-    plot(1:size(Measurements,1),MeanStateValueAll(:,Output_index(1,counter)),'b*','MarkerSize',25/sqrt(num_plots))
+    % Plot simulated data on top
+    plot(1:size(Measurements,1),x(:,Output_index(1,counter)),'b*','MarkerSize',25/sqrt(num_plots))
     
     
     % Figure adjustment
     axis([0 size(Measurements,1)+1 0 1.21])
     set(gca,'fontsize',25/sqrt(num_plots))
     t=title(state_names(Output_index(1,counter)));
-    x=xlabel('exp');
+    xz=xlabel('exp');
     y=ylabel('state-value');
-    set(x,'fontsize',25/sqrt(num_plots))
+    set(xz,'fontsize',25/sqrt(num_plots))
     set(y,'fontsize',25/sqrt(num_plots))
     set(t,'fontsize',35/sqrt(num_plots))
     hold off
 end
+
+% scatter plot for observed vs predicted
+h2=figure; hold on
+for counter=1:num_plots
+    subplot(NLines,NCols,counter), hold on,
+    
+    SSres=sum((x(:,Output_index(1,counter))-Measurements(:,counter)).^2);
+    SStot=sum((Measurements(:,counter))-mean(Measurements(:,counter)).^2);
+
+    plot(Measurements(:,counter), x(:,Output_index(1,counter)),'.')
+    b1 =x(:,Output_index(1,counter))\ Measurements(:,counter);
+    yx= 1*Measurements(:,counter);
+
+    % Figure adjustment
+    axis([0 1.1 0 1.1]), title([char(state_names(Output_index(1,counter))),': R^2= ', num2str(1-SSres/SStot)]);
+    xlabel('observed');ylabel('predicted');
+    grid on;
+    hold off
+end
+
 if ToSave
     saveas(h1,[Folder,filesep,'Validation_plot'],'tif')
     saveas(h1,[Folder,filesep,'Validation_plot'],'fig')
+    saveas(h2,[Folder,filesep,'Validation_plot2'],'tif')
+    saveas(h2,[Folder,filesep,'Validation_plot2'],'fig')
     
 end
 

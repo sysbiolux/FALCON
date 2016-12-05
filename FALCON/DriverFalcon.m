@@ -6,7 +6,7 @@
 clc, clear all % clear screen and workspace
 
 % Choose your model example [1-4]
-Model_Example = 1;
+Model_Example = 2;
 
 % 1 = Pipeline example
 % 2 = PDGF model
