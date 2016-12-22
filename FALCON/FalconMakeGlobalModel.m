@@ -1,4 +1,4 @@
-function [estim] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced)
+function [estim, varargout] = FalconMakeGlobalModel(InputFile,GlobalEdgesList,MeasFileList,ContextsList,HLbound,Forced)
 % Allows for the expansion of logical networks from one seed network.
 % InputFile is a interaction list (txt or xlsx). See 'FalconMakeModel'
 % FixedEdgesList is an interaction list of only the edges that should
@@ -14,11 +14,11 @@ estim=FalconMakeModel(InputFile,cell2mat(MeasFileList(1)),HLbound,Forced);
 
 %%% Reading the fixed interactions file
 FixedInteractions=[];
-if ~isempty(FixedEdgesList)
-    Point=find(ismember(FixedEdgesList,'.'),1,'last'); %finding the last point in the file name
-    Ext=FixedEdgesList(Point+1:end); %retrieving the extension
+if ~isempty(GlobalEdgesList)
+    Point=find(ismember(GlobalEdgesList,'.'),1,'last'); %finding the last point in the file name
+    Ext=GlobalEdgesList(Point+1:end); %retrieving the extension
     if strcmp(Ext,'txt') %if text file
-        fid=fopen(FixedEdgesList,'r'); %open the file
+        fid=fopen(GlobalEdgesList,'r'); %open the file
         LineCounter=0; %zero the line counter
         while 1 %get out only when line is empty
             tline = fgetl(fid); %read a line
@@ -42,7 +42,7 @@ if ~isempty(FixedEdgesList)
         end
         fclose(fid);
     elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
-        [~,~,Other]=xlsread(FixedEdgesList,1);
+        [~,~,Other]=xlsread(GlobalEdgesList,1);
         LineCounter=2; %initialize the line counter
         while LineCounter<=size(Other,1) %get out only when line is empty
             Input = Other(LineCounter,:); %read a line
@@ -252,6 +252,8 @@ for m=1:length(MeasFileList)
 end
 stamp=mat2str((floor(now*10000))/10000);
 tempfile=['Results_' stamp '_.xlsx'];
+varargout{1}=stamp;
+varargout{2}=tempfile;
 
 Page1nan=[zeros(1,size(Page1,2));cell2mat(cellfun(@isnan,Page1(2:end,:),'UniformOutput',0))];
 Page1(Page1nan>0) ={'NaN'};
