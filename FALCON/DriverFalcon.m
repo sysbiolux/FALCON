@@ -2,7 +2,7 @@
 % Driver script (run-through) for FALCON
 % ======================================
 
-% FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
+FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
 clc, clear all % clear screen and workspace
 
 % Choose your model example [1-4]
@@ -14,7 +14,7 @@ Model_Example = 2;
 % 4 = Apoptosis model
 
 % Define optmisation options
-optRound=1; % Number of optimisation round
+optRound=3; % Number of optimisation round
 MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
 Parallelisation=0; % Use multiple cores for optimisation? (0=no, 1=yes)
@@ -68,7 +68,12 @@ else
 end
 
 % Create a save folder
-SaveFolderName=['Results_' char(datetime)];
+try
+    SaveFolderName=['Results_' char(datetime)]; % Work with R2015a and above
+catch
+    SaveFolderName=['Results_' datestr(now)]; % Work with R2014b and below
+end
+
 FinalFolderName=strrep(SaveFolderName, ':', '.');
 mkdir(FinalFolderName) % Automatically generate a folder for saving
 
@@ -187,8 +192,6 @@ disp('Please also check the results in "estim.Results"')
 disp(estim.Results)
 save([pwd filesep FinalFolderName filesep 'estim_Results'])
 disp('================================================')
-
-
 
 %% Model Prediction
 
