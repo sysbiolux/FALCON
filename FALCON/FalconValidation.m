@@ -339,13 +339,21 @@ h2=figure; hold on
 line_x=linspace(0,1.1,100);
 line_y=linspace(0,1.1,100);
 
+line_best_x=line_x+0.05;
+line_best_y=line_y+0.05;
+
 for counter=1:num_plots
     subplot(NLines,NCols,counter), hold on,
+
+    X_best=[0,0.01,0.02,0.03,0.04,line_best_x,fliplr(line_x)];  % create continuous x value array for plotting
+    Y_best=[0,0,0,0,0,line_y,fliplr(line_best_y)];              % create y values for out and then back
+    fill(X_best,Y_best,[0 1 0]);                                % plot filled area
+    alpha(0.5)    
     
     SSres=sum((x(:,Output_index(1,counter))-Measurements(:,counter)).^2);
     SStot=sum((Measurements(:,counter))-mean(Measurements(:,counter)).^2);
 
-    plot(Measurements(:,counter), x(:,Output_index(1,counter)),'.','MarkerSize',15)
+    plot(Measurements(:,counter), x(:,Output_index(1,counter)),'k.','color',[0,0,0]+0.1,'MarkerSize',15)
     b1 =x(:,Output_index(1,counter))\ Measurements(:,counter);
     yx= 1*Measurements(:,counter);
 
@@ -360,6 +368,7 @@ for counter=1:num_plots
     grid on;
     
     plot(line_x,line_y,'k--','color',[0,0,0]+0.5,'LineWidth',0.5)
+    
     hold off
 end
 
