@@ -337,10 +337,10 @@ h2=figure; hold on
 for counter=1:num_plots
     subplot(NLines,NCols,counter), hold on,
     
-    SSres=sum((x(:,Output_index(1,counter))-Measurements(:,counter)).^2);
-    SStot=sum((Measurements(:,counter))-mean(Measurements(:,counter)).^2);
+    SSres=nansum((x(:,Output_index(1,counter))-Measurements(:,counter)).^2);
+    SStot=nansum((Measurements(:,counter))-((nansum(Measurements(:,counter)))./length(Measurements)).^2);
 
-    plot(Measurements(:,counter), x(:,Output_index(1,counter)),'.')
+    plot(Measurements(:,counter), x(:,Output_index(1,counter)),'.k', 'MarkerSize', 8)
     b1 =x(:,Output_index(1,counter))\ Measurements(:,counter);
     yx= 1*Measurements(:,counter);
 

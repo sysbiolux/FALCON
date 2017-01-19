@@ -1,28 +1,18 @@
 function [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(varargin)
-% FalconSimul resimulates the optimized network and displays the summarised results as plots
-% [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(estim,bestx,[PlotFitSummary PlotFitIndividual PlotHeatmapCost PlotStateSummary PlotStateEvolution],FinalFolderName);
-%
-% :: Input values ::
-% estim                     complete model definition
-% bestx                     the vector of best optimised parameters
-% 5-values logical vector   0= do not show plot, 1= show plot
-%   - PlotFitSummary        graph of state values at steady-state versus measurements (all-in-1)
-%   - PlotFitIndividual     graph of state values at steady-state versus measurements (individual)
-%   - PlotHeatmapCost       heatmaps of optimal costs for each output for each experimental condition
-%   - PlotStateSummary      graph of state values at steady-state (all-in-1)
-%   - PlotStateEvolution    graph of state values over the course of the simulation (two graphs: all-in-1 and individual)
-% FinalFolderName           name of the folder for saving results
-%
-% :: Output values :: 
-% MeanStateValueAll         mean states values
-% StdStateValueAll          standard deviation of state values
-% MeanCostAll               mean fitting cost (SSE)
-% StdCostAll                standard deviation of fitting cost
-% estim                     updated model definition
-%
-% :: Contact ::
-% Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
-% Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
+% Falcon Simulation
+% Runs a Falcon model under specified parameters
+% Records the values of states over the course of the simulation
+% Arguments: 1) estim (from FalconMakeModel)
+% 2) the vector of optimal parameters
+% 3) 5-values logical vector:
+% graph of state values at ss versus measurements (all in 1)
+% graph of state values at ss versus measurements (individual)
+% heatmaps of optimal costs for each output for each condition absolute cost
+% graph of state values at ss (all in 1)
+% graph of state values over the course of the simulation (two graphs)
+% Modified Sebastien De Landtsheer July 2016,
+% sebastien.delandtsheer@uni.lu
+% Panuwat Trairatphisan, University of Luxembourg, 10/2014, panuwat.trairatphisan@uni.lu
 
 estim=varargin{1}; optParams=varargin{2}; graphs=varargin{3};
 ToSave=0;
@@ -88,100 +78,86 @@ if BoolMax>0
         Gate_fill_indices=[Gate_fill_indices; Current_fill_indices];
     end
 
-    Temp_BoolVal=zeros(1,BoolMax);
+    Temp_BoolVal=zeros(n,size(estim.Output_idx,1));
 end
 
 % Note: it is possible to perform multiple simulations and collect results here
 estim.AllofTheXs=zeros(size(Measurements,1),Max,length(state_names));
 
-for counter_exp=1:size(Measurements,1)
-    Collect_x=[];
-    diff_ALL=[];
-    x=rand(1,size(ma,2))';
-    x(Input_index(counter_exp,:))=Inputs(counter_exp,:);
-    cur=1;
-    estim.AllofTheXs(counter_exp,cur,:)=x';
-    xmeas=Measurements(counter_exp,:);
-        
-    idx_NaN=find(isnan(xmeas));
-        
-    diff=0; % Initialize fitting cost
-    break_point_ss=1;
+% Collect_x=[];
+% diff_ALL=[];
+x=rand(n,size(Measurements,1)); %initial random values for the nodes
+x(Input_index(1,:),:)=Inputs';
+cur=1;
+estim.AllofTheXs(:,cur,:)=x';
+xmeas=Measurements;
 
-    runs=initial_t; % Initialize number of time steps
+idx_NaN=find(isnan(xmeas));
 
-    while  break_point_ss
-        pre_x=x;
-        for counter=1:runs
-            if BoolMax>0
-                for counter2=1:size(Gate_fill_indices,1)
-                    if Gate_fill_indices(counter2,4)==1 % OR gate
+diff=0; % Initialize fitting cost
+break_point_ss=1;
 
-                        Temp_BoolVal(counter2)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2))*...
-                            (1-(1-(x(Gate_fill_indices(counter2,2))))*(1-x(Gate_fill_indices(counter2,3))));
+runs=initial_t; % Initialize number of time steps
 
-                    elseif Gate_fill_indices(counter2,4)==2 % AND gate
+while  break_point_ss
+    pre_x=x;
+    for counter=1:runs
+        if BoolMax>0 %calculate values for Boolean gates
+            for counter2=1:size(Gate_fill_indices,1)
+                if Gate_fill_indices(counter2,4)==1 % OR gate
 
-                        Temp_BoolVal(counter2)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2))*...
-                            (x(Gate_fill_indices(counter2,2))*x(Gate_fill_indices(counter2,3)));
-                    end
+                    Temp_BoolVal(Gate_fill_indices(counter2,1),:)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2)).*...
+                        (1-(1-(x(Gate_fill_indices(counter2,2),:))).*(1-x(Gate_fill_indices(counter2,3),:)));
+
+                elseif Gate_fill_indices(counter2,4)==2 % AND gate
+
+                    Temp_BoolVal(Gate_fill_indices(counter2,1),:)=ma(Gate_fill_indices(counter2,1),Gate_fill_indices(counter2,2)).*...
+                        (x(Gate_fill_indices(counter2,2),:).*x(Gate_fill_indices(counter2,3),:));
                 end
             end
-
-            x=(ma*x).*(ones(numel(x),1)-mi*x);
-
-            if BoolMax>0
-                for counter3=1:size(Gate_fill_indices,1)
-                    x(Gate_fill_indices(counter3,1))=Temp_BoolVal(counter3);
-                end
-            end                                
-            cur=cur+1;
-            if cur<Max
-                estim.AllofTheXs(counter_exp,cur,:)=x';
-            end
-        end
-        if sum(abs(pre_x-x))>estim.SSthresh
-            runs=runs+step_t;
-        else
-            break_point_ss=0;
         end
 
-    end
+        %%%%%%%%%%%%%%%%%%%%
+        %%% core equation %%%
+        x=(ma*x).*(ones(size(x))-mi*x);
+        %%%%%%%%%%%%%%%%%%%%
 
-    if ~isempty(idx_NaN)
-        OutNaN=x(Output_index(counter_exp,idx_NaN));
-        x(Output_index(counter_exp,idx_NaN))=0;
-        xmeas(idx_NaN)=0;
-    end
-
-    diff=diff+sum((x(Output_index(counter_exp,:))'-xmeas).^2);
-    Collect_x=[Collect_x; x'];
-    diff_ALL=[diff_ALL; diff];
-    
-    % Collect state values in each round of simulation
-    
-    if ~isempty(idx_NaN)
-        for counter=1:length(idx_NaN)
-            Collect_x(:,Output_index(counter_exp,idx_NaN(counter)))=OutNaN(counter);
+        if BoolMax>0 %if there are Boolean gates
+            x(Gate_fill_indices(:,1),:)=Temp_BoolVal(Gate_fill_indices(:,1),:);
+        end                                
+        cur=cur+1;
+        if cur<Max
+            estim.AllofTheXs(:,cur,:)=x';
         end
     end
-    
-    MeanAllState=mean(Collect_x,1);
-    StdAllState=std(Collect_x,0,1);
-    Diffs=[Diffs;(x(Output_index(counter_exp,:))'-xmeas).^2];
-    mean_diff_ALL=mean(diff_ALL,1);
-    std_diff_ALL=std(diff_ALL,0,1);
-    
-    MeanStateValueAll=[MeanStateValueAll; MeanAllState];
-    StdStateValueAll=[StdStateValueAll; StdAllState];
-    MeanCostAll=[MeanCostAll; mean_diff_ALL];
-    StdCostAll=[StdCostAll; std_diff_ALL];
-    
+    if any(sum(abs(pre_x-x))>estim.SSthresh) %if the network did not reach steady-state
+        runs=runs+step_t;
+    else %if we are at steady-state
+        break_point_ss=0;
+    end
+
 end
 
-estim.Results.Optimisation.BestStates = Collect_x;
+xsim=x(Output_index(1,:),:)';
+mask=isnan(xmeas);
+xsim(mask)=0; xmeas(mask)=0;
 
-% PlotFitSummary: graph of state values at steady-state versus measurements (all-in-1)
+%calculate the sum-of-squared errors
+diff=sum(sum((xsim-xmeas).^2));
+
+disp(diff)
+
+diff_ALL=diff;
+
+MeanAllState=xsim;
+StdAllState=zeros(size(xsim));
+Diffs=(xsim-xmeas).^2;
+
+MeanStateValueAll=[MeanStateValueAll; MeanAllState];
+StdStateValueAll=[StdStateValueAll; StdAllState];
+MeanCostAll=diff;
+StdCostAll=0;
+
 
 if graphs(1)
     % Plot simulated state value mapped on experimental data
@@ -194,40 +170,30 @@ if graphs(1)
     for counter=1:num_plots
         subplot(NLines,NCols,counter), hold on,
 
-
         % Plot experimental data first (in green)
-
         if ~isempty(SD)
-            errorbar(1:size(Measurements,1),Measurements(:,counter),SD(:,counter),'gs','LineWidth',3,'MarkerSize',5), hold on,
+            errorbar(1:size(Measurements,1),Measurements(:,counter),SD(:,counter),'gs','LineWidth',1,'MarkerSize',2,'Color',[0.4 0.6 0]), hold on,
         else
-            errorbar(1:size(Measurements,1),Measurements(:,counter),zeros(size(Measurements,1),1),'gs','LineWidth',3,'MarkerSize',5), hold on,
+            errorbar(1:size(Measurements,1),Measurements(:,counter),zeros(size(Measurements,1),1),'gs','LineWidth',1,'MarkerSize',1,'Color',[0.4 0.6 0]), hold on,
         end
 
-        % Plot simulated data on top (error bar in red, mean in blue)
-        errorbar(1:size(Measurements,1),MeanStateValueAll(:,Output_index(1,counter)),StdStateValueAll(:,Output_index(1,counter)),'r.','LineWidth',3), hold on,
-        plot(1:size(Measurements,1),MeanStateValueAll(:,Output_index(1,counter)),'b*','MarkerSize',25/sqrt(num_plots))
-
+        % Plot simulated data on top
+        plot(1:size(Measurements,1),MeanStateValueAll(:,counter),'b.','MarkerSize',20/sqrt(num_plots))
 
         % Figure adjustment
-        axis([0 size(Measurements,1)+1 0 1.21])
-        set(gca,'fontsize',25/sqrt(num_plots))
+        axis([0 size(Measurements,1)+1 0 1.1])
+        set(gca,'fontsize',15/sqrt(num_plots))
+        set(gca,'XMinorGrid','on')
         t=title(state_names(Output_index(1,counter)));
-        x=xlabel('exp');
-        y=ylabel('state-value');
-        set(x,'fontsize',25/sqrt(num_plots))
-        set(y,'fontsize',25/sqrt(num_plots))
-        set(t,'fontsize',35/sqrt(num_plots))
+        xt=xlabel('experimental condition');
+        set(xt,'fontsize',15/sqrt(num_plots))
+        set(t,'fontsize',25/sqrt(num_plots))
         hold off
     end
     if ToSave
-        saveas(h1,[Folder,filesep,'Fitting_plot'],'tif')
-        saveas(h1,[Folder,filesep,'Fitting_plot'],'fig')
-        saveas(h1,[Folder,filesep,'Fitting_plot'],'jpg')
-        saveas(h1,[Folder,filesep,'Fitting_plot'],'svg')
+        saveas(h1,[Folder,'\Fitting_plot'],'tif')
     end
 end
-
-% PlotFitIndividual: graph of state values at steady-state versus measurements (individual)
 
 if graphs(2)
     % Plot simulated state value mapped on experimental data
@@ -238,117 +204,75 @@ if graphs(2)
         % Plot experimental data first (in green)
         for counter_plot=1:size(Output_index(1,:),2)
             current_counter_plot=Output_index(1,:);
-            if counter==current_counter_plot(counter_plot)
+            if counter==current_counter_plot(counter_plot) %Panuwat's logic
                 if ~isempty(SD)
-                    errorbar(1:size(Measurements,1),Measurements(:,counter_plot),SD(:,counter_plot),'gs','LineWidth',3,'MarkerSize',5), hold on,
+                    errorbar(1:size(Measurements,1),Measurements(:,counter_plot),SD(:,counter_plot),'gs','LineWidth',1,'MarkerSize',2, 'Color',[0.4 0.6 0]), hold on,
                 else
-                    errorbar(1:size(Measurements,1),Measurements(:,counter_plot),zeros(size(Measurements,1),1),'gs','LineWidth',3,'MarkerSize',5), hold on,
+                    errorbar(1:size(Measurements,1),Measurements(:,counter_plot),zeros(size(Measurements,1),1),'gs','LineWidth',1,'MarkerSize',1, 'Color',[0.4 0.6 0]), hold on,
                 end
             end
         end
 
-        % Plot simulated data on top (error bar in red, mean in blue)
-        errorbar(1:size(Measurements,1),MeanStateValueAll(:,counter),StdStateValueAll(:,counter),'r.','LineWidth',3), hold on,
-        plot(1:size(Measurements,1),MeanStateValueAll(:,counter),'b*','MarkerSize',15)
-
+        % Plot simulated data on top
+        plot(1:size(Measurements,1),x(counter,:),'b.','MarkerSize',5)
 
         % Figure adjustment
-        axis([0 size(Measurements,1)+1 0 1.21])
+        axis([0 size(Measurements,1)+1 0 1.1])
         set(gca,'fontsize',15)
         t=title(state_names(counter));
-        set(t,'interpreter','none') 
-        x=xlabel('exp');
+        xt=xlabel('exp');
         y=ylabel('state-value');
-        set(x,'fontsize',15)
+        set(xt,'fontsize',15)
         set(y,'fontsize',15)
         set(t,'fontsize',15)
         hold off
         if ToSave
-            saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'tif')
-            saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'fig')
-            saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'jpg')
-            saveas(h1,[Folder, filesep, 'State_' cell2mat(state_names(counter)) '_plot'],'svg')
-
-
+            saveas(h1,[Folder, '\', cell2mat(state_names(counter)) '_plot'],'tif')
         end
 
     end
 end
 
-% PlotHeatmapCost: heatmaps of optimal costs for each output for each experimental condition
-
-if graphs(3) && sum(std(estim.Output_idx))==0    
-    figure;
-    hm=imagesc(Diffs);
-    colorbar
-    X_axis_name=estim.state_names(estim.Output_idx(1,:));
-    
-    set(gca,'XTick',1:size(estim.Output_idx,1));
-    set(gca,'xticklabel',X_axis_name);
-    colormap('hot');
-    title('Cross-error Analysis: Heatmap');
-    ylabel('Experiments');
-    
+if graphs(3) && sum(std(estim.Output_idx))==0
+    % Plot optimal cost for each experiment
+    hm=HeatMap(Diffs, 'RowLabels',1:size(estim.Output_idx,1),'ColumnLabels',estim.state_names(estim.Output_idx(1,:)),'Colormap',hot, 'Symmetric', false);
+    addTitle(hm, 'Cross-error Analysis: Heatmap');
     if ToSave
-        fighm=hm;
-        saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'tif');
-        saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'fig');
-        saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'jpg');
-        saveas(fighm,[Folder, filesep, 'CrossErrorHeatMap'],'svg');
-
+        fighm=plot(hm);
+        saveas(fighm,[Folder, '\CrossErrorHeatMap'],'tif');
+        close(gcf)
     end
-%     figure, hist(Diffs(:)); title('Cross-error Analysis: Histogram')
-%     if ToSave
-%         saveas(gcf,[Folder, filesep, 'CrossErrorHistogram'],'tif')
-%         saveas(gcf,[Folder, filesep, 'CrossErrorHistogram'],'fig')
-%     end
+    figure, hist(Diffs(:)); title('Cross-error Analysis: Histogram');
+    if ToSave
+        saveas(gcf,[Folder, '\CrossErrorHistogram'],'tif')
+    end
 end
-
-% PlotStateSummary: graph of state values at steady-state (all-in-1)
 
 if graphs(4)
     h4=figure; hold on
     NrExps=length(estim.Output(:,1));
-    if NrExps > 5
-        NrExps = 5;
-    end
     for i=1:NrExps %for each exp
         subplot(NrExps,1,i)
         Y=state_names; X=Y;
         set(gca, 'xtick', 1:length(X))
         set(gca,'xticklabel',X)
         hold on
-        if ~isempty(SD)
-            errorbar(Output_index(i,:), Measurements(i,:), SD(i,:),'gs','LineWidth',3,'MarkerSize',5)
-        else
-            errorbar(Output_index(i,:), Measurements(i,:), zeros(size(Measurements(i,:))),'gs','LineWidth',3,'MarkerSize',5)
-        end
+        Y2mean=x(:,i);
+        Y2std=zeros(size(Y2mean));    
+        errorbar(Y2mean, Y2std,'.b','LineWidth',1)
         hold on
-        Y2mean=MeanStateValueAll(i,:);
-        Y2std=StdStateValueAll(i,:);
-        errorbar(Y2mean, Y2std,'r.','LineWidth',3)
-        plot(1:length(state_names),Y2mean,'b*','MarkerSize',10)
-        axis([0, length(X)+1, 0, 1])
-        ylabel(['Exp' num2str(i)])
+        if ~isempty(SD)
+            errorbar(Output_index(i,:), Measurements(i,:), SD(i,:),'.g', 'Color',[0.4 0.6 0])
+        else
+            errorbar(Output_index(i,:), Measurements(i,:), zeros(size(Measurements(i,:))),'.g', 'Color',[0.4 0.6 0])
+        end
+        axis([0, length(X)+1, 0, 1.1])
     end
     hold off
-    if NrExps > 5
-        suptitle('Compared Simulated values and Measurement (all states)')
-    else
-        suptitle('Examples of compared Simulated values and Measurement (all states)')        
-    end
-
-    
     if ToSave
-        saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'tif')
-        saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'fig')
-        saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'jpg')
-        saveas(h4,[Folder, filesep, 'Measured_vs_Simul'],'svg')
-
+        saveas(h4,[Folder, '\Measured_vs_Simul'],'tif')
     end
 end
-
-% PlotStateEvolution: graph of state values over the course of the simulation (two graphs: all-in-1 and individual)
 
 if graphs(5)
     T=0;
@@ -363,61 +287,31 @@ if graphs(5)
 
 
     h51=figure; hold on,
-    
-    NrExps=length(estim.Output(:,1));
-    if NrExps > 5
-        NrExps = 5;
-    end
-    for p=1:NrExps %for each exp
-        subplot(NrExps,1,p);
-        plot(squeeze(estim.AllofTheXs(p,1:T,Output_index(p,:))));
-        legend(state_names(Output_index(p,:)),'Location','EastOutside');
-        ylabel(['Exp' num2str(p)]);
+    for p=1:size(Output_index,1)
+        subplot(size(Output_index,1),1,p)
+        plot(squeeze(estim.AllofTheXs(p,1:T,Output_index(p,:))))
+        legend(state_names(Output_index(p,:)),'Location','EastOutside')
+        title('Dynamics through the simulation (outputs)');
         axis([0, T+1, 0, 1]);
         hold off
     end
-    if NrExps > 5
-        suptitle('Dynamics through the simulation (outputs)');
-    else
-        suptitle('Examples of dynamics through the simulation (outputs)')  ;      
-    end    
-    
     if ToSave
-        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'tif');
-        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'fig');
-        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'jpg');
-        saveas(h51,[Folder, filesep, 'ConvergenceOutputNodes'],'svg');
-
+        saveas(h51,[Folder, '\ConvergenceOutputNodes'],'tif')
     end
 
     h52=figure; hold on,
-    NrExps=length(estim.Output(:,1));
-    if NrExps > 5
-        NrExps = 5;
-    end
-    for p=1:NrExps %for each exp
-        subplot(NrExps,1,p);
-        plot(squeeze(estim.AllofTheXs(p,1:T,:)));
-        legend(state_names(:),'Location','EastOutside');
-        ylabel(['Exp' num2str(p)]);
+    for p=1:size(Output_index,1)
+        subplot(size(Output_index,1),1,p)
+        plot(squeeze(estim.AllofTheXs(p,1:T,:)))
+        legend(state_names(:),'Location','EastOutside')
+        title('Dynamics through the simulation (all nodes)')
         axis([0, T+1, 0, 1]);
         hold off
     end
-    if NrExps > 5
-        suptitle('Dynamics through the simulation (all nodes)');
-    else
-        suptitle('Examples of dynamics through the simulation (all nodes)')    ;    
-    end    
-    
     if ToSave
-        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'tif');
-        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'fig');
-        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'jpg');
-        saveas(h52,[Folder, filesep,'ConvergenceAllNodes'],'svg');
-
+        saveas(h52,[Folder, '\ConvergenceAllNodes'],'tif')
     end
 end
 
-estim.Results.Optimisation.Diffs = Diffs;
-estim.Results.Optimisation.StdStateValueAll = StdStateValueAll;
 end
+
