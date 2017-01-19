@@ -280,7 +280,7 @@ xsim(mask)=0; xmeas(mask)=0;
 %calculate the sum-of-squared errors
 diff=sum(sum((xsim-xmeas).^2));
 
-disp(diff)
+% disp(diff)
     
 % MeanAllState=mean(Collect_x,1);
 % StdAllState=std(Collect_x,0,1);
@@ -306,39 +306,35 @@ NCols=ceil(num_plots/NLines);
 h1=figure; hold on
 for counter=1:num_plots
     subplot(NLines,NCols,counter), hold on,
-    
-    
+
     % Plot experimental data first (in green)
-    
     if ~isempty(SD)
-        errorbar(1:size(Measurements,1),Measurements(:,counter),SD(:,counter),'gs','LineWidth',3,'MarkerSize',5), hold on,
+        errorbar(1:size(Measurements,1),Measurements(:,counter),SD(:,counter),'gs','LineWidth',1,'MarkerSize',2,'Color',[0.4 0.6 0]), hold on,
     else
-        errorbar(1:size(Measurements,1),Measurements(:,counter),zeros(size(Measurements,1),1),'gs','LineWidth',3,'MarkerSize',5), hold on,
+        errorbar(1:size(Measurements,1),Measurements(:,counter),zeros(size(Measurements,1),1),'gs','LineWidth',1,'MarkerSize',1,'Color',[0.4 0.6 0]), hold on,
     end
-    
+
     % Plot simulated data on top
-    plot(1:size(Measurements,1),x(:,Output_index(1,counter)),'b*','MarkerSize',25/sqrt(num_plots))
-    
-    
+    plot(1:size(Measurements,1),x(:,Output_index(1,counter)),'b.','MarkerSize',20/sqrt(num_plots))
+
     % Figure adjustment
-    axis([0 size(Measurements,1)+1 0 1.21])
-    set(gca,'fontsize',25/sqrt(num_plots))
+    axis([0 size(Measurements,1)+1 0 1.1])
+    set(gca,'fontsize',15/sqrt(num_plots))
+    set(gca,'XMinorGrid','on')
     t=title(state_names(Output_index(1,counter)));
-    xz=xlabel('exp');
-    y=ylabel('state-value');
-    set(xz,'fontsize',25/sqrt(num_plots))
-    set(y,'fontsize',25/sqrt(num_plots))
-    set(t,'fontsize',35/sqrt(num_plots))
+    xt=xlabel('experimental condition');
+    set(xt,'fontsize',15/sqrt(num_plots))
+    set(t,'fontsize',25/sqrt(num_plots))
     hold off
 end
 
-% scatter plot for observed vs predicted
+% scatter plot for observed vs estimated
 h2=figure; hold on
 for counter=1:num_plots
     subplot(NLines,NCols,counter), hold on,
     
     SSres=nansum((x(:,Output_index(1,counter))-Measurements(:,counter)).^2);
-    SStot=nansum((Measurements(:,counter))-((nansum(Measurements(:,counter)))./length(Measurements)).^2);
+    SStot=nanmean(Measurements(:,counter));
 
     plot(Measurements(:,counter), x(:,Output_index(1,counter)),'.k', 'MarkerSize', 8)
     b1 =x(:,Output_index(1,counter))\ Measurements(:,counter);
@@ -346,7 +342,7 @@ for counter=1:num_plots
 
     % Figure adjustment
     axis([0 1.1 0 1.1]), title([char(state_names(Output_index(1,counter))),': R^2= ', num2str(1-SSres/SStot)]);
-    xlabel('observed');ylabel('predicted');
+    xlabel('observed');ylabel('estimated');
     grid on;
     hold off
 end
