@@ -12,7 +12,8 @@ function []=FalconShowNetwork(estim, PlotAllBiographs, FinalFolderName)
 
 IG=(estim.ma'>0)|(estim.mi'>0); % Interaction graph
 IDs=estim.state_names; % Names
-
+ver = version('-release');
+MATLABVERSION = str2num(ver(1:4));
 Net=biograph(IG,IDs); % Make network file
 Net
 if ~isempty(estim.MeanStateValueAll)
@@ -94,14 +95,15 @@ if ~isempty(estim.MeanStateValueAll)
         f = figure;
         copyobj(g.biograph.hgAxes,f);
         f = get(g.biograph.hgAxes, 'Parent');
-        
+
         if ~PlotAllBiographs
             try                
                 print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
                 print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
                 print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
-
-                warning(['Please ignore the error messages above (if any), Biograph figure #' num2str(rep) ' is correctly saved'])
+                if MATLABVERSION < 2016
+                    warning(['Please ignore the error messages above (if any), Biograph figure #' num2str(rep) ' is correctly saved'])
+                end
                 
                 % Close biograph and copied figure after saving
                 child_handles = allchild(0);
@@ -150,8 +152,9 @@ if ~isempty(estim.MeanStateValueAll)
                 print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
                 print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
                 print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
-                warning(['Please ignore the error messages above (if any), Biograph figure #' num2str(rep) ' is correctly saved'])
-                                
+                if MATLABVERSION < 2016
+                    warning(['Please ignore the error messages above (if any), Biograph figure #' num2str(rep) ' is correctly saved'])
+                end                                
             catch
                 warning('Encountered a graphical memory issue - closing all displayed figures and re-save')
                 % Close biograph and copied figure after saving

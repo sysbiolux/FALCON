@@ -473,7 +473,7 @@ StopCommand=0;
 
 if ~StopCommand
     if FminconConv
-        FalconFitEvol(estim,UN,handles.SaveFolderName)
+        FalconFitEvol(estim,UN,handles.SaveFolderName);
     end
 else
     error('Terminated by the user')

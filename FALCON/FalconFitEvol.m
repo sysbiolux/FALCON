@@ -13,7 +13,6 @@ function [estim] = FalconFitEvol(varargin)
 % :: Contact ::
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
-
 estim=varargin{1};
 IC_Dist=varargin{2};
 FinalFolderName=varargin{3};
