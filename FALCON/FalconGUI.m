@@ -371,8 +371,8 @@ AllPlots=get(handles.AllPlots,'Value');
 %%% set-up
 set(handles.ProgressDisplay2,'String','Creating Model...'); drawnow
 set(handles.ProgressDisplay,'String',''); drawnow
-if ischar(handles.MeasFile)
-    estim=FalconMakeModel(handles.InputFile,handles.MeasFile,HLbound,1); %make the model
+if ischar(handles.MeasFile)    
+    estim=FalconMakeModel([handles.InputPath filesep handles.InputFile],[handles.DataPath filesep handles.MeasFile],HLbound,1); %make the model
 elseif iscell(handles.MeasFile)
     MeasFileList=handles.MeasFile;
     [estim, stamp] = FalconMakeGlobalModel(handles.InputFile,handles.FixedEdgesList,MeasFileList,handles.ContextsList,HLbound,1);
