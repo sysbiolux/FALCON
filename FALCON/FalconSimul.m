@@ -312,6 +312,6 @@ if graphs(5)
         saveas(h52,[Folder, '\ConvergenceAllNodes'],'tif')
     end
 end
-
+MeanStateValueAll = x';
 end
 
