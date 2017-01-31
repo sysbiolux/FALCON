@@ -371,8 +371,8 @@ AllPlots=get(handles.AllPlots,'Value');
 %%% set-up
 set(handles.ProgressDisplay2,'String','Creating Model...'); drawnow
 set(handles.ProgressDisplay,'String',''); drawnow
-if ischar(handles.MeasFile)
-    estim=FalconMakeModel(handles.InputFile,handles.MeasFile,HLbound,1); %make the model
+if ischar(handles.MeasFile)    
+    estim=FalconMakeModel([handles.InputPath filesep handles.InputFile],[handles.DataPath filesep handles.MeasFile],HLbound,1); %make the model
 elseif iscell(handles.MeasFile)
     MeasFileList=handles.MeasFile;
     [estim, stamp] = FalconMakeGlobalModel(handles.InputFile,handles.FixedEdgesList,MeasFileList,handles.ContextsList,HLbound,1);
@@ -449,9 +449,18 @@ if ~StopCommand
     warning off
     if ResultsSummary
         ResultFileName=['Summary',datestr(now, 'yyyymmddTHHMMSS'),'.xlsx'];
-        xlswrite([handles.SaveFolderName, filesep, ResultFileName],{'Parameter','Best','Average','Std'},'1','A1');
-        xlswrite([handles.SaveFolderName, filesep, ResultFileName],estim.param_vector,'1','A2');
-        xlswrite([handles.SaveFolderName, filesep, ResultFileName],[bestx',meanx',stdx'],'1','B2');    
+        try
+            %Try the Excel Backend, 
+            Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.
+            xlswrite([handles.SaveFolderName, filesep, ResultFileName],{'Parameter','Best','Average','Std'},'1','A1');
+            xlswrite([handles.SaveFolderName, filesep, ResultFileName],estim.param_vector,'1','A2');
+            xlswrite([handles.SaveFolderName, filesep, ResultFileName],[bestx',meanx',stdx'],'1','B2');    
+        catch
+            %Otherwise save as a csv
+            ResultFileName=['Summary',datestr(now, 'yyyymmddTHHMMSS'),'.csv'];            
+            tab = table(estim.param_vector,bestx',meanx',stdx','VariableNames',{'Parameter','Best','Average','Std'});
+            writetable(tab,[handles.SaveFolderName, filesep, ResultFileName],'Delimiter',',');
+        end
     end
     warning on
 else
@@ -464,7 +473,7 @@ StopCommand=0;
 
 if ~StopCommand
     if FminconConv
-        FalconFitEvol(estim,UN,handles.SaveFolderName)
+        FalconFitEvol(estim,UN,handles.SaveFolderName);
     end
 else
     error('Terminated by the user')
