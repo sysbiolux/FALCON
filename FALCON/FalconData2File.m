@@ -14,6 +14,8 @@ NamesIn=estim.state_names(estim.Input_idx);
 
 NamesOut=estim.state_names(estim.Output_idx);
 
+delete 'tempMeasFile.xlsx';
+
 xlswrite('tempMeasFile.xlsx', NamesIn , 1, 'A1');
 xlswrite('tempMeasFile.xlsx', estim.Input, 1, 'A2');
 xlswrite('tempMeasFile.xlsx', NamesOut, 2, 'A1');

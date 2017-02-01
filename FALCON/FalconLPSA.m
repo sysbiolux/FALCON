@@ -52,11 +52,10 @@ SSthresh=estim.SSthresh;
 p = bestx;
 p_SA = zeros(2*LPSA_Increments+1,length(p));
 p_SA(LPSA_Increments+1,:) = p;
-estim_orig.LB(:) = 0; % fix lower bound to 0 over-writes condition if there are bounds fixed
-estim_orig.UB (:) = 1; % fix upper bound to 1 over-writes condition if there are bounds fixed
+
 for counter = 1:length(p)
-    Min=estim_orig.LB(counter);
-    Max=estim_orig.UB(counter);
+    Min=estim.LB(counter);
+    Max=estim.UB(counter);
     
     if ~isempty(estim.A)
         if sum(estim.A(:,counter))>0
@@ -71,8 +70,8 @@ for counter = 1:length(p)
         p_SA(LPSA_Increments+1+counter2,counter) = p_pert_values_pos;
         p_SA(LPSA_Increments+1-counter2,counter) = p_pert_values_neg;
     end
-    p_SA(end,:)=1;
-    p_SA(1,:)=0;
+    
+    p_SA(end,counter)=Max;
 end
 
 %%% Pick index and evaluate
@@ -237,19 +236,18 @@ for counter =  1:size(p_SA,2) %for each parameter
         subplot(NLines,NCols,counter), hold on
         plot(p_SA(:,counter),cost_SA(:,counter), '-o','MarkerSize',5)
         hold on, plot(p_SA(LPSA_Increments+1,counter),cost_SA(LPSA_Increments+1,counter),'b*','MarkerSize',15)
-        min_val=min(cost_SA(:,counter));
-        %%% remove red box not to confuse user with optimum
-        % min_index=find(min_val==cost_SA(:,counter));
-        % hold on, plot(p_SA(min_index,counter),cost_SA(min_index,counter),'rs','MarkerSize',15)
-        
         xlabel('Parameter range')
         ylabel('SSE')
         title(Param_original(counter))
         hline=refline([0 CutOff]);
         hline.Color = 'r';
         drawnow;
+        if ToSave
+            saveas(thisfig,[Folder, filesep, 'Identifiability'],'fig')
+        end
+
     catch
-        warning('This figure is LPSA figure is not plotted')
+        warning('This LPSA figure is not plotted')
     end
 end
 
@@ -308,7 +306,7 @@ estim.Results.LPSA.Interpretation={'1=Identifiable','2=Partially identifiable','
 
 Heading=cell(1,2);
 Heading(1,1)={'parameters'};
-Heading(1,2)={'Identifiable?'};
+Heading(1,2)={'Identifiable'};
 
 
 LPSA=[estim.param_vector num2cell(estim.Results.LPSA.Identifiability') ];
@@ -319,7 +317,13 @@ disp([Heading;LPSA])
 disp(' ')
 
 if length(varargin)>8
-    xlswrite([Folder filesep 'Summary_LPSA.xls'],[Heading;LPSA])
+    try
+        Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.
+        xlswrite([Folder filesep 'Summary_LPSA.xls'],[Heading;LPSA]);
+    catch
+        tab = table(estim.param_vector, estim.Results.LPSA.Identifiability', 'VariableNames',Heading);
+        writetable(tab,[Folder, filesep, 'Summary_LPSA.csv'],'Delimiter',',');
+    end
 end
 
 
