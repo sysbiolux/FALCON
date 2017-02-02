@@ -164,7 +164,7 @@ if LPSA_Analysis == 1
     else
         IsFast='slow';
     end
-    Estimated_Time_LPSA=mean(fxt_all(:,end))*optRound_LPSA*LPSA_increments*3*length(estim.param_vector);
+    Estimated_Time_LPSA=mean(fxt_all(:,end))*optRound_LPSA*LPSA_Increments*3*length(estim.param_vector);
     disp(['Estimated Time for LPSA analysis (fast): ' num2str(Estimated_Time_LPSA) ' seconds']); beep; pause(3); beep; 
     [~, estim]=FalconLPSA(estim, bestx, MeasFile, HLbound, optRound_LPSA, LPSA_Increments, IsFast, Parallelisation, FinalFolderName);
 end
