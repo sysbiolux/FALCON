@@ -6,7 +6,7 @@
 clc, clear all % clear screen and workspace 
 
 % Choose your model example [1-4]
-Model_Example = 2;
+Model_Example = 4;
 
 % 1 = Pipeline example
 % 2 = PDGF model
@@ -17,7 +17,7 @@ Model_Example = 2;
 optRound=3; % Number of optimisation round
 MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
-Parallelisation=0; % Use multiple cores for optimisation? (0=no, 1=yes)
+Parallelisation=3; % Use multiple cores for optimisation? (0=no, 1=yes)
 HLbound=0.5; % Qualitative threshold between high and low inputs
 Forced=1; % Define whether single inputs and Boolean gates are forced to probability 1 
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
@@ -41,6 +41,7 @@ Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs g
 LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer resolution
 
 KO_Analysis         = 0; % Parameter knock-out analysis
+KONodes_Analysis    = 1; % Node knock-out analysis
 
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -177,6 +178,13 @@ if KO_Analysis == 1;
     estim=FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
 
+%% Node Knock-out analysis
+if KONodes_Analysis == 1;
+    optRound_KO=1;
+    Estimated_Time_KO_Nodes=mean(fxt_all(:,end))*optRound_KO*length(estim.NrStates);
+    disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO_Nodes) ' seconds']); beep; pause(3); beep; 
+    estim=FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO,FinalFolderName);
+end
 %% Guided to display results in estim.Results
 disp(' ')
 disp('================================================')
