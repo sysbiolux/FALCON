@@ -214,7 +214,7 @@ if graphs(2)
         end
 
         % Plot simulated data on top
-        plot(1:size(Measurements,1),x(counter,:),'b.','MarkerSize',5)
+        plot(1:size(Measurements,1),x(counter,:),'b.','MarkerSize',15)
 
         % Figure adjustment
         axis([0 size(Measurements,1)+1 0 1.1])

@@ -1,4 +1,4 @@
-function [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(varargin)
+function [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul_short(varargin)
 % Falcon Simulation
 % Runs a Falcon model under specified parameters
 % Records the values of states over the course of the simulation
@@ -312,6 +312,6 @@ if graphs(5)
         saveas(h52,[Folder, '\ConvergenceAllNodes'],'tif')
     end
 end
-
+MeanStateValueAll = x';
 end
 

@@ -33,6 +33,8 @@ FalconLPSA.m        : performs a local parameters sensitivity analysis on an opt
 
 FalconKO.m          : creates new models for each knock-outed parameter by setting parameter value to 0 and re-optimise
 
+FalconKONodes.m     : FalconKO creates new models for each knock-outed node by setting outcoming parameter value(s) to 0 and re-optimise
+
 FalconResample.m    : creates a new dataset from the original one, given the mean and standard deviation of the original one. Useful to assess the variability of the parameter estimates, in conjonction with FalconLPSA.m
 
 FalconValidation.m  : resimulates the optimized network and compare to the validation dataset

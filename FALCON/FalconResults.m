@@ -45,9 +45,7 @@ disp('Summarized fitting cost and time:')
 disp(' ')
 disp([Heading;FitCost_Time])
 disp(' ')
-if length(varargin)>2
-    xlswrite([pwd filesep FinalFolderName filesep 'Summary_Fitting.xls'],[Heading;FitCost_Time]);
-end
+
 % Second Table: Parameter values
 
 % Convert parameter names from symbolic to string
@@ -70,7 +68,14 @@ disp(' ')
 disp([Heading;param_name_best_mean_std])
 
 if length(varargin)>2
-    xlswrite([pwd filesep FinalFolderName filesep 'Summary_Optimised_Parameters.xls'],[Heading;param_name_best_mean_std]);
+    try
+        Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.
+        xlswrite([pwd filesep FinalFolderName filesep 'Summary_Optimised_Parameters.xls'],[Heading;param_name_best_mean_std])
+
+    catch
+        tab = table(param_vector,bestx',meanx',stdx','VariableNames',{'Parameter','Best','Average','Std'});
+        writetable(tab,[FinalFolderName, filesep, 'Summary_Optimised_Parameters.csv'],'Delimiter',',');
+    end
 end
 
 disp('==============================================')
