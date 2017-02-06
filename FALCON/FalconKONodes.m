@@ -133,7 +133,9 @@ for counter =  1:size(p_KD,2)
     ylabel('Akaike Information Criterion (AIC)');
     hold off
     Min=min(AIC_merge(1:counter)); Max=max(AIC_merge(1:counter));
-    axis([0.5 counter+1.5 Min-0.1*abs(Max-Min) Max+0.1*abs(Max-Min)])
+    if counter>1
+        axis([0.5 counter+1.5 Min-0.1*abs(Max-Min) Max+0.1*abs(Max-Min)])
+    end
     drawnow;
     if ToSave
         saveas(figko,[Folder,filesep,'Nodes Knock-Outs'],'fig')        
