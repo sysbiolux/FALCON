@@ -14,26 +14,26 @@ Model_Example = 4;
 % 4 = Apoptosis model
 
 % Define optmisation options
-optRound=3; % Number of optimisation round
+optRound=2; % Number of optimisation round
 MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
-Parallelisation=3; % Use multiple cores for optimisation? (0=no, 1=yes)
+Parallelisation=1; % Use multiple cores for optimisation? (0=no, 1=yes)
 HLbound=0.5; % Qualitative threshold between high and low inputs
 Forced=1; % Define whether single inputs and Boolean gates are forced to probability 1 
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
 
 % Define plotting and saving (0=no, 1=yes)
-PlotFitEvolution    = 0; % Graph of optimise fitting cost over iteration
-PlotFitSummary      = 0; % Graph of state values at steady-state versus measurements (all in 1)
+PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
+PlotFitSummary      = 1; % Graph of state values at steady-state versus measurements (all in 1)
 PlotFitIndividual   = 0; % Graph of state values at steady-state versus measurements (individual)
-PlotHeatmapCost     = 0; % Heatmaps of optimal costs for each output for each condition absolute cost
-PlotStateSummary    = 0; % Graph of only state values at steady-sate (all in 1)
-PlotStateEvolution  = 0; % Graph of state values evolution over the course of the simulation (two graphs)
+PlotHeatmapCost     = 1; % Heatmaps of optimal costs for each output for each condition absolute cost
+PlotStateSummary    = 1; % Graph of only state values at steady-sate (all in 1)
+PlotStateEvolution  = 1; % Graph of state values evolution over the course of the simulation (two graphs)
 PlotBiograph        = 0; % Graph of network topology, nodes activities, and optimised parameters
 PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biographs above
 
 % Additional analyses after the optimisation with the default setting (0=no, 1=yes)
-Resampling_Analysis = 0; % Resampling of experimental data and re-optimise
+Resampling_Analysis = 1; % Resampling of experimental data and re-optimise
 NDatasets           = 10;% Number of artificial datasets from which to resample.
 
 LPSA_Analysis       = 0; % Local parameter sensitivity analysis
@@ -41,7 +41,7 @@ Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs g
 LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer resolution
 
 KO_Analysis         = 0; % Parameter knock-out analysis
-KONodes_Analysis    = 1; % Node knock-out analysis
+KO_Nodes_Analysis   = 1; % Parameter knock-out analysis
 
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -74,7 +74,7 @@ FinalFolderName=strrep(SaveFolderName, ':', '.');
 mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Build a FALCON model for optimisation
-estim=FalconMakeModel([InputFile],[MeasFile],HLbound,Forced); %make the model
+estim=FalconMakeModel(InputFile,MeasFile,HLbound,Forced); %make the model
 
 % Define optimisation options
 estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEvals,'MaxIter',MaxIter); % Default setting
@@ -135,7 +135,7 @@ estim.Results.Optimisation.ParamNames = estim.param_vector;
 estim.Results.Optimisation.BestParams = bestx;
 estim.Results.Optimisation.StateNames = estim.state_names;
 
-% Analyzing the evolution of fitting cost
+%% Analyzing the evolution of fitting cost
 if PlotFitEvolution == 1
   estim=FalconFitEvol(estim,IC_Dist,FinalFolderName);
 end
@@ -177,13 +177,14 @@ if KO_Analysis == 1;
     estim=FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
 
-%% Node Knock-out analysis
-if KONodes_Analysis == 1;
+%% Nodes Knock-out analysis
+if KO_Nodes_Analysis == 1;
     optRound_KO=1;
-    Estimated_Time_KO_Nodes=mean(fxt_all(:,end))*optRound_KO*length(estim.NrStates);
-    disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO_Nodes) ' seconds']); beep; pause(3); beep; 
-    estim=FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO,FinalFolderName);
+    Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
+    disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
+    estim=FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
+
 %% Guided to display results in estim.Results
 disp(' ')
 disp('================================================')

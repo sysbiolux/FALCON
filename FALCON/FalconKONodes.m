@@ -1,5 +1,7 @@
 function [estim] = FalconKONodes(varargin)
-% FalconKO creates new models for each knock-outed node by setting outcoming parameter value(s) to 0 and re-optimise
+% FalconKO creates new models for each knock-outed node by creating a dummy
+% inhibiting node. Then calculates the fitness of the model and compares
+% all KO models with AIC.
 % [estim] = FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO,FinalFolderName)
 %
 % :: Input values ::
@@ -92,15 +94,17 @@ for counter =  1:size(p_KD,2)
     
     N_r = numel(estim.Output); %number of datapoints
     p_r= numel(estim.param_vector); %number of parameters
-    Is=Interactions_original(strcmp(Interactions_original(:,2),thisNode),5);
-    for cc=length(Is):-1:1
+    %remove parameters related to the knocked-out node
+    Is=Interactions_original(strcmp(Interactions_original(:,2),thisNode),5); %fetch outgoing parameters
+    Is=[Is;Interactions_original(strcmp(Interactions_original(:,4),thisNode),5)]; %fetch incoming parameters
+    for cc=length(Is):-1:1 %remove numbers
         if str2num(char(Is(cc)))>=0
             Is(cc)=[];
         end
     end
     
     
-    AIC_KD(counter) = N_r*log(cost_KD(counter)/N_r) + 2*(p_r-numel(Is));
+    AIC_KD(counter) = N_r*log(cost_KD(counter)/N_r) + 2*(p_r-numel(unique(Is)));
     
     %%Plot AIC values
     
@@ -129,7 +133,7 @@ for counter =  1:size(p_KD,2)
     ylabel('Akaike Information Criterion (AIC)');
     hold off
     Min=min(AIC_merge(1:counter)); Max=max(AIC_merge(1:counter));
-    axis([0.5 counter+1.5 Min-0.1*abs(Min) Max+0.1*abs(Max)])
+    axis([0.5 counter+1.5 Min-0.1*abs(Max-Min) Max+0.1*abs(Max-Min)])
     drawnow;
     if ToSave
         saveas(figko,[Folder,filesep,'Nodes Knock-Outs'],'fig')        
