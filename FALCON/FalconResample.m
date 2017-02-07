@@ -102,9 +102,6 @@ if nargin>4
 end
 
 if length(varargin)>5
-    try
-        xlswrite([Folder filesep 'Summary_Resampling.xls'],[Heading;Resampling]);
-    catch
-        xlwrite([Folder filesep 'Summary_Resampling.xls'],[Heading;Resampling]);
+    xlswrite([Folder filesep 'Summary_Resampling.xls'],[Heading;Resampling]);
 end
 end
