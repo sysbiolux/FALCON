@@ -13,17 +13,30 @@ function [MeasFile] = FalconData2File(estim)
 NamesIn=estim.state_names(estim.Input_idx);
 
 NamesOut=estim.state_names(estim.Output_idx);
+useexcel = 1;
+try
+    Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.    
+    
+catch exc   
+    useexcel = 0;
+end
+delete 'tempMeasFile.xls';
+if useexcel    
+    xlswrite('tempMeasFile.xls', NamesIn , 1, 'A1');
+    xlswrite('tempMeasFile.xls', estim.Input, 1, 'A2');
+    xlswrite('tempMeasFile.xls', NamesOut, 2, 'A1');
+    xlswrite('tempMeasFile.xls', estim.Output, 2, 'A2');
+    xlswrite('tempMeasFile.xls', NamesOut, 3, 'A1');
+    xlswrite('tempMeasFile.xls', estim.SD, 3, 'A2');
+else    
+    xlwrite('tempMeasFile.xls', NamesIn , 1, 'A1');
+    xlwrite('tempMeasFile.xls', estim.Input, 1, 'A2');
+    xlwrite('tempMeasFile.xls', NamesOut, 2, 'A1');
+    xlwrite('tempMeasFile.xls', estim.Output, 2, 'A2');
+    xlwrite('tempMeasFile.xls', NamesOut, 3, 'A1');
+    xlwrite('tempMeasFile.xls', estim.SD, 3, 'A2');
+end
 
-delete 'tempMeasFile.xlsx';
-
-xlswrite('tempMeasFile.xlsx', NamesIn , 1, 'A1');
-xlswrite('tempMeasFile.xlsx', estim.Input, 1, 'A2');
-xlswrite('tempMeasFile.xlsx', NamesOut, 2, 'A1');
-xlswrite('tempMeasFile.xlsx', estim.Output, 2, 'A2');
-xlswrite('tempMeasFile.xlsx', NamesOut, 3, 'A1');
-xlswrite('tempMeasFile.xlsx', estim.SD, 3, 'A2');
-
-
-MeasFile='tempMeasFile.xlsx';
+MeasFile='tempMeasFile.xls';
 
 end
