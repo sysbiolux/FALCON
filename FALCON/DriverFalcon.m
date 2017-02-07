@@ -49,21 +49,24 @@ KO_Nodes_Analysis   = 1; % Parameter knock-out analysis
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
 % ===================================================
 
+old_path = pwd;
+falconpath = fileparts(which('DriverFalcon'));
+cd(falconpath);
 %% Please modify the following part of the script for manual tuning
 
 % Read model and measurement files 
 if Model_Example == 1
-    InputFile=[filesep 'ExampleDatasets' filesep 'example_model.txt'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'example_meas.txt'];
+    InputFile=['ExampleDatasets' filesep 'example_model.txt'];
+    MeasFile=['ExampleDatasets' filesep 'example_meas.txt'];
 elseif Model_Example == 2
-    InputFile=[filesep 'ExampleDatasets' filesep 'PDGF_model.xlsx'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'PDGF_meas.xlsx'];
+    InputFile=['ExampleDatasets' filesep 'PDGF_model.xlsx'];
+    MeasFile=['ExampleDatasets' filesep 'PDGF_meas.xlsx'];
 elseif Model_Example == 3
-    InputFile=[filesep 'ExampleDatasets' filesep 'CNO_model.xlsx'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'CNO_data.xlsx'];
+    InputFile=['ExampleDatasets' filesep 'CNO_model.xlsx'];
+    MeasFile=['ExampleDatasets' filesep 'CNO_data.xlsx'];
 elseif Model_Example == 4
-    InputFile=[filesep 'ExampleDatasets' filesep 'Apoptosis_model.xlsx'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'Apoptosis_meas.xlsx'];
+    InputFile=['ExampleDatasets' filesep 'Apoptosis_model.xlsx'];
+    MeasFile=['ExampleDatasets' filesep 'Apoptosis_meas.xlsx'];
 else
     error('Please specifiy the range of number from 1 to 4')
 end
@@ -200,11 +203,12 @@ disp('================================================')
 %% Model Prediction
 
 if Model_Example == 2
-    ValidationDataset = [filesep 'ExampleDatasets' filesep 'PDGF_validation.xlsx'];
+    ValidationDataset = ['ExampleDatasets' filesep 'PDGF_validation.xlsx'];
     FalconValidation(estim,bestx,ValidationDataset,FinalFolderName);
 end
 
 %% Re-plot the figures (in case the plotting crashed during the analysis)
 % FalconPlots(estim);
-
+%Go back to the original path
+cd(old_path)
 % === End of the script === %

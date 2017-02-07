@@ -43,16 +43,16 @@ KO_Analysis         = 1; % Parameter knock-out analysis
 %% Please modify the following part of the script for manual tuning
 
 % Read model and measurement files 
-InputFile='ToyDiff.xlsx';
+InputFile=['ExampleDatasets' filesep 'ToyDiff.xlsx'];
 
-FixedEdgesList='ToyDiff.xlsx'; % all edges are fixed i.e. same parameter value for all contexts
+FixedEdgesList=['ExampleDatasets' filesep 'ToyDiff.xlsx']; % all edges are fixed i.e. same parameter value for all contexts
 % FixedEdgesList='ToyDiff_fixed.xlsx'; % no edge is fixed. The specified interaction is equal to 1 by definition
 % FixedEdgesList='ToyDiff_FixedKi2.xlsx'; % only the specified edge is fixed. The other ones have different parameter values for each context 
 
 MeasFileList={};
 ContextsList={'1','2','3'};
 for f=1:length(ContextsList)
-    MeasFileList=[MeasFileList,['ToyDiff_meas_CL' char(ContextsList(f)) '.xlsx']];
+    MeasFileList=[MeasFileList,['ExampleDatasets' filesep 'ToyDiff_meas_CL' char(ContextsList(f)) '.xlsx']];
 end
 
 % Create a save folder
@@ -61,8 +61,8 @@ FinalFolderName=strrep(SaveFolderName, ':', '.');
 mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Build a FALCON model for optimisation
-[estim, stamp] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced);
-MeasFile=['Results_' stamp '_.xlsx'];
+[estim, stamp, MeasFile] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced);
+
 
 % Define optimisation options
 estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEvals,'MaxIter',MaxIter); % Default setting
