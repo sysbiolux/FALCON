@@ -109,7 +109,8 @@ for counter =  1:size(p_KD,2)
     %%Plot AIC values
     
     AIC_merge=[AIC_complete,AIC_KD];
-    figko=figure(thisfig); hold on;
+    set(0,'CurrentFigure',thisfig);
+    figko=thisfig; hold on;
     
     h=bar(1,AIC_complete); hold on
     for counter2 = 2:counter+1
