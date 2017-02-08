@@ -313,5 +313,8 @@ if graphs(5)
     end
 end
 MeanStateValueAll = x';
+estim.Results.Optimisation.Diffs = Diffs;
+estim.Results.Optimisation.StdStateValueAll = StdStateValueAll;
+
 end
 

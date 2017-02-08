@@ -33,7 +33,7 @@ Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs g
 LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer resolution
 
 KO_Analysis         = 1; % Parameter knock-out analysis
-
+KO_Nodes_Analysis   = 1;
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
 % Click "Run" or press "F5" to start the optimisation
@@ -158,7 +158,7 @@ if LPSA_Analysis == 1
     [~, estim]=FalconLPSA(estim, bestx, MeasFile, HLbound, optRound_LPSA, LPSA_Increments, IsFast, Parallelisation, FinalFolderName);
 end
 
-%% Knock-out analysis
+%% Interactions Knock-out analysis
 if KO_Analysis == 1;
     optRound_KO=1;
     Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*length(estim.param_vector);
@@ -166,6 +166,13 @@ if KO_Analysis == 1;
     estim=FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
 
+%% Nodes Knock-out analysis
+if KO_Nodes_Analysis == 1;
+    optRound_KO=1;
+    Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
+    disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
+    estim=FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
+end
 %% Guided to display results in estim.Results
 disp(' ')
 disp('================================================')

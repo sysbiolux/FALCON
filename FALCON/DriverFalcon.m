@@ -23,17 +23,17 @@ Forced=1; % Define whether single inputs and Boolean gates are forced to probabi
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
 
 % Define plotting and saving (0=no, 1=yes)
-PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
-PlotFitSummary      = 1; % Graph of state values at steady-state versus measurements (all in 1)
+PlotFitEvolution    = 0; % Graph of optimise fitting cost over iteration
+PlotFitSummary      = 0; % Graph of state values at steady-state versus measurements (all in 1)
 PlotFitIndividual   = 0; % Graph of state values at steady-state versus measurements (individual)
-PlotHeatmapCost     = 1; % Heatmaps of optimal costs for each output for each condition absolute cost
-PlotStateSummary    = 1; % Graph of only state values at steady-sate (all in 1)
-PlotStateEvolution  = 1; % Graph of state values evolution over the course of the simulation (two graphs)
+PlotHeatmapCost     = 0; % Heatmaps of optimal costs for each output for each condition absolute cost
+PlotStateSummary    = 0; % Graph of only state values at steady-sate (all in 1)
+PlotStateEvolution  = 0; % Graph of state values evolution over the course of the simulation (two graphs)
 PlotBiograph        = 0; % Graph of network topology, nodes activities, and optimised parameters
 PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biographs above
 
 % Additional analyses after the optimisation with the default setting (0=no, 1=yes)
-Resampling_Analysis = 1; % Resampling of experimental data and re-optimise
+Resampling_Analysis = 0; % Resampling of experimental data and re-optimise
 NDatasets           = 10;% Number of artificial datasets from which to resample.
 
 LPSA_Analysis       = 0; % Local parameter sensitivity analysis
