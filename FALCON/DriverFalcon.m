@@ -3,10 +3,10 @@
 % ======================================
 
 % FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
-clc, clear all % clear screen and workspace 
+%clc, clear all % clear screen and workspace 
 
 % Choose your model example [1-4]
-Model_Example = 4;
+Model_Example = 2;
 
 % 1 = Pipeline example
 % 2 = PDGF model

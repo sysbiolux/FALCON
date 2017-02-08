@@ -268,6 +268,7 @@ try
     xlswrite(tempfile,Page2,2)
     xlswrite(tempfile,Page3,3)
 catch
+    setupxlwrite();
     xlwrite(tempfile,Page1,1)
     xlwrite(tempfile,Page2,2)
     xlwrite(tempfile,Page3,3)
