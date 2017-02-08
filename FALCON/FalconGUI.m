@@ -458,13 +458,13 @@ if ~StopCommand
     warning off
     if ResultsSummary
         ResultFileName=['Summary',datestr(now, 'yyyymmddTHHMMSS'),'.xlsx'];
-        try
-            %Try the Excel Backend, 
-            Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.
+        useexcel = isExcelPresent();
+        if useexcel
+            %Try the Excel Backend,             
             xlswrite([handles.SaveFolderName, filesep, ResultFileName],{'Parameter','Best','Average','Std'},'1','A1');
             xlswrite([handles.SaveFolderName, filesep, ResultFileName],estim.param_vector,'1','A2');
             xlswrite([handles.SaveFolderName, filesep, ResultFileName],[bestx',meanx',stdx'],'1','B2');    
-        catch
+        else
             %Otherwise save as a csv
             ResultFileName=['Summary',datestr(now, 'yyyymmddTHHMMSS'),'.csv'];            
             tab = table(estim.param_vector,bestx',meanx',stdx','VariableNames',{'Parameter','Best','Average','Std'});

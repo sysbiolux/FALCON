@@ -263,11 +263,15 @@ Page2(Page2nan>0) ={'NaN'};
 
 Page3nan=[zeros(1,size(Page3,2));cell2mat(cellfun(@isnan,Page3(2:end,:),'UniformOutput',0))];
 Page3(Page3nan>0) ={'NaN'};
-try
+
+%Check for excel to determine which IO to use.
+useexcel = isExcelPresent();
+
+if useexcel
     xlswrite(tempfile,Page1,1)
     xlswrite(tempfile,Page2,2)
     xlswrite(tempfile,Page3,3)
-catch
+else
     setupxlwrite();
     xlwrite(tempfile,Page1,1)
     xlwrite(tempfile,Page2,2)

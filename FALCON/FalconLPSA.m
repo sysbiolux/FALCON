@@ -317,10 +317,10 @@ disp([Heading;LPSA])
 disp(' ')
 
 if length(varargin)>8
-    try
-        Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.
+    useexcel = isExcelPresent();
+    if useexcel        
         xlswrite([Folder filesep 'Summary_LPSA.xls'],[Heading;LPSA]);
-    catch
+    else
         tab = table(estim.param_vector, estim.Results.LPSA.Identifiability', 'VariableNames',Heading);
         writetable(tab,[Folder, filesep, 'Summary_LPSA.csv'],'Delimiter',',');
     end

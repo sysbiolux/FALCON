@@ -13,13 +13,9 @@ function [MeasFile] = FalconData2File(estim)
 NamesIn=estim.state_names(estim.Input_idx);
 
 NamesOut=estim.state_names(estim.Output_idx);
-useexcel = 1;
-try
-    Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.    
-    
-catch exc   
-    useexcel = 0;
-end
+%Test for presence of excel to select the I/O method
+useexcel = isExcelPresent();
+
 delete 'tempMeasFile.xls';
 if useexcel    
     xlswrite('tempMeasFile.xls', NamesIn , 1, 'A1');

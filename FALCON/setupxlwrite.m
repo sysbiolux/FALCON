@@ -1,7 +1,11 @@
-function  setupxlwrite()
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
-%Check whether xlwrite is on the path. if not, add the path.
+function setupxlwrite()
+%setupxlwrite setup all folders and pathes necessary to use xlwrite from Matlab file Exchange.
+%   setupxlwrite will check whether xlwrite is on the folder, and if not
+%   add the FALCONROOT/ThirdParty folder to the path. 
+%   it will further check, whether the apache-poi libraries are on the
+%   java class path (i.e. if the poi Workbooks classes can be accessed),
+%   and if not, it will add the jars in the poi_library folder in
+%   FALCONROOT/ThirdParty to the javaclass path.
 
 if strcmp(which('xlwrite'),'')
     falconfolder = fileparts(which('DriverFalcon'));
