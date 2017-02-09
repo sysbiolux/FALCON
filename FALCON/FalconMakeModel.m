@@ -436,6 +436,8 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
         Input_index=[Input_index;Input_index_coll];
     end
     OtherOut(strcmp(OtherOut,'NaN'))={NaN}; %%%
+    OtherOut(strcmp(OtherOut,''))={NaN}; %%%
+    
     Output_vector=cell2mat(OtherOut(2:end,:));
     for jj=2:length(OtherOut(:,1))
         Output_index_coll=[];
@@ -449,6 +451,7 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
         Output_index=[Output_index;Output_index_coll];
     end
     OtherErr(strcmp(OtherErr,'NaN'))={NaN};
+    OtherErr(strcmp(OtherErr,''))={NaN};
     if ~isempty(OtherErr)
         SD_vector=cell2mat(OtherErr(2:end,:));
     end
