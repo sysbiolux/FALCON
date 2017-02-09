@@ -160,7 +160,6 @@ estim.Results.KnockOutNodes.Parameters=Xtitles';
 estim.Results.KnockOutNodes.AIC_values=AIC_merge;
 estim.Results.KnockOutNodes.KO_effect=AIC_merge>=AIC_merge(1);
 estim.Results.KnockOutNodes.Interpretation={'0 = no KO effect','1 = KO effect'};
-estim.Results.KnockOutNodes.AIC_complete = AIC_complete;
 
 delete('KDN_TempFile.txt')
 

@@ -251,7 +251,7 @@ for m=1:length(MeasFileList)
     Page3=[Page3,temp];
 end
 stamp=mat2str((floor(now*10000))/10000);
-tempfile=['Results_' stamp '_.xls'];
+tempfile=['Results_' stamp '_.xlsx'];
 varargout{1}=stamp;
 varargout{2}=tempfile;
 
@@ -277,6 +277,7 @@ else
     xlwrite(tempfile,Page2,2)
     xlwrite(tempfile,Page3,3)
 end
+
 
 
 clearvars estim
