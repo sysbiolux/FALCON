@@ -35,7 +35,7 @@ function varargout = FalconGUI(varargin)
 %
 
 
-% Last Modified by GUIDE v2.5 11-Aug-2016 15:04:58
+% Last Modified by GUIDE v2.5 07-Feb-2017 09:43:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,9 +56,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-% FalconSplash('SplashScreen.jpg',2000)
-
-
 % --- Executes just before FalconGUI is made visible.
 function FalconGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -75,6 +72,24 @@ guidata(hObject, handles);
 % UIWAIT makes FalconGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+
+%%%splash
+I = imread('Splash.jpg');
+IJ = im2java(I);
+win = javax.swing.JWindow;
+icon = javax.swing.ImageIcon(IJ);
+label = javax.swing.JLabel(icon);
+win.getContentPane.add(label);
+win.setAlwaysOnTop(true);
+win.pack;
+SS = win.getToolkit.getScreenSize;
+SH = SS.height; SW = SS.width;
+% get the actual splashImage size
+IH = icon.getIconHeight; IW = icon.getIconWidth;
+win.setLocation((SW-IW)/2,(SH-IH)/2);
+
+win.show; tic;
+while toc < 3, end; win.dispose();
 
 % --- Outputs from this function are returned to the command line.
 function varargout = FalconGUI_OutputFcn(hObject, eventdata, handles) 
@@ -261,6 +276,14 @@ function DoKOUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+
+% --- Executes on button press in DoKONode.
+function DoKONode_Callback(hObject, eventdata, handles)
+% hObject    handle to DoKONode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
 % --- Executes when figure1 is resized.
 function figure1_SizeChangedFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
@@ -362,6 +385,7 @@ UseNormal=get(handles.NormalUI,'Value');
 DoLPSA=get(handles.LPSAUI,'Value');
 LPSARep=str2double(get(handles.LPSARepUI,'String'));
 DoKO=get(handles.DoKOUI,'Value');
+DoKONo=get(handles.DoKONode,'Value');
 UseFast=get(handles.LPSA_fast,'Value');
 DoBiograph=get(handles.BiographUI,'Value');
 AllPlots=get(handles.AllPlots,'Value');
@@ -449,13 +473,13 @@ if ~StopCommand
     warning off
     if ResultsSummary
         ResultFileName=['Summary',datestr(now, 'yyyymmddTHHMMSS'),'.xlsx'];
-        try
-            %Try the Excel Backend, 
-            Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.
+        useexcel = isExcelPresent();
+        if useexcel
+            %Try the Excel Backend,             
             xlswrite([handles.SaveFolderName, filesep, ResultFileName],{'Parameter','Best','Average','Std'},'1','A1');
             xlswrite([handles.SaveFolderName, filesep, ResultFileName],estim.param_vector,'1','A2');
             xlswrite([handles.SaveFolderName, filesep, ResultFileName],[bestx',meanx',stdx'],'1','B2');    
-        catch
+        else
             %Otherwise save as a csv
             ResultFileName=['Summary',datestr(now, 'yyyymmddTHHMMSS'),'.csv'];            
             tab = table(estim.param_vector,bestx',meanx',stdx','VariableNames',{'Parameter','Best','Average','Std'});
@@ -554,6 +578,18 @@ if ~StopCommand
         set(handles.ProgressDisplay2,'String',['Computing Systematic Knock-Outs...']); drawnow
         estim=FalconKO(estim, bestx, fxt_all,handles.MeasFile,HLbound,1,handles.SaveFolderName);
     end
+else
+    error('Terminated by the user')
+end
+
+StopCommand=0;
+
+if ~StopCommand
+    if DoKONo
+        set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
+        set(handles.ProgressDisplay2,'String',['Computing Systematic Node Knock-Outs...']); drawnow
+        estim=FalconKONodes(estim, bestx, fxt_all,handles.MeasFile,HLbound,1,handles.SaveFolderName);
+            end
 else
     error('Terminated by the user')
 end
