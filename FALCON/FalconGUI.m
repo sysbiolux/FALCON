@@ -35,7 +35,7 @@ function varargout = FalconGUI(varargin)
 %
 
 
-% Last Modified by GUIDE v2.5 11-Aug-2016 15:04:58
+% Last Modified by GUIDE v2.5 07-Feb-2017 09:43:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -261,6 +261,14 @@ function DoKOUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+
+% --- Executes on button press in DoKONode.
+function DoKONode_Callback(hObject, eventdata, handles)
+% hObject    handle to DoKONode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
 % --- Executes when figure1 is resized.
 function figure1_SizeChangedFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
@@ -362,6 +370,7 @@ UseNormal=get(handles.NormalUI,'Value');
 DoLPSA=get(handles.LPSAUI,'Value');
 LPSARep=str2double(get(handles.LPSARepUI,'String'));
 DoKO=get(handles.DoKOUI,'Value');
+DoKONo=get(handles.DoKONode,'Value');
 UseFast=get(handles.LPSA_fast,'Value');
 DoBiograph=get(handles.BiographUI,'Value');
 AllPlots=get(handles.AllPlots,'Value');
@@ -473,7 +482,7 @@ StopCommand=0;
 
 if ~StopCommand
     if FminconConv
-        FalconFitEvol(estim,UN,handles.SaveFolderName)
+        FalconFitEvol(estim,UN,handles.SaveFolderName);
     end
 else
     error('Terminated by the user')
@@ -554,6 +563,18 @@ if ~StopCommand
         set(handles.ProgressDisplay2,'String',['Computing Systematic Knock-Outs...']); drawnow
         estim=FalconKO(estim, bestx, fxt_all,handles.MeasFile,HLbound,1,handles.SaveFolderName);
     end
+else
+    error('Terminated by the user')
+end
+
+StopCommand=0;
+
+if ~StopCommand
+    if DoKONo
+        set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
+        set(handles.ProgressDisplay2,'String',['Computing Systematic Node Knock-Outs...']); drawnow
+        estim=FalconKONodes(estim, bestx, fxt_all,handles.MeasFile,HLbound,1,handles.SaveFolderName);
+            end
 else
     error('Terminated by the user')
 end
