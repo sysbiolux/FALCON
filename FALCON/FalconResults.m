@@ -68,11 +68,10 @@ disp(' ')
 disp([Heading;param_name_best_mean_std])
 
 if length(varargin)>2
-    try
-        Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.
+    useexcel = isExcelPresent();
+    if useexcel        
         xlswrite([pwd filesep FinalFolderName filesep 'Summary_Optimised_Parameters.xls'],[Heading;param_name_best_mean_std])
-
-    catch
+    else
         tab = table(param_vector,bestx',meanx',stdx','VariableNames',{'Parameter','Best','Average','Std'});
         writetable(tab,[FinalFolderName, filesep, 'Summary_Optimised_Parameters.csv'],'Delimiter',',');
     end

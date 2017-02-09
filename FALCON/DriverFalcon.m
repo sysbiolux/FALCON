@@ -3,10 +3,10 @@
 % ======================================
 
 % FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
-clc, clear all % clear screen and workspace 
+%clc, clear all % clear screen and workspace 
 
 % Choose your model example [1-4]
-Model_Example = 4;
+Model_Example = 2;
 
 % 1 = Pipeline example
 % 2 = PDGF model
@@ -23,17 +23,17 @@ Forced=1; % Define whether single inputs and Boolean gates are forced to probabi
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
 
 % Define plotting and saving (0=no, 1=yes)
-PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
-PlotFitSummary      = 1; % Graph of state values at steady-state versus measurements (all in 1)
+PlotFitEvolution    = 0; % Graph of optimise fitting cost over iteration
+PlotFitSummary      = 0; % Graph of state values at steady-state versus measurements (all in 1)
 PlotFitIndividual   = 0; % Graph of state values at steady-state versus measurements (individual)
-PlotHeatmapCost     = 1; % Heatmaps of optimal costs for each output for each condition absolute cost
-PlotStateSummary    = 1; % Graph of only state values at steady-sate (all in 1)
-PlotStateEvolution  = 1; % Graph of state values evolution over the course of the simulation (two graphs)
+PlotHeatmapCost     = 0; % Heatmaps of optimal costs for each output for each condition absolute cost
+PlotStateSummary    = 0; % Graph of only state values at steady-sate (all in 1)
+PlotStateEvolution  = 0; % Graph of state values evolution over the course of the simulation (two graphs)
 PlotBiograph        = 0; % Graph of network topology, nodes activities, and optimised parameters
 PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biographs above
 
 % Additional analyses after the optimisation with the default setting (0=no, 1=yes)
-Resampling_Analysis = 1; % Resampling of experimental data and re-optimise
+Resampling_Analysis = 0; % Resampling of experimental data and re-optimise
 NDatasets           = 10;% Number of artificial datasets from which to resample.
 
 LPSA_Analysis       = 0; % Local parameter sensitivity analysis
@@ -49,21 +49,24 @@ KO_Nodes_Analysis   = 1; % Parameter knock-out analysis
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
 % ===================================================
 
+old_path = pwd;
+falconpath = fileparts(which('DriverFalcon'));
+cd(falconpath);
 %% Please modify the following part of the script for manual tuning
 
 % Read model and measurement files 
 if Model_Example == 1
-    InputFile=[filesep 'ExampleDatasets' filesep 'example_model.txt'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'example_meas.txt'];
+    InputFile=['ExampleDatasets' filesep 'example_model.txt'];
+    MeasFile=['ExampleDatasets' filesep 'example_meas.txt'];
 elseif Model_Example == 2
-    InputFile=[filesep 'ExampleDatasets' filesep 'PDGF_model.xlsx'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'PDGF_meas.xlsx'];
+    InputFile=['ExampleDatasets' filesep 'PDGF_model.xlsx'];
+    MeasFile=['ExampleDatasets' filesep 'PDGF_meas.xlsx'];
 elseif Model_Example == 3
-    InputFile=[filesep 'ExampleDatasets' filesep 'CNO_model.xlsx'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'CNO_data.xlsx'];
+    InputFile=['ExampleDatasets' filesep 'CNO_model.xlsx'];
+    MeasFile=['ExampleDatasets' filesep 'CNO_data.xlsx'];
 elseif Model_Example == 4
-    InputFile=[filesep 'ExampleDatasets' filesep 'Apoptosis_model.xlsx'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'Apoptosis_meas.xlsx'];
+    InputFile=['ExampleDatasets' filesep 'Apoptosis_model.xlsx'];
+    MeasFile=['ExampleDatasets' filesep 'Apoptosis_meas.xlsx'];
 else
     error('Please specifiy the range of number from 1 to 4')
 end
@@ -200,11 +203,12 @@ disp('================================================')
 %% Model Prediction
 
 if Model_Example == 2
-    ValidationDataset = [filesep 'ExampleDatasets' filesep 'PDGF_validation.xlsx'];
+    ValidationDataset = ['ExampleDatasets' filesep 'PDGF_validation.xlsx'];
     FalconValidation(estim,bestx,ValidationDataset,FinalFolderName);
 end
 
 %% Re-plot the figures (in case the plotting crashed during the analysis)
 % FalconPlots(estim);
-
+%Go back to the original path
+cd(old_path)
 % === End of the script === %

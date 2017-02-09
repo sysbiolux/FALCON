@@ -251,7 +251,7 @@ for m=1:length(MeasFileList)
     Page3=[Page3,temp];
 end
 stamp=mat2str((floor(now*10000))/10000);
-tempfile=['Results_' stamp '_.xlsx'];
+tempfile=['Results_' stamp '_.xls'];
 varargout{1}=stamp;
 varargout{2}=tempfile;
 
@@ -264,9 +264,19 @@ Page2(Page2nan>0) ={'NaN'};
 Page3nan=[zeros(1,size(Page3,2));cell2mat(cellfun(@isnan,Page3(2:end,:),'UniformOutput',0))];
 Page3(Page3nan>0) ={'NaN'};
 
-xlswrite(tempfile,Page1,1)
-xlswrite(tempfile,Page2,2)
-xlswrite(tempfile,Page3,3)
+%Check for excel to determine which IO to use.
+useexcel = isExcelPresent();
+
+if useexcel
+    xlswrite(tempfile,Page1,1)
+    xlswrite(tempfile,Page2,2)
+    xlswrite(tempfile,Page3,3)
+else
+    setupxlwrite();
+    xlwrite(tempfile,Page1,1)
+    xlwrite(tempfile,Page2,2)
+    xlwrite(tempfile,Page3,3)
+end
 
 
 clearvars estim

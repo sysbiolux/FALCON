@@ -302,7 +302,7 @@ estim.Results.LPSA.p_SA = p_SA;
 estim.Results.LPSA.cost_SA = cost_SA;
 estim.Results.LPSA.CutOff = CutOff;
 estim.Results.LPSA.Interpretation={'1=Identifiable','2=Partially identifiable','3=Non-identifiable'};
-
+estim.Results.LPSA.p_increment = p_increment;
 
 Heading=cell(1,2);
 Heading(1,1)={'parameters'};
@@ -317,10 +317,10 @@ disp([Heading;LPSA])
 disp(' ')
 
 if length(varargin)>8
-    try
-        Excel = matlab.io.internal.getExcelInstance; %This fails if no excel instance exists.
+    useexcel = isExcelPresent();
+    if useexcel        
         xlswrite([Folder filesep 'Summary_LPSA.xls'],[Heading;LPSA]);
-    catch
+    else
         tab = table(estim.param_vector, estim.Results.LPSA.Identifiability', 'VariableNames',Heading);
         writetable(tab,[Folder, filesep, 'Summary_LPSA.csv'],'Delimiter',',');
     end

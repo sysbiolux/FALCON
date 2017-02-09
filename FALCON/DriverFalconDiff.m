@@ -33,7 +33,7 @@ Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs g
 LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer resolution
 
 KO_Analysis         = 1; % Parameter knock-out analysis
-
+KO_Nodes_Analysis   = 1;
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
 % Click "Run" or press "F5" to start the optimisation
@@ -43,16 +43,16 @@ KO_Analysis         = 1; % Parameter knock-out analysis
 %% Please modify the following part of the script for manual tuning
 
 % Read model and measurement files 
-InputFile='ToyDiff.xlsx';
+InputFile=['ExampleDatasets' filesep 'ToyDiff.xlsx'];
 
-FixedEdgesList='ToyDiff.xlsx'; % all edges are fixed i.e. same parameter value for all contexts
+FixedEdgesList=['ExampleDatasets' filesep 'ToyDiff.xlsx']; % all edges are fixed i.e. same parameter value for all contexts
 % FixedEdgesList='ToyDiff_fixed.xlsx'; % no edge is fixed. The specified interaction is equal to 1 by definition
 % FixedEdgesList='ToyDiff_FixedKi2.xlsx'; % only the specified edge is fixed. The other ones have different parameter values for each context 
 
 MeasFileList={};
 ContextsList={'1','2','3'};
 for f=1:length(ContextsList)
-    MeasFileList=[MeasFileList,['ToyDiff_meas_CL' char(ContextsList(f)) '.xlsx']];
+    MeasFileList=[MeasFileList,['ExampleDatasets' filesep 'ToyDiff_meas_CL' char(ContextsList(f)) '.xlsx']];
 end
 
 % Create a save folder
@@ -61,8 +61,8 @@ FinalFolderName=strrep(SaveFolderName, ':', '.');
 mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Build a FALCON model for optimisation
-[estim, stamp] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced);
-MeasFile=['Results_' stamp '_.xlsx'];
+[estim, stamp, MeasFile] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced);
+
 
 % Define optimisation options
 estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEvals,'MaxIter',MaxIter); % Default setting
@@ -158,7 +158,7 @@ if LPSA_Analysis == 1
     [~, estim]=FalconLPSA(estim, bestx, MeasFile, HLbound, optRound_LPSA, LPSA_Increments, IsFast, Parallelisation, FinalFolderName);
 end
 
-%% Knock-out analysis
+%% Interactions Knock-out analysis
 if KO_Analysis == 1;
     optRound_KO=1;
     Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*length(estim.param_vector);
@@ -166,6 +166,13 @@ if KO_Analysis == 1;
     estim=FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
 
+%% Nodes Knock-out analysis
+if KO_Nodes_Analysis == 1;
+    optRound_KO=1;
+    Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
+    disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
+    estim=FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
+end
 %% Guided to display results in estim.Results
 disp(' ')
 disp('================================================')

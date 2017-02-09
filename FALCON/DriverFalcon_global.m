@@ -5,14 +5,15 @@
 % FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
 clc, clear all % clear screen and workspace
 
+ExampleFolder = 'ExampleDatasets'
 %% Define your model file and experimental data
 
-    InputFile='ToyMarch.xlsx';  %% Network structure file
-    FixedEdgesList='ToyMarch_fixed.xlsx'; %1) File with Interactions to be fixed
+    InputFile= [ExampleFolder filesep 'ToyDiff.xlsx'];  %% Network structure file
+    FixedEdgesList=[ExampleFolder filesep 'ToyDiff_fixed.xlsx']; %1) File with Interactions to be fixed
     MeasFileList={};
     ContextsList={'1','2','3'};
     for f=1:length(ContextsList)
-        MeasFileList=[MeasFileList,['ToyMarch_meas_CL' char(ContextsList(f)) '.xlsx']];
+        MeasFileList=[MeasFileList,[ExampleFolder filesep 'ToyDiff_meas_CL' char(ContextsList(f)) '.xlsx']];
     end
     Max=10;
 %%
