@@ -56,9 +56,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-% FalconSplash('SplashScreen.jpg',2000)
-
-
 % --- Executes just before FalconGUI is made visible.
 function FalconGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -75,6 +72,24 @@ guidata(hObject, handles);
 % UIWAIT makes FalconGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+
+%%%splash
+I = imread('Splash.jpg');
+IJ = im2java(I);
+win = javax.swing.JWindow;
+icon = javax.swing.ImageIcon(IJ);
+label = javax.swing.JLabel(icon);
+win.getContentPane.add(label);
+win.setAlwaysOnTop(true);
+win.pack;
+SS = win.getToolkit.getScreenSize;
+SH = SS.height; SW = SS.width;
+% get the actual splashImage size
+IH = icon.getIconHeight; IW = icon.getIconWidth;
+win.setLocation((SW-IW)/2,(SH-IH)/2);
+
+win.show; tic;
+while toc < 3, end; win.dispose();
 
 % --- Outputs from this function are returned to the command line.
 function varargout = FalconGUI_OutputFcn(hObject, eventdata, handles) 
