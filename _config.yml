@@ -2,7 +2,7 @@ title: Falcon
 description: A Toolbox for the Fast Contextualization of Logical Networks
 google_analytics: 
 show_downloads: true
-theme: jekyll-theme-dinky
+theme: jekyll-theme-modernist
 
 gems:
   - jekyll-mentions
