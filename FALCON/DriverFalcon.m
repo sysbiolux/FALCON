@@ -6,7 +6,7 @@
 %clc, clear all % clear screen and workspace 
 
 % Choose your model example [1-4]
-Model_Example = 4;
+Model_Example = 1;
 
 % 1 = Pipeline example
 % 2 = PDGF model
@@ -17,7 +17,7 @@ Model_Example = 4;
 optRound=2; % Number of optimisation round
 MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
-Parallelisation=1; % Use multiple cores for optimisation? (0=no, 1=yes)
+Parallelisation=0; % Use multiple cores for optimisation? (0=no, 1=yes)
 HLbound=0.5; % Qualitative threshold between high and low inputs
 Forced=1; % Define whether single inputs and Boolean gates are forced to probability 1 
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
@@ -36,12 +36,12 @@ PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biograp
 Resampling_Analysis = 1; % Resampling of experimental data and re-optimise
 NDatasets           = 10;% Number of artificial datasets from which to resample.
 
-LPSA_Analysis       = 0; % Local parameter sensitivity analysis
+LPSA_Analysis       = 1; % Local parameter sensitivity analysis
 Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
 LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer resolution
 
-KO_Analysis         = 0; % Parameter knock-out analysis
-KO_Nodes_Analysis   = 1; % Parameter knock-out analysis
+KO_Analysis         = 1; % Parameter knock-out analysis
+KO_Nodes_Analysis   = 1; % Node knock-out analysis
 
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||

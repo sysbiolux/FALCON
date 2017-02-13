@@ -330,5 +330,5 @@ end
 
 delete('LPSA_TempFile.txt')
 delete('TempFile.txt')
-
+estim.Results.LPSA.p_increment = LPSA_Increments;
 end

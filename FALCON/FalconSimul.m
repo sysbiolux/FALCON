@@ -242,10 +242,11 @@ if graphs(3) && sum(std(estim.Output_idx))==0
         saveas(fighm,[Folder, '\CrossErrorHeatMap'],'tif');
         close(gcf)
     end
-    figure, hist(Diffs(:)); title('Cross-error Analysis: Histogram');
-    if ToSave
-        saveas(gcf,[Folder, '\CrossErrorHistogram'],'tif')
-    end
+%%%% Modif removal of histogram
+%     figure, hist(Diffs(:)); title('Cross-error Analysis: Histogram');
+%     if ToSave
+%         saveas(gcf,[Folder, '\CrossErrorHistogram'],'tif')
+%     end
 end
 
 if graphs(4)
@@ -313,5 +314,7 @@ if graphs(5)
     end
 end
 MeanStateValueAll = x';
+estim.Results.Optimisation.StdStateValueAll =  StdStateValueAll;
+estim.Results.Optimisation.Diffs = Diffs;
 end
 

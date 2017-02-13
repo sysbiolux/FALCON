@@ -17,7 +17,8 @@ state_names=estim.state_names;
 Measurements=estim.Output;
 SD=estim.SD;
 bestx = estim.bestx;
-
+n=estim.NrStates;
+x=rand(n,size(Measurements,1));
 %for states
 num_plots=size(estim.Output,2);
 NLines=ceil(sqrt(num_plots));
@@ -58,68 +59,63 @@ if isfield(estim.Results,'Optimisation')
     h1=figure; hold on
     for counter=1:num_plots
         subplot(NLines,NCols,counter), hold on,
-        
+
         % Plot experimental data first (in green)
-        
         if ~isempty(SD)
-            errorbar(1:size(Measurements,1),Measurements(:,counter),SD(:,counter),'gs','LineWidth',3,'MarkerSize',5), hold on,
+            errorbar(1:size(Measurements,1),Measurements(:,counter),SD(:,counter),'gs','LineWidth',1,'MarkerSize',2,'Color',[0.4 0.6 0]), hold on,
         else
-            errorbar(1:size(Measurements,1),Measurements(:,counter),zeros(size(Measurements,1),1),'gs','LineWidth',3,'MarkerSize',5), hold on,
+            errorbar(1:size(Measurements,1),Measurements(:,counter),zeros(size(Measurements,1),1),'gs','LineWidth',1,'MarkerSize',1,'Color',[0.4 0.6 0]), hold on,
         end
-        
-        % Plot simulated data on top (error bar in red, mean in blue)
-        errorbar(1:size(Measurements,1),MeanStateValueAll(:,Output_index(1,counter)),StdStateValueAll(:,Output_index(1,counter)),'r.','LineWidth',3), hold on,
-        plot(1:size(Measurements,1),MeanStateValueAll(:,Output_index(1,counter)),'b*','MarkerSize',25/sqrt(num_plots))
-        
+
+        % Plot simulated data on top
+        plot(1:size(Measurements,1),MeanStateValueAll(:,counter),'b.','MarkerSize',20/sqrt(num_plots))
+
         % Figure adjustment
-        axis([0 size(Measurements,1)+1 0 1.21])
-        set(gca,'fontsize',25/sqrt(num_plots))
+        axis([0 size(Measurements,1)+1 0 1.1])
+        set(gca,'fontsize',15/sqrt(num_plots))
+        set(gca,'XMinorGrid','on')
         t=title(state_names(Output_index(1,counter)));
-        x=xlabel('exp');
-        y=ylabel('state-value');
-        set(x,'fontsize',25/sqrt(num_plots))
-        set(y,'fontsize',25/sqrt(num_plots))
-        set(t,'fontsize',35/sqrt(num_plots))
+        xt=xlabel('experimental condition');
+        set(xt,'fontsize',15/sqrt(num_plots))
+        set(t,'fontsize',25/sqrt(num_plots))
         hold off
     end
+    
+
     % end
     
     % Plot simulated state value mapped on experimental data
     % Plot molecular profiles
     % if graphs_opt(2)
-    for counter=1:length(state_names)
+   for counter=1:length(state_names)
         h1=figure; hold on
-        
+
         % Plot experimental data first (in green)
         for counter_plot=1:size(Output_index(1,:),2)
             current_counter_plot=Output_index(1,:);
-            if counter==current_counter_plot(counter_plot)
+            if counter==current_counter_plot(counter_plot) %Panuwat's logic
                 if ~isempty(SD)
-                    errorbar(1:size(Measurements,1),Measurements(:,counter_plot),SD(:,counter_plot),'gs','LineWidth',3,'MarkerSize',5), hold on,
+                    errorbar(1:size(Measurements,1),Measurements(:,counter_plot),SD(:,counter_plot),'gs','LineWidth',1,'MarkerSize',2, 'Color',[0.4 0.6 0]), hold on,
                 else
-                    errorbar(1:size(Measurements,1),Measurements(:,counter_plot),zeros(size(Measurements,1),1),'gs','LineWidth',3,'MarkerSize',5), hold on,
+                    errorbar(1:size(Measurements,1),Measurements(:,counter_plot),zeros(size(Measurements,1),1),'gs','LineWidth',1,'MarkerSize',1, 'Color',[0.4 0.6 0]), hold on,
                 end
             end
         end
-        
-        % Plot simulated data on top (error bar in red, mean in blue)
-        errorbar(1:size(Measurements,1),MeanStateValueAll(:,counter),StdStateValueAll(:,counter),'r.','LineWidth',3), hold on,
-        plot(1:size(Measurements,1),MeanStateValueAll(:,counter),'b*','MarkerSize',15)
-        
-        
+
+        % Plot simulated data on top
+        plot(1:size(Measurements,1),x(counter,:),'b.','MarkerSize',15)
+
         % Figure adjustment
-        axis([0 size(Measurements,1)+1 0 1.21])
+        axis([0 size(Measurements,1)+1 0 1.1])
         set(gca,'fontsize',15)
         t=title(state_names(counter));
-        set(t,'interpreter','none')
-        x=xlabel('exp');
+        xt=xlabel('exp');
         y=ylabel('state-value');
-        set(x,'fontsize',15)
+        set(xt,'fontsize',15)
         set(y,'fontsize',15)
         set(t,'fontsize',15)
         hold off
-        
-    end
+            end
     % end
     
     % PlotHeatmapCost: heatmaps of optimal costs for each output for each experimental condition
@@ -140,27 +136,22 @@ if isfield(estim.Results,'Optimisation')
     % if graphs_opt(5)
     h4=figure; hold on
     NrExps=length(estim.Output(:,1));
-    if NrExps > 5
-        NrExps = 5;
-    end
     for i=1:NrExps %for each exp
         subplot(NrExps,1,i)
         Y=state_names; X=Y;
         set(gca, 'xtick', 1:length(X))
         set(gca,'xticklabel',X)
         hold on
-        if ~isempty(SD)
-            errorbar(Output_index(i,:), Measurements(i,:), SD(i,:),'gs','LineWidth',3,'MarkerSize',5)
-        else
-            errorbar(Output_index(i,:), Measurements(i,:), zeros(size(Measurements(i,:))),'gs','LineWidth',3,'MarkerSize',5)
-        end
+        Y2mean=x(:,i);
+        Y2std=zeros(size(Y2mean));    
+        errorbar(Y2mean, Y2std,'.b','LineWidth',1)
         hold on
-        Y2mean=MeanStateValueAll(i,:);
-        Y2std=StdStateValueAll(i,:);
-        errorbar(Y2mean, Y2std,'r.','LineWidth',3)
-        plot(1:length(state_names),Y2mean,'b*','MarkerSize',10)
-        axis([0, length(X)+1, 0, 1])
-        ylabel(['Exp' num2str(i)])
+        if ~isempty(SD)
+            errorbar(Output_index(i,:), Measurements(i,:), SD(i,:),'.g', 'Color',[0.4 0.6 0])
+        else
+            errorbar(Output_index(i,:), Measurements(i,:), zeros(size(Measurements(i,:))),'.g', 'Color',[0.4 0.6 0])
+        end
+        axis([0, length(X)+1, 0, 1.1])
     end
     hold off
     if NrExps > 5
@@ -171,7 +162,7 @@ if isfield(estim.Results,'Optimisation')
     
     % PlotStateEvolution: graph of state values over the course of the simulation (two graphs: all-in-1 and individual)
     % if graphs_opt (6)
-    T=0;
+     T=0;
     for exp=1:size(Measurements,1)
         for sim=2:size(estim.AllofTheXs,2)
             if (sum(abs(estim.AllofTheXs(exp,sim,:)-estim.AllofTheXs(exp,sim-1,:))))<0.01
@@ -180,37 +171,24 @@ if isfield(estim.Results,'Optimisation')
             end
         end
     end
-    
+
+
     h51=figure; hold on,
-    
-    NrExps=length(estim.Output(:,1));
-    if NrExps > 5
-        NrExps = 5;
-    end
-    for p=1:NrExps %for each exp
-        subplot(NrExps,1,p)
+    for p=1:size(Output_index,1)
+        subplot(size(Output_index,1),1,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,Output_index(p,:))))
         legend(state_names(Output_index(p,:)),'Location','EastOutside')
-        ylabel(['Exp' num2str(p)])
+        title('Dynamics through the simulation (outputs)');
         axis([0, T+1, 0, 1]);
         hold off
     end
-    if NrExps > 5
-        suptitle('Dynamics through the simulation (outputs)')
-    else
-        suptitle('Examples of dynamics through the simulation (outputs)')
-    end
-    
+   
     h52=figure; hold on,
-    NrExps=length(estim.Output(:,1));
-    if NrExps > 5
-        NrExps = 5;
-    end
-    for p=1:NrExps %for each exp
-        subplot(NrExps,1,p)
+    for p=1:size(Output_index,1)
+        subplot(size(Output_index,1),1,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,:)))
         legend(state_names(:),'Location','EastOutside')
-        ylabel(['Exp' num2str(p)])
+        title('Dynamics through the simulation (all nodes)')
         axis([0, T+1, 0, 1]);
         hold off
     end
@@ -265,7 +243,7 @@ if isfield(estim.Results,'LPSA')
     end
     suptitle('Local parameter sensitivity analysis');
 end
-%% KO
+%% KO Parameters
 if isfield(estim.Results,'KnockOut')
     Xtitles = estim.Results.KnockOut.Parameters;
     AIC_merge = estim.Results.KnockOut.AIC_values;
@@ -287,10 +265,45 @@ if isfield(estim.Results,'KnockOut')
     
     set(gca,'XTick',1:length(AIC_merge)+1)
     set(gca, 'XTicklabel', Xtitles);
-    title('AIC');
+    title('Parameter Knock-out');
     xlabel('');
     ylabel('Akaike Information Criterion (AIC)');
     hold off
     
+end
+%% KO Nodes
+if isfield(estim.Results,'KnockOutNodes')
+    AIC_complete = estim.Results.KnockOutNodes.AIC_complete;
+    AIC_KD = estim.Results.KnockOutNodes.AIC_KD;
+    AIC_merge=[AIC_complete,AIC_KD];
+    Parameters = estim.Results.KnockOutNodes.Parameters;
+    Nodes=estim.state_names;
+    thisfig = figure;
+    set(0,'CurrentFigure',thisfig);
+    figko=thisfig; hold on;
+    
+    h=bar(1,AIC_complete); hold on
+    for counter = 2: length(AIC_merge)
+        h=bar(counter,AIC_merge(counter)); hold on
+        if AIC_merge(counter) <= AIC_complete
+            set(h,'FaceColor','g');
+        else%if AIC_merge(counter2) > AIC_complete
+            set(h,'FaceColor','k');
+        end
+    end
+    hline=refline([0 AIC_complete]);
+    hline.Color = 'r';
+    set(gca,'XTick',[1:length(Parameters)+1]);
+    Xtitles=[Parameters'];
+    set(gca, 'XTicklabel', Xtitles);
+    title('Nodes Knock-out');
+    xlabel('');
+    set(gca, 'XTickLabelRotation', 45)
+    ylabel('Akaike Information Criterion (AIC)');
+    hold off
+    Min=min(AIC_merge(1:counter)); Max=max(AIC_merge(1:counter));
+%     if counter>1
+%         axis([0.5 counter+1.5 Min-0.1*abs(Max-Min) Max+0.1*abs(Max-Min)])
+%     end
 end
 end
