@@ -6,10 +6,10 @@
 clc, clear all % clear screen and workspace 
 
 % Define optmisation options
-optRound=10; % Number of optimisation round
+optRound=2; % Number of optimisation round
 MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
-Parallelisation=1; % Use multiple cores for optimisation? (0=no, 1=yes)
+Parallelisation=0; % Use multiple cores for optimisation? (0=no, 1=yes)
 HLbound=0.5; % Qualitative threshold between high and low inputs
 Forced=1; % Define whether single inputs and Boolean gates are forced to probability 1 
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
@@ -17,10 +17,10 @@ InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
 % Define plotting and saving (0=no, 1=yes)
 PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
 PlotFitSummary      = 1; % Graph of state values at steady-state versus measurements (all in 1)
-PlotFitIndividual   = 0; % Graph of state values at steady-state versus measurements (individual)
+PlotFitIndividual   = 1; % Graph of state values at steady-state versus measurements (individual)
 PlotHeatmapCost     = 1; % Heatmaps of optimal costs for each output for each condition absolute cost
-PlotStateSummary    = 0; % Graph of only state values at steady-sate (all in 1)
-PlotStateEvolution  = 0; % Graph of state values evolution over the course of the simulation (two graphs)
+PlotStateSummary    = 1; % Graph of only state values at steady-sate (all in 1)
+PlotStateEvolution  = 1; % Graph of state values evolution over the course of the simulation (two graphs)
 PlotBiograph        = 0; % Graph of network topology, nodes activities, and optimised parameters
 PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biographs above
 
@@ -30,10 +30,10 @@ NDatasets           = 10;% Number of artificial datasets from which to resample.
 
 LPSA_Analysis       = 1; % Local parameter sensitivity analysis
 Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
-LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer resolution
+LPSA_Increments     = 3; % Number of increments for LPSA. Increase for finer resolution
 
 KO_Analysis         = 1; % Parameter knock-out analysis
-
+KO_Nodes_Analysis   = 1; % Node knock-out analysis
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
 % Click "Run" or press "F5" to start the optimisation
@@ -45,7 +45,7 @@ KO_Analysis         = 1; % Parameter knock-out analysis
 % Read model and measurement files 
 InputFile='ToyDiff.xlsx';
 
-FixedEdgesList='ToyDiff.xlsx'; % all edges are fixed i.e. same parameter value for all contexts
+FixedEdgesList='ToyDiff_FixedKi2.xlsx'; % all edges are fixed i.e. same parameter value for all contexts
 % FixedEdgesList='ToyDiff_fixed.xlsx'; % no edge is fixed. The specified interaction is equal to 1 by definition
 % FixedEdgesList='ToyDiff_FixedKi2.xlsx'; % only the specified edge is fixed. The other ones have different parameter values for each context 
 
@@ -158,12 +158,19 @@ if LPSA_Analysis == 1
     [~, estim]=FalconLPSA(estim, bestx, MeasFile, HLbound, optRound_LPSA, LPSA_Increments, IsFast, Parallelisation, FinalFolderName);
 end
 
-%% Knock-out analysis
+%% Knock-out analysis (parameter)
 if KO_Analysis == 1;
     optRound_KO=1;
     Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*length(estim.param_vector);
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
     estim=FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
+end
+%% Knock-out analysis (Nodes)
+if KO_Nodes_Analysis == 1;
+    optRound_KO=1;
+    Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
+    disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
+    estim=FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
 
 %% Guided to display results in estim.Results
