@@ -254,7 +254,7 @@ for m=1:length(MeasFileList)
     Page3=[Page3,temp];
 end
 stamp=mat2str((floor(now*10000))/10000);
-tempfile=['Results_' stamp '_.xlsx'];
+tempfile=['Results_' stamp '_.xls'];
 varargout{1}=stamp;
 varargout{2}=tempfile;
 

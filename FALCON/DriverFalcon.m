@@ -51,19 +51,21 @@ KO_Nodes_Analysis   = 1; % Node knock-out analysis
 
 %% Please modify the following part of the script for manual tuning
 
+FALCONFolder = fileparts(which('DriverFalcon'));
+
 % Read model and measurement files 
 if Model_Example == 1
-    InputFile=[filesep 'ExampleDatasets' filesep 'example_model.txt'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'example_meas.txt'];
+    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'example_model.txt'];
+    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'example_meas.txt'];
 elseif Model_Example == 2
-    InputFile=[filesep 'ExampleDatasets' filesep 'PDGF_model.xlsx'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'PDGF_meas.xlsx'];
+    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF_model.xlsx'];
+    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF_meas.xlsx'];
 elseif Model_Example == 3
-    InputFile=[filesep 'ExampleDatasets' filesep 'CNO_model.xlsx'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'CNO_data.xlsx'];
+    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'CNO_model.xlsx'];
+    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'CNO_data.xlsx'];
 elseif Model_Example == 4
-    InputFile=[filesep 'ExampleDatasets' filesep 'Apoptosis_model.xlsx'];
-    MeasFile=[filesep 'ExampleDatasets' filesep 'Apoptosis_meas.xlsx'];
+    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'Apoptosis_model.xlsx'];
+    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'Apoptosis_meas.xlsx'];
 else
     error('Please specifiy the range of number from 1 to 4')
 end

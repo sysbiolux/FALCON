@@ -3,7 +3,7 @@
 % ======================================
 
 % FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
-clc, clear all % clear screen and workspace 
+%clc, clear all % clear screen and workspace 
 
 % Define optmisation options
 optRound=2; % Number of optimisation round
@@ -43,16 +43,18 @@ KO_Nodes_Analysis   = 1; % Node knock-out analysis
 %% Please modify the following part of the script for manual tuning
 
 % Read model and measurement files 
-InputFile='ToyDiff.xlsx';
+FALCONFolder = fileparts(which('DriverFalconDiff'));
 
-FixedEdgesList='ToyDiff_FixedKi2.xlsx'; % all edges are fixed i.e. same parameter value for all contexts
+InputFile= [FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff.xlsx'];
+
+FixedEdgesList=[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff_FixedKi2.xlsx']; % all edges are fixed i.e. same parameter value for all contexts
 % FixedEdgesList='ToyDiff_fixed.xlsx'; % no edge is fixed. The specified interaction is equal to 1 by definition
 % FixedEdgesList='ToyDiff_FixedKi2.xlsx'; % only the specified edge is fixed. The other ones have different parameter values for each context 
 
 MeasFileList={};
 ContextsList={'1','2','3'};
 for f=1:length(ContextsList)
-    MeasFileList=[MeasFileList,['ToyDiff_meas_CL' char(ContextsList(f)) '.xlsx']];
+    MeasFileList=[MeasFileList,[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff_meas_CL' char(ContextsList(f)) '.xlsx']];
 end
 
 % Create a save folder
@@ -62,7 +64,7 @@ mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Build a FALCON model for optimisation
 [estim, stamp] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced);
-MeasFile=['Results_' stamp '_.xlsx'];
+MeasFile=['Results_' stamp '_.xls'];
 
 % Define optimisation options
 estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEvals,'MaxIter',MaxIter); % Default setting
