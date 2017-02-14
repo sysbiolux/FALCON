@@ -288,27 +288,29 @@ if graphs(5)
 
 
     h51=figure; hold on,
+     suptitle('Dynamics through the simulation (outputs)');
     for p=1:size(Output_index,1)
-        subplot(size(Output_index,1),1,p)
+        subplot(size(Output_index,1),2,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,Output_index(p,:))))
-        legend(state_names(Output_index(p,:)),'Location','EastOutside')
-        title('Dynamics through the simulation (outputs)');
         axis([0, T+1, 0, 1]);
         hold off
     end
+    legend(state_names(Output_index(p,:)))
+       
     if ToSave
         saveas(h51,[Folder, '\ConvergenceOutputNodes'],'tif')
     end
 
     h52=figure; hold on,
+      
+        suptitle('Dynamics through the simulation (all nodes)')
     for p=1:size(Output_index,1)
-        subplot(size(Output_index,1),1,p)
+        subplot(size(Output_index,1),2,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,:)))
-        legend(state_names(:),'Location','EastOutside')
-        title('Dynamics through the simulation (all nodes)')
         axis([0, T+1, 0, 1]);
         hold off
     end
+      legend(state_names(:))
     if ToSave
         saveas(h52,[Folder, '\ConvergenceAllNodes'],'tif')
     end
