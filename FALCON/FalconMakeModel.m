@@ -417,7 +417,7 @@ if strcmp(Ext,'txt') %if text file
     end
     fclose(fid);
 elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
-    [~,sheetnames] = xlsfinfo(thisMeasFile);
+    [~,sheetnames] = xlsfinfo(MeasFile);
 
     [~,~,OtherIn]=xlsread(MeasFile,sheetnames{1});
     [~,~,OtherOut]=xlsread(MeasFile,sheetnames{2});
