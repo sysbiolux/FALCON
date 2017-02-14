@@ -232,7 +232,7 @@ for counter =  1:size(p_SA,2) %for each parameter
     
     try
         % plot the results
-        figure(thisfig), hold on,
+        set(0,'CurrentFigure',thisfig), hold on,
         subplot(NLines,NCols,counter), hold on
         plot(p_SA(:,counter),cost_SA(:,counter), '-o','MarkerSize',5)
         hold on, plot(p_SA(LPSA_Increments+1,counter),cost_SA(LPSA_Increments+1,counter),'b*','MarkerSize',15)
