@@ -417,9 +417,11 @@ if strcmp(Ext,'txt') %if text file
     end
     fclose(fid);
 elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
-    [~,~,OtherIn]=xlsread(MeasFile,1);
-    [~,~,OtherOut]=xlsread(MeasFile,2);
-    [~,~,OtherErr]=xlsread(MeasFile,3);
+    [~,sheetnames] = xlsfinfo(thisMeasFile);
+
+    [~,~,OtherIn]=xlsread(MeasFile,sheetnames{1});
+    [~,~,OtherOut]=xlsread(MeasFile,sheetnames{2});
+    [~,~,OtherErr]=xlsread(MeasFile,sheetnames{3});
     Input_index=[];
     Output_index=[];
 

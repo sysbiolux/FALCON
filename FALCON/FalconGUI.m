@@ -561,7 +561,7 @@ if ~StopCommand
     if DoLPSA
         set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
         set(handles.ProgressDisplay2,'String',['Computing identifiability of parameters...']); drawnow
-        [~,estim]=FalconLPSA(estim, bestx, handles.MeasFile, HLbound,1,LPSARep,UseFast,Parallel,handles.SaveFolderName);
+        [~,estim]=FalconLPSA(estim, bestx, [handles.DataPath filesep handles.MeasFile], HLbound,1,LPSARep,UseFast,Parallel,handles.SaveFolderName);
         
     end
 else
@@ -576,7 +576,7 @@ if ~StopCommand
     if DoKO
         set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
         set(handles.ProgressDisplay2,'String',['Computing Systematic Knock-Outs...']); drawnow
-        estim=FalconKO(estim, bestx, fxt_all,handles.MeasFile,HLbound,1,handles.SaveFolderName);
+        estim=FalconKO(estim, bestx, fxt_all,[handles.DataPath filesep handles.MeasFile],HLbound,1,handles.SaveFolderName);
     end
 else
     error('Terminated by the user')
@@ -588,7 +588,7 @@ if ~StopCommand
     if DoKONo
         set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
         set(handles.ProgressDisplay2,'String',['Computing Systematic Node Knock-Outs...']); drawnow
-        estim=FalconKONodes(estim, bestx, fxt_all,handles.MeasFile,HLbound,1,handles.SaveFolderName);
+        estim=FalconKONodes(estim, bestx, fxt_all,[handles.DataPath filesep handles.MeasFile],HLbound,1,handles.SaveFolderName);
             end
 else
     error('Terminated by the user')

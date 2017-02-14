@@ -181,9 +181,10 @@ for m=1:length(MeasFileList)
         end
         fclose(fid);
     elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
-        [~,~,OtherIn]=xlsread(thisMeasFile,1);
-        [~,~,OtherOut]=xlsread(thisMeasFile,2);
-        [~,~,OtherErr]=xlsread(thisMeasFile,3);
+        [~,sheetnames] = xlsfinfo(thisMeasFile);
+        [~,~,OtherIn]=xlsread(thisMeasFile,sheetnames{1});
+        [~,~,OtherOut]=xlsread(thisMeasFile,sheetnames{2});
+        [~,~,OtherErr]=xlsread(thisMeasFile,sheetnames{3});
         Input_index=[];
         Output_index=[];
 
