@@ -102,10 +102,11 @@ if nargin>4
 end
 
 if length(varargin)>5
-    try
+    excelpresent = isExcelPresent();
+    if excelpresent
         xlswrite([Folder filesep 'Summary_Resampling.xls'],[Heading;Resampling]);
-    catch
+    else
         setupxlwrite()
         xlwrite([Folder filesep 'Summary_Resampling.xls'],[Heading;Resampling]);
-end
+    end
 end

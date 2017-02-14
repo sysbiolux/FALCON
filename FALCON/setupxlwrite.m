@@ -9,7 +9,7 @@ function setupxlwrite()
 
 if strcmp(which('xlwrite'),'')
     falconfolder = fileparts(which('DriverFalcon'));
-    xlwritepath = [falconfolder filesep 'ThirdParty'];
+    xlwritepath = [falconfolder filesep 'ThirdParty' filesep 'xlwrite'];
     addpath(xlwritepath);
 end
     
