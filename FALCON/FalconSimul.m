@@ -37,6 +37,9 @@ param_index=estim.param_index;
 ma=estim.ma;
 mi=estim.mi;
 
+num_plots=length(Output_index);
+NLines=ceil(sqrt(num_plots));
+NCols=ceil(num_plots/NLines);
 % Perform simulation based on the best parameter set
 
 n=estim.NrStates;
@@ -287,10 +290,14 @@ if graphs(5)
     end
 
 
+num_plots=length(Output_index);
+NLines=ceil(sqrt(num_plots));
+NCols=ceil(num_plots/NLines);
+
     h51=figure; hold on,
      suptitle('Dynamics through the simulation (outputs)');
     for p=1:size(Output_index,1)
-        subplot(size(Output_index,1),2,p)
+        subplot(NLines, NCols,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,Output_index(p,:))))
         axis([0, T+1, 0, 1]);
         hold off
@@ -305,7 +312,7 @@ if graphs(5)
       
         suptitle('Dynamics through the simulation (all nodes)')
     for p=1:size(Output_index,1)
-        subplot(size(Output_index,1),2,p)
+        subplot(NLines, NCols,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,:)))
         axis([0, T+1, 0, 1]);
         hold off
