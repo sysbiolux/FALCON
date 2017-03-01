@@ -33,7 +33,7 @@ In case you encounter any problems while running the FALCON pipeline on earlier 
 ***
 
 # All variables
-[All varaibles explained](https://github.com/sysbiolux/FALCON/wiki/Variables)
+[All variables explained](https://github.com/sysbiolux/FALCON/wiki/Variables)
 
 ***
 
