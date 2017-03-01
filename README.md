@@ -32,6 +32,11 @@ In case you encounter any problems while running the FALCON pipeline on earlier 
 
 ***
 
+# All variables
+[All varaibles explained](https://github.com/sysbiolux/FALCON/wiki/Variables)
+
+***
+
 # Troubleshooting
 The FALCON pipeline was rigorously tested before its release into the modelling community. Nevertheless, users might still encounter a few issues in the FALCON pipeline and we provide some potential solutions in this section.
 
