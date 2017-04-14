@@ -6,7 +6,7 @@
 %clc, clear all % clear screen and workspace 
 
 % Choose your model example [1-4]
-Model_Example = 1;
+Model_Example = 4;
 
 % 1 = Pipeline example
 % 2 = PDGF model
@@ -14,7 +14,7 @@ Model_Example = 1;
 % 4 = Apoptosis model
 
 % Define optmisation options
-optRound=2; % Number of optimisation round
+optRound=1; % Number of optimisation round
 MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
 Parallelisation=0; % Use multiple cores for optimisation? (0=no, 1=yes)
@@ -23,25 +23,26 @@ Forced=1; % Define whether single inputs and Boolean gates are forced to probabi
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
 
 % Define plotting and saving (0=no, 1=yes)
-PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
+PlotFitEvolution    = 0; % Graph of optimise fitting cost over iteration
 PlotFitSummary      = 1; % Graph of state values at steady-state versus measurements (all in 1)
 PlotFitIndividual   = 0; % Graph of state values at steady-state versus measurements (individual)
-PlotHeatmapCost     = 1; % Heatmaps of optimal costs for each output for each condition absolute cost
-PlotStateSummary    = 1; % Graph of only state values at steady-sate (all in 1)
-PlotStateEvolution  = 1; % Graph of state values evolution over the course of the simulation (two graphs)
-PlotBiograph        = 0; % Graph of network topology, nodes activities, and optimised parameters
+PlotHeatmapCost     = 0; % Heatmaps of optimal costs for each output for each condition absolute cost
+PlotStateSummary    = 0; % Graph of only state values at steady-sate (all in 1)
+PlotStateEvolution  = 0; % Graph of state values evolution over the course of the simulation (two graphs)
+PlotBiograph        = 1; % Graph of network topology, nodes activities, and optimised parameters
 PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biographs above
 
 % Additional analyses after the optimisation with the default setting (0=no, 1=yes)
-Resampling_Analysis = 1; % Resampling of experimental data and re-optimise
+Resampling_Analysis = 0; % Resampling of experimental data and re-optimise
 NDatasets           = 10;% Number of artificial datasets from which to resample.
 
-LPSA_Analysis       = 1; % Local parameter sensitivity analysis
+LPSA_Analysis       = 0; % Local parameter sensitivity analysis
 Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
 LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer resolution
 
-KO_Analysis         = 1; % Parameter knock-out analysis
-KO_Nodes_Analysis   = 1; % Node knock-out analysis
+KO_Analysis         = 0; % Parameter knock-out analysis
+KO_Nodes_Analysis   = 0; % Node knock-out analysis
+KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
 
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -185,6 +186,70 @@ if KO_Nodes_Analysis == 1;
     Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
     estim=FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
+end
+
+%% Nodes Knock-out efficency analysis
+if KO_Nodes_Analysis_eff == 1;
+    optRound_KO=1;
+    big_matrix = []
+    efficency_range = [0:0.1:1];
+    for j= 1:length(efficency_range)
+        estim.efficency= num2str(efficency_range(j))
+        Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
+        disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep;
+        estim=FalconKONodes_eff(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
+        big_matrix (:,:,j)= estim.Results.KnockOutNodes.StateValue_screen;  
+    end
+   
+    
+    % % single figures per knock-out
+    Nodes=estim.state_names;
+    Nodes(estim.Input_idx(1,:))=[];
+    for counter1 = 1: length(Nodes)
+%         knock_out = estim.state_names(counter1)
+%         matrix_split = squeeze(big_matrix(:,counter,:))
+        var = ((counter1 - 1) * size(estim.Input,1)) + 1
+         figure;
+         h= suptitle(['Effect of ', char(Nodes(counter1)), ' Knock-out on:'])
+         set(h,'FontSize',20,'FontWeight','bold')
+    for counter = 1: length(estim.state_names)
+        
+        subplot(round(length(estim.state_names)/6), 6, counter)
+        protein = estim.state_names(counter)
+        matrix = squeeze(big_matrix(var : var + size(estim.Input,1)-1,counter,:))
+        imagesc(matrix)
+        title(estim.state_names(counter))
+        xlabel('perturbation')
+        set(gca, 'XTick', 1:1:11)
+        set(gca, 'XTickLabel', 0:0.1:1)       
+    end
+    end
+    
+     % % figure per condition
+    Nodes=estim.state_names;
+    Nodes(estim.Input_idx(1,:))=[];
+    for counter1 = 1: size(estim.Input,1)
+%         knock_out = estim.state_names(counter1)
+%         matrix_split = squeeze(big_matrix(:,counter,:))
+        var = ((counter1 - 1) * length(Nodes)) + 1
+         figure;
+         h= suptitle(['Effect of condition', num2str((counter1)), ' Knock-out on:'])
+         set(h,'FontSize',20,'FontWeight','bold')
+    for counter = 1: length(estim.state_names)
+        subplot(round(length(estim.state_names)/6), 6, counter)
+        protein = estim.state_names(counter)
+        matrix = squeeze(big_matrix(counter1 : size(estim.Input,1) : end, counter,:))
+        imagesc(matrix)
+        title(estim.state_names(counter))
+        xlabel('perturbation')
+        ylabel ('Knock-out') 
+        set(gca, 'XTick', 1:1:11)
+        set(gca, 'XTickLabel', 0:0.1:1)   
+        set(gca, 'YTick', 1:length(Nodes))
+        set(gca, 'YTickLabel', Nodes)  
+    end
+    end
+
 end
 
 %% Guided to display results in estim.Results
