@@ -1,7 +1,7 @@
  function [xval,fval]=FalconObjFun(estim,k)
 % FalconObjFun serves as the objective function for the optimisation.
 % Apply the non-linear optimiser 'fmincon' with the default algorithm (interior-point)
-% Return the optimised parameters values and fitting cost calculated from the sum-of-squared error (SSE)
+% Return the optimised parameters values and fitting cost calculated from the mean squared error (MSE)
 % [xval,fval]=FalconObjFun(estim,k)
 
 % :: Input ::
@@ -132,8 +132,8 @@
     mask=isnan(xmeas);
     xsim(mask)=0; xmeas(mask)=0;
 
-    %calculate the sum-of-squared errors
-    diff=sum(sum((xsim-xmeas).^2));
+    %calculate the mean squared error
+    diff=(sum(sum((xsim-xmeas).^2)))/numel(estim.Output);
 
     disp(diff)
 
