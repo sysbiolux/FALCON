@@ -134,19 +134,16 @@
     mask=isnan(xmeas);
     xsim(mask)=0; xmeas(mask)=0;
 
-<<<<<<< HEAD
     %calculate the sum-of-squared errors
     diff=(sum(sum((xsim-xmeas).^2)))/N;
     AIC = N.*log(diff) + 2*np;
     fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', diff, diff*N, AIC);
     
-=======
-    %calculate the mean squared error
-    diff=(sum(sum((xsim-xmeas).^2)))/numel(estim.Output);
+%     %calculate the mean squared error
+%     diff=(sum(sum((xsim-xmeas).^2)))/numel(estim.Output);
+% 
+%     disp(diff)
 
-    disp(diff)
-
->>>>>>> 94c29290fe3081acad561e7232e93667b87162b8
     end
 
 end
