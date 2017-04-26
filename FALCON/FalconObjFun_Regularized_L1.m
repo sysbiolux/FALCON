@@ -1,9 +1,8 @@
-function [xval,fval]=FalconObjFunPlus(estim,k)
-% FalconObjFunPlus serves as the objective function for the optimisation
+ function [xval,fval]=FalconObjFun_Regularized_L1(estim,k)
+% FalconObjFun serves as the objective function for the optimisation.
 % Apply the non-linear optimiser 'fmincon' with the default algorithm (interior-point)
 % Return the optimised parameters values and fitting cost calculated from the sum-of-squared error (SSE)
-% !! Same as FalconObjFun with integrated 'Costs' as a global variable to collect fitting costs !!
-% [xval,fval]=FalconObjFunPlus(estim,k)
+% [xval,fval]=FalconObjFun(estim,k)
 
 % :: Input ::
 % estim      complete model definition
@@ -22,7 +21,10 @@ function [xval,fval]=FalconObjFunPlus(estim,k)
     function [ diff ] = nestedfun(k)
         
     n=estim.NrStates;
-
+    l=estim.Lambda;
+    
+    Var=sum(abs(k));
+    
     %initial and successive number of steps for evaluation
     %this still needs to be worked on
     if n<=25, initial_t=10; step_t=10;
@@ -34,12 +36,13 @@ function [xval,fval]=FalconObjFunPlus(estim,k)
         MaxTime=estim.MaxTime;
     else
         MaxTime=0;
-    end 
-
+    end    
+    
     ma=estim.ma;
     mi=estim.mi;
     param_index=estim.param_index;
     kmap=k(estim.kInd)'; %extend k including boolean gates. Now k2 has the same length as param_index
+    
     
 
     pd=param_index(~estim.FixBool,:); %remove fixed Boolean gates from param_index
@@ -133,10 +136,10 @@ function [xval,fval]=FalconObjFunPlus(estim,k)
     xsim(mask)=0; xmeas(mask)=0;
 
     %calculate the sum-of-squared errors
-    diff=sum(sum((xsim-xmeas).^2));
+    mse=(sum(sum((xsim-xmeas).^2)))/numel(estim.Output);
+    diff=mse+l*Var;
+    disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
-    disp(diff)
-    global Costs
-    Costs=[Costs;diff];
     end
+
 end
