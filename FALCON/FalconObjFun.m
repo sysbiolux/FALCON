@@ -21,7 +21,9 @@
     function [ diff ] = nestedfun(k)
         
     n=estim.NrStates;
-
+    N = numel(estim.Output);
+    np= numel(estim.param_vector);
+    
     %initial and successive number of steps for evaluation
     %this still needs to be worked on
     if n<=25, initial_t=10; step_t=10;
@@ -133,10 +135,10 @@
     xsim(mask)=0; xmeas(mask)=0;
 
     %calculate the sum-of-squared errors
-    diff=sum(sum((xsim-xmeas).^2));
-
-    disp(diff)
-
+    diff=(sum(sum((xsim-xmeas).^2)))/N;
+    AIC = N.*log(diff) + 2*np;
+    fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', diff, diff*N, AIC);
+    
     end
 
 end
