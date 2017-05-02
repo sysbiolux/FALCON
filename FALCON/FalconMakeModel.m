@@ -533,5 +533,5 @@ estim.BoolMax=BoolMax;
 estim.BoolIdx=BoolIdx;
 estim.BoolOuts=BoolOuts;
 estim.FixBool=FixBool;
-
+estim.Annotation = Annotation;    
 end
