@@ -189,7 +189,8 @@ for m=1:length(MeasFileList)
         Output_index=[];
 
         Input_vector=cell2mat(OtherIn(2:end,:));
-        for jj=2:length(OtherIn(:,1))
+        Annotation = (OtherIn(2:end,1));    
+        for jj=2:length(OtherIn(:,2))   %%%% modif Philippe OtherIn(:,1)
             Input_index_coll=[];
             for j=1:length(OtherIn(1,:))
 %                 if ~isnan(cell2mat(OtherIn(jj,j)))
