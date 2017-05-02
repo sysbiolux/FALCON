@@ -188,7 +188,7 @@ for m=1:length(MeasFileList)
         Input_index=[];
         Output_index=[];
 
-        Input_vector=cell2mat(OtherIn(2:end,:));
+        Input_vector=cell2mat(OtherIn(2:end,2:end));
         Annotation = (OtherIn(2:end,1));    
         for jj=2:length(OtherIn(:,2))   %%%% modif Philippe OtherIn(:,1)
             Input_index_coll=[];
