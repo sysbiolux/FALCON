@@ -41,9 +41,9 @@ Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs g
 LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer resolution
 
 KO_Analysis         = 0; % Parameter knock-out analysis
-KO_Nodes_Analysis   = 0; % Node knock-out analysis
-KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
 
+KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
+efficency_range = [0:0.1:1]; % indicate the different KO efficencies you want to test (vector from 0 to 1)
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
 % Click "Run" or press "F5" to start the optimisation
@@ -192,7 +192,7 @@ end
 if KO_Nodes_Analysis_eff == 1;
     optRound_KO=1;
     big_matrix = []
-    efficency_range = [0:0.1:1];
+    
     for j= 1:length(efficency_range)
         estim.efficency= num2str(efficency_range(j))
         Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
