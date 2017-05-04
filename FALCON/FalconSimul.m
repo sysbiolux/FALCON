@@ -185,10 +185,14 @@ if graphs(1)
 
         % Figure adjustment
         axis([0 size(Measurements,1)+1 0 1.1])
+        set(gca,'XTick', [1:length(estim.Annotation)])
+        set(gca,'XTickLabel', estim.Annotation)
+        xtickangle(45)
         set(gca,'fontsize',15/sqrt(num_plots))
-        set(gca,'XMinorGrid','on')
+%         set(gca,'XMinorGrid','on')
         t=title(state_names(Output_index(1,counter)));
         xt=xlabel('experimental condition');
+        yt=ylabel('state-value');
         set(xt,'fontsize',15/sqrt(num_plots))
         set(t,'fontsize',25/sqrt(num_plots))
         hold off
@@ -221,6 +225,9 @@ if graphs(2)
 
         % Figure adjustment
         axis([0 size(Measurements,1)+1 0 1.1])
+        set(gca,'XTick', [1:length(estim.Annotation)])
+        set(gca,'XTickLabel', estim.Annotation)
+        xtickangle(45)
         set(gca,'fontsize',15)
         t=title(state_names(counter));
         xt=xlabel('exp');
