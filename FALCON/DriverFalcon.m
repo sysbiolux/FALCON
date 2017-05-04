@@ -6,7 +6,7 @@
 clc, clear all % clear screen and workspace 
 
 % Choose your model example [1-4]
-Model_Example = 1;
+Model_Example = 2;
 
 % 1 = Pipeline example
 % 2 = PDGF model
@@ -42,8 +42,8 @@ LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer res
 
 KO_Analysis         = 0; % Parameter knock-out analysis
 
-KO_Nodes_Analysis_eff = 0; % test different KO efficencies on each node and analyse the entire network based on this information
-efficency_range = [0:0.1:1]; % indicate the different KO efficencies you want to test (vector from 0 to 1)
+KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
+efficency_range = [0:0.5:1]; % indicate the different KO efficencies you want to test (vector from 0 to 1)
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
 % Click "Run" or press "F5" to start the optimisation
@@ -221,7 +221,7 @@ if KO_Nodes_Analysis_eff == 1;
         title(estim.state_names(counter))
         xlabel('perturbation')
         set(gca, 'XTick', 1:1:11)
-        set(gca, 'XTickLabel', 0:0.1:1)       
+        set(gca, 'XTickLabel', efficency_range)       
     end
     end
     
@@ -244,7 +244,7 @@ if KO_Nodes_Analysis_eff == 1;
         xlabel('perturbation')
         ylabel ('Knock-out') 
         set(gca, 'XTick', 1:1:11)
-        set(gca, 'XTickLabel', 0:0.1:1)   
+        set(gca, 'XTickLabel', efficency_range)   
         set(gca, 'YTick', 1:length(Nodes))
         set(gca, 'YTickLabel', Nodes)  
     end
