@@ -56,17 +56,17 @@ FALCONFolder = fileparts(which('DriverFalcon'));
 
 % Read model and measurement files 
 if Model_Example == 1
-    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'example_model.txt'];
-    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'example_meas.txt'];
+    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'example' filesep 'example_model.txt'];
+    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'example' filesep 'example_meas.txt'];
 elseif Model_Example == 2
-    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF_model.xlsx'];
-    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF_meas.xlsx'];
+    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_model.xlsx'];
+    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_meas.xlsx'];
 elseif Model_Example == 3
-    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'CNO_model.xlsx'];
-    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'CNO_data.xlsx'];
+    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'CNO' filesep 'CNO_model.xlsx'];
+    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'CNO' filesep 'CNO_data.xlsx'];
 elseif Model_Example == 4
-    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'Apoptosis_model.xlsx'];
-    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'Apoptosis_meas.xlsx'];
+    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'Apoptosis' filesep 'Apoptosis_model.xlsx'];
+    MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'Apoptosis' filesep 'Apoptosis_meas.xlsx'];
 else
     error('Please specifiy the range of number from 1 to 4')
 end
