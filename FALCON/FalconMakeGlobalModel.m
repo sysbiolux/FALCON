@@ -276,14 +276,28 @@ Page3(Page3nan>0) ={'NaN'};
 useexcel = isExcelPresent();
 
 if useexcel
-    xlswrite(tempfile,Page1,1)
-    xlswrite(tempfile,Page2,2)
-    xlswrite(tempfile,Page3,3)
+%     xlswrite(tempfile,Page1,1)
+%     xlswrite(tempfile,Page2,2)
+%     xlswrite(tempfile,Page3,3)
+    xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+    xlswrite(tempfile, Page1 , 1, 'B1');
+%     xlswrite(tempfile, estim.Input, 1, 'B2');
+    xlswrite(tempfile, Page2, 2, 'A1');
+%     xlswrite(tempfile, estim.Output, 2, 'A2');
+    xlswrite(tempfile, Page3, 3, 'A1');
+%     xlswrite(tempfile, estim.SD, 3, 'A2');
 else
     setupxlwrite();
-    xlwrite(tempfile,Page1,1)
-    xlwrite(tempfile,Page2,2)
-    xlwrite(tempfile,Page3,3)
+%     xlswrite(tempfile,Page1,1)
+%     xlswrite(tempfile,Page2,2)
+%     xlswrite(tempfile,Page3,3)
+    xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+    xlswrite(tempfile, Page1 , 1, 'B1');
+%     xlswrite(tempfile, estim.Input, 1, 'B2');
+    xlswrite(tempfile, Page2, 2, 'A1');
+%     xlswrite(tempfile, estim.Output, 2, 'A2');
+    xlswrite(tempfile, Page3, 3, 'A1');
+%     xlswrite(tempfile, estim.SD, 3, 'A2');
 end
 
 
