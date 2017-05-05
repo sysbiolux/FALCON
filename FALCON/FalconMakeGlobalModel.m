@@ -119,7 +119,7 @@ for m=1:length(MeasFileList)
         Output_vector=[];
         Output_index=[];
         SD_vector=[];
-        
+        Annotation=[];
         while 1
             tline = fgetl(fid);
             if ~ischar(tline), break, end
@@ -137,7 +137,7 @@ for m=1:length(MeasFileList)
                 ReadSD=strsplit(char(SDRaw),',');
             end
             
-            Annotation = [Annotation; Annotation_data]
+            Annotation = [Annotation; Annotation_data];
             
             
             count_input=1;
