@@ -355,23 +355,28 @@ if strcmp(Ext,'txt') %if text file
     Output_vector=[];
     Output_index=[];
     SD_vector=[];
-
+    Annotation= []
     while 1
         tline = fgetl(fid);
         if ~ischar(tline), break, end
 
         LineCounter=LineCounter+1;
         ReadIO = regexp(tline,'\t','split');
-        InputRaw=ReadIO(1);
-        OutputRaw=ReadIO(2);
+        Annotation_data=ReadIO(1);
+        InputRaw=ReadIO(2);
+        OutputRaw=ReadIO(3);
         ReadInput=strsplit(char(InputRaw),',');
         ReadOutput=strsplit(char(OutputRaw),',');
 
-        if length(ReadIO)==3 % Shared index between output value and SD
-            SDRaw=ReadIO(3);
+        if length(ReadIO)==4 % Shared index between output value and SD
+            SDRaw=ReadIO(4);
             ReadSD=strsplit(char(SDRaw),',');
         end
+        
+%        Annotation= [];
+       Annotation = [Annotation; Annotation_data]
 
+               
         count_input=1;
         Input_idx_collect=[];
         Input_value_collect=[];
@@ -400,7 +405,7 @@ if strcmp(Ext,'txt') %if text file
         Output_vector=[Output_vector; Output_value_collect];
         Output_index=[Output_index; Output_idx_collect];
 
-        if length(ReadIO)==3 % Shared index between output value and SD
+        if length(ReadIO)==4 % Shared index between output value and SD
 
             count_SD=1;
             SD_value_collect=[];
@@ -416,6 +421,7 @@ if strcmp(Ext,'txt') %if text file
 
     end
     fclose(fid);
+    
 elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
     [~,sheetnames] = xlsfinfo(MeasFile);
 
@@ -425,8 +431,9 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
     Input_index=[];
     Output_index=[];
 
-    Input_vector=cell2mat(OtherIn(2:end,:));
-    for jj=2:length(OtherIn(:,1))
+    Input_vector=cell2mat(OtherIn(2:end,2:end)); 
+    Annotation = (OtherIn(2:end,1)); 
+    for jj=2:length(OtherIn(:,2)) %%%% modif Philippe OtherIn(:,1)
         Input_index_coll=[];
         for j=1:length(OtherIn(1,:))
 %             if ~isnan(cell2mat(OtherIn(jj,j)))
@@ -532,5 +539,5 @@ estim.BoolMax=BoolMax;
 estim.BoolIdx=BoolIdx;
 estim.BoolOuts=BoolOuts;
 estim.FixBool=FixBool;
-
+estim.Annotation = Annotation;    
 end

@@ -42,13 +42,13 @@ bestcost = min(fxt_all(:,1));
 
 %% AIC calculation
 N = numel(estim.Output);
-SSE= bestcost;
+MSE= bestcost;
 Nodes=estim.state_names;
 Nodes(estim.Input_idx(1,:))=[];
 pn=length(Nodes);
 p= numel(Param_original);
 
-AIC_complete = N*log(SSE/N) + 2*p; %AIC for base model
+AIC_complete = N*log(MSE) + 2*p; %AIC for base model
 
 p_KD = zeros(1,pn);
 param_vector=estim.param_vector;

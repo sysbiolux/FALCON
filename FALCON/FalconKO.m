@@ -20,6 +20,7 @@ function [estim] = FalconKO(varargin)
 
 %fetching values from arguments
 estim=varargin{1};
+
 bestx=varargin{2};
 fxt_all=varargin{3};
 MeasFile=varargin{4};
@@ -40,10 +41,10 @@ bestcost = min(fxt_all(:,1)); %lowest cost from base model
 
 %% AIC calculation
 N = numel(estim.Output);
-SSE= bestcost;
+MSE= bestcost;
 p= numel(Param_original);
 
-AIC_complete = N*log(SSE/N) + 2*p; %AIC for base model
+AIC_complete = N*log(MSE) + 2*p; %AIC for base model
 
 p_KD = zeros(1,p);
 param_vector=estim.param_vector;
