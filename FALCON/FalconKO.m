@@ -40,7 +40,7 @@ num_params=estim.param_vector;
 bestcost = min(fxt_all(:,1)); %lowest cost from base model
 
 %% AIC calculation
-N = numel(estim.Output);
+N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
 MSE= bestcost;
 p= numel(Param_original);
 
@@ -84,10 +84,10 @@ for counter =  1:size(p_KD,2)
     
     %% reduced model (-1 parameter)
     
-    N_r = numel(estim.Output); %number of datapoints
+    N_r = numel(estim.Output)-sum(sum(isnan(estim.Output))); %number of datapoints
     p_r= (numel(estim.param_vector)); %number of parameters
     
-    AIC_KD(counter) = N_r*log(cost_KD(counter)/N_r) + 2*p_r;
+    AIC_KD(counter) = N_r*log(cost_KD(counter)) + 2*p_r;
     
     %%Plot AIC values
     
