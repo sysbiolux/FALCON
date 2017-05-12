@@ -22,6 +22,8 @@
         
     n=estim.NrStates;
     l=estim.Lambda;
+    N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
+    np= numel(estim.param_vector);
     
     Var=sum(abs(k));
     
@@ -136,7 +138,7 @@
     xsim(mask)=0; xmeas(mask)=0;
 
     %calculate the sum-of-squared errors
-    mse=(sum(sum((xsim-xmeas).^2)))/numel(estim.Output);
+    mse=(sum(sum((xsim-xmeas).^2)))/N;
     diff=mse+l*Var;
     disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
