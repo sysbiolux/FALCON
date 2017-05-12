@@ -21,7 +21,7 @@
     function [ diff ] = nestedfun(k)
         
     n=estim.NrStates;
-    N = numel(estim.Output);
+    N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
     np= numel(estim.param_vector);
     
     %initial and successive number of steps for evaluation
