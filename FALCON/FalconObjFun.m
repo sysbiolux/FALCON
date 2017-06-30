@@ -1,7 +1,7 @@
  function [xval,fval]=FalconObjFun(estim,k)
 % FalconObjFun serves as the objective function for the optimisation.
 % Apply the non-linear optimiser 'fmincon' with the default algorithm (interior-point)
-% Return the optimised parameters values and fitting cost calculated from the mean squared error (MSE)
+% Return the optimised parameters values and fitting cost calculated from the sum-of-squared error (SSE)
 % [xval,fval]=FalconObjFun(estim,k)
 
 % :: Input ::
@@ -23,6 +23,41 @@
     n=estim.NrStates;
     N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
     np= numel(estim.param_vector);
+    
+    
+    if isfield(estim, 'Lambda')
+        l=estim.Lambda;
+    else
+        l=0;
+    end
+    
+    if isfield(estim, 'RegMatrix')
+        Reg=estim.RegMatrix;
+    end
+    
+    if isfield(estim, 'Reg')
+        if strcmp(estim.Reg,'none')
+            Var=0;
+        elseif strcmp(estim.Reg,'L1')
+            Var=sum(abs(k));
+        elseif strcmp(estim.Reg,'L1Groups')
+            Var=0;
+            for v=1:size(Reg,1)
+                km=mean(k(Reg(v,:)));
+                Var=Var+sum(abs(k(Reg(v,:))-km));
+            end
+        elseif strcmp(estim.Reg,'L1Smooth')
+            Var=0;
+            for v=1:size(Reg,1)
+                Var=Var+sum(abs(k(Reg(v,2:end))-k(Reg(v,1:end-1))));
+            end
+        elseif strcmp(estim.Reg,'L2')
+            Var=sum(k.^2);
+        end
+    else
+        Var=0;
+    end
+    
     
     %initial and successive number of steps for evaluation
     %this still needs to be worked on
@@ -135,14 +170,11 @@
     xsim(mask)=0; xmeas(mask)=0;
 
     %calculate the sum-of-squared errors
-    diff=(sum(sum((xsim-xmeas).^2)))/N;
-    AIC = N.*log(diff) + 2*np;
-    fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', diff, diff*N, AIC);
-    
-%     %calculate the mean squared error
-%     diff=(sum(sum((xsim-xmeas).^2)))/numel(estim.Output);
-% 
-%     disp(diff)
+    mse=(sum(sum((xsim-xmeas).^2)))/N;
+    diff=mse+l*Var;
+    AIC = N.*log(diff) + 2.*(sum(k>0));
+    fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', mse, l*Var, diff, AIC);
+%     disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
     end
 

@@ -1,4 +1,4 @@
-function [estim, varargout] = FalconMakeGlobalModel(InputFile,GlobalEdgesList,MeasFileList,ContextsList,HLbound,Forced)
+function [estim, varargout] = FalconMakeGlobalModel(InputFile,GlobalEdgesList,MeasFileList,ContextsList,HLbound)
 % Allows for the expansion of logical networks from one seed network.
 % InputFile is a interaction list (txt or xlsx). See 'FalconMakeModel'
 % FixedEdgesList is an interaction list of only the edges that should
@@ -9,7 +9,7 @@ function [estim, varargout] = FalconMakeGlobalModel(InputFile,GlobalEdgesList,Me
 % ContextList is a cell with names of cell lines, time points, etc..
 % HLBound, Forced, see 'FalconMakeModel'
 
-estim=FalconMakeModel(InputFile,cell2mat(MeasFileList(1)),HLbound,Forced);
+estim=FalconMakeModel(InputFile,cell2mat(MeasFileList(1)),HLbound);
 
 
 %%% Reading the fixed interactions file
@@ -306,6 +306,6 @@ clearvars estim
 GlobalFile=['GlobalInputFile_' stamp '.txt'];
 FalconInt2File(Itot,GlobalFile);
 
-estim=FalconMakeModel(GlobalFile,tempfile,HLbound,Forced);
+estim=FalconMakeModel(GlobalFile,tempfile,HLbound);
 
 end

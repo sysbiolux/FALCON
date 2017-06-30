@@ -331,6 +331,7 @@ NCols=ceil(num_plots/NLines);
         saveas(h52,[Folder, '\ConvergenceAllNodes'],'tif')
     end
 end
+estim.MeanStateValueSim = MeanStateValueAll;
 MeanStateValueAll = x';
 estim.Results.Optimisation.StdStateValueAll =  StdStateValueAll;
 estim.Results.Optimisation.Diffs = Diffs;
