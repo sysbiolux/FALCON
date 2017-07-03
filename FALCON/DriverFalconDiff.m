@@ -11,11 +11,10 @@ MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
 Parallelisation=0; % Use multiple cores for optimisation? (0=no, 1=yes)
 HLbound=0.5; % Qualitative threshold between high and low inputs
-Forced=1; % Define whether single inputs and Boolean gates are forced to probability 1 
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
 
 % Define plotting and saving (0=no, 1=yes)
-PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
+PlotFitEvolution    = 0; % Graph of optimise fitting cost over iteration
 PlotFitSummary      = 1; % Graph of state values at steady-state versus measurements (all in 1)
 PlotFitIndividual   = 1; % Graph of state values at steady-state versus measurements (individual)
 PlotHeatmapCost     = 1; % Heatmaps of optimal costs for each output for each condition absolute cost
@@ -47,7 +46,7 @@ FALCONFolder = fileparts(which('DriverFalconDiff'));
 
 InputFile= [FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff' filesep 'ToyDiff.xlsx'];
 
-FixedEdgesList=[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff' filesep 'ToyDiff_FixedKi2.xlsx']; % all edges are fixed i.e. same parameter value for all contexts
+FixedEdgesList=[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff' filesep 'ToyDiff_fixed.xlsx']; % all edges are fixed i.e. same parameter value for all contexts
 % FixedEdgesList='ToyDiff_fixed.xlsx'; % no edge is fixed. The specified interaction is equal to 1 by definition
 % FixedEdgesList='ToyDiff_FixedKi2.xlsx'; % only the specified edge is fixed. The other ones have different parameter values for each context 
 
@@ -63,7 +62,7 @@ FinalFolderName=strrep(SaveFolderName, ':', '.');
 mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Build a FALCON model for optimisation
-[estim, stamp] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound,Forced);
+[estim, stamp] = FalconMakeGlobalModel(InputFile,FixedEdgesList,MeasFileList,ContextsList,HLbound);
 MeasFile=['Results_' stamp '_.xls'];
 
 % Define optimisation options

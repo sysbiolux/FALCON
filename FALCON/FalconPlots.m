@@ -12,13 +12,14 @@ function FalconPlots(estim)
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
 
 MeanStateValueAll = estim.MeanStateValueAll;
+MeanStateValueSim = estim.MeanStateValueSim ;
 Output_index=estim.Output_idx;
 state_names=estim.state_names;
 Measurements=estim.Output;
 SD=estim.SD;
 bestx = estim.bestx;
 n=estim.NrStates;
-x=rand(n,size(Measurements,1));
+x=MeanStateValueAll'; %transpose MeanStateValueAll for plotting
 %for states
 num_plots=size(estim.Output,2);
 NLines=ceil(sqrt(num_plots));
@@ -68,7 +69,7 @@ if isfield(estim.Results,'Optimisation')
         end
 
         % Plot simulated data on top
-        plot(1:size(Measurements,1),MeanStateValueAll(:,counter),'b.','MarkerSize',20/sqrt(num_plots))
+        plot(1:size(Measurements,1),MeanStateValueSim(:,counter),'b.','MarkerSize',20/sqrt(num_plots))
 
         % Figure adjustment
         axis([0 size(Measurements,1)+1 0 1.1])

@@ -1,4 +1,4 @@
-function [estim]=FalconMakeModel(InputFile,MeasFile,HLbound,Forced)
+function [estim]=FalconMakeModel(InputFile,MeasFile,HLbound)
 % FalconMakeModel creates the integrated optimization problem for Falcon from a list of interactions (InputFile)
 % and a list of measured nodes in different conditions (MeasFile). The files can be .txt 
 % (see 'example_model.txt' and 'example_meas.txt') or Excel (see 'PDGF.xlsx' and 'PDGF_meas.xlsx'). 
@@ -9,7 +9,7 @@ function [estim]=FalconMakeModel(InputFile,MeasFile,HLbound,Forced)
 % InputFile          model file (either txt or xls(x))
 % MeasFile           experimental data file (either txt or xls(x))
 % HLbound            qualitative threshold between high and low range of parameter values
-% Forced             assign whether single inputs and boolean gates are forced to have probability 1 
+% Forced             this variable has been removed 
 %
 % :: Output values::
 % estim              integrated model definition
@@ -129,19 +129,19 @@ state_names=unique([Interactions(:,2);Interactions(:,4)]'); % extract state name
 ma=zeros(size(state_names,2));
 mi=zeros(size(state_names,2));
 
-if Forced
+% if Forced
     Interactions(IsBool,5)=repmat({'1'},sum(IsBool),1);
-end
+% end
 
 for i=1:length(UOutInNAct) % for each Output node in single interactions
     thisOut=UOutInNAct(i); % node ID
     isAlone=strcmp(thisOut,ReactInNAct(:,4)); % vector of identities in activating links
-    if Forced % if probabilities are forced
+%     if Forced % if probabilities are forced
         if sum(isAlone)==1 % if this is the only activating interaction
             Idx=(strcmp(thisOut,Interactions(:,4))) & IdxAct; % look for it
             Interactions(Idx,5)=repmat({'1'},sum(Idx),1); % fix to 1
         end
-    end
+%     end
     if sum(isAlone)>1 % if there are several interactions
         SumFixed=0;
         Idx=(strcmp(thisOut,Interactions(:,4))) & IdxAct;
@@ -257,13 +257,13 @@ for i=1:length(UniqueOutputList)%for each unique output
         idxi=find(ismember(state_names,Interactions(Idx,2)));
         param_index=[param_index; idxo, idxi(1), isAct, ~isAct, cntb, pGate, pHL(1)];
         param_index=[param_index; idxo, idxi(2), isAct, ~isAct, cntb, pGate, pHL(2)];
-        if Forced
+%         if Forced
             FixBool=[FixBool,1,1]; PN=[PN,1,1];
-        elseif str2num(char(Interactions(Idx,5)))>=0
-            FixBool=[FixBool,1,1]; PN=[PN,1,1];
-        else
-            FixBool=[FixBool,0,0]; PN=[PN,Interactions(Idx(1),5),Interactions(Idx(2),5)];
-        end
+%         elseif str2num(char(Interactions(Idx,5)))>=0
+%             FixBool=[FixBool,1,1]; PN=[PN,1,1];
+%         else
+%             FixBool=[FixBool,0,0]; PN=[PN,Interactions(Idx(1),5),Interactions(Idx(2),5)];
+%         end
         
     else % if only single interactions
         for ii=1:length(Idx) % for each interactions
@@ -362,7 +362,7 @@ if strcmp(Ext,'txt') %if text file
 
         LineCounter=LineCounter+1;
         ReadIO = regexp(tline,'\t','split');
-        Annotation_data=ReadIO(1);
+        Annotation_data=string(ReadIO(1));
         InputRaw=ReadIO(2);
         OutputRaw=ReadIO(3);
         ReadInput=strsplit(char(InputRaw),',');
@@ -432,30 +432,22 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
     Output_index=[];
 
     Input_vector=cell2mat(OtherIn(2:end,2:end)); 
-    Annotation = (OtherIn(2:end,1)); 
-    for jj=2:length(OtherIn(:,2)) %%%% modif Philippe OtherIn(:,1)
+    Annotation = cellfun(@num2str,(OtherIn(2:end,1)),'UniformOutput',0); 
+    for jj=2:length(OtherIn(:,2))
         Input_index_coll=[];
         for j=1:length(OtherIn(1,:))
-%             if ~isnan(cell2mat(OtherIn(jj,j)))
-                Input_index_coll=[Input_index_coll,find(ismember(state_names,OtherIn(1,j)))];
-%             else
-%                 Input_index_coll=[Input_index_coll,NaN];
-%             end
+            Input_index_coll=[Input_index_coll,find(ismember(state_names,OtherIn(1,j)))];
         end
         Input_index=[Input_index;Input_index_coll];
     end
-    OtherOut(strcmp(OtherOut,'NaN'))={NaN}; %%%
-    OtherOut(strcmp(OtherOut,''))={NaN}; %%%
+    OtherOut(strcmp(OtherOut,'NaN'))={NaN};
+    OtherOut(strcmp(OtherOut,''))={NaN};
     
     Output_vector=cell2mat(OtherOut(2:end,:));
     for jj=2:length(OtherOut(:,1))
         Output_index_coll=[];
         for j=1:length(OtherOut(1,:))
-%             if ~isnan(cell2mat(OtherOut(jj,j)))
-                Output_index_coll=[Output_index_coll,find(ismember(state_names,OtherOut(1,j)))];
-%             else
-%                 Output_index_coll=[Output_index_coll,NaN];
-%             end
+            Output_index_coll=[Output_index_coll,find(ismember(state_names,OtherOut(1,j)))];
         end
         Output_index=[Output_index;Output_index_coll];
     end
