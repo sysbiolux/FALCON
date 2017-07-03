@@ -19,7 +19,6 @@ MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
 Parallelisation=0; % Use multiple cores for optimisation? (0=no, 1=yes)
 HLbound=0.5; % Qualitative threshold between high and low inputs
-Forced=1; % Define whether single inputs and Boolean gates are forced to probability 1 
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
 
 % Define plotting and saving (0=no, 1=yes)
@@ -77,7 +76,7 @@ FinalFolderName=strrep(SaveFolderName, ':', '.');
 mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Build a FALCON model for optimisation
-estim=FalconMakeModel(InputFile,MeasFile,HLbound,Forced); %make the model
+estim=FalconMakeModel(InputFile,MeasFile,HLbound); %make the model
 
 % Define optimisation options
 estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEvals,'MaxIter',MaxIter); % Default setting
