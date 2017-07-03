@@ -1,7 +1,7 @@
- function [xval,fval]=FalconObjFun(estim,k)
+ function [xval,fval]=FalconObjFun_Regularized_L1Smooth(estim,k)
 % FalconObjFun serves as the objective function for the optimisation.
 % Apply the non-linear optimiser 'fmincon' with the default algorithm (interior-point)
-% Return the optimised parameters values and fitting cost calculated from the mean squared error (MSE)
+% Return the optimised parameters values and fitting cost calculated from the sum-of-squared error (SSE)
 % [xval,fval]=FalconObjFun(estim,k)
 
 % :: Input ::
@@ -21,8 +21,15 @@
     function [ diff ] = nestedfun(k)
         
     n=estim.NrStates;
+    l=estim.Lambda;
+    Reg=estim.RegMatrix;
     N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
     np= numel(estim.param_vector);
+    
+    Var=0;
+    for v=1:size(Reg,1)
+        Var=Var+sum(abs(k(Reg(v,2:end))-k(Reg(v,1:end-1))));
+    end
     
     %initial and successive number of steps for evaluation
     %this still needs to be worked on
@@ -135,15 +142,10 @@
     xsim(mask)=0; xmeas(mask)=0;
 
     %calculate the sum-of-squared errors
-    diff=(sum(sum((xsim-xmeas).^2)))/N;
-    AIC = N.*log(diff) + 2*np;
-    fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', diff, diff*N, AIC);
+    mse=(sum(sum((xsim-xmeas).^2)))/N;
+    diff=mse+l*Var;
+    disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
     
-%     %calculate the mean squared error
-%     diff=(sum(sum((xsim-xmeas).^2)))/numel(estim.Output);
-% 
-%     disp(diff)
-
     end
 
 end

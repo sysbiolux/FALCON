@@ -41,14 +41,14 @@ num_params=estim.param_vector;
 bestcost = min(fxt_all(:,1));
 
 %% AIC calculation
-N = numel(estim.Output);
-SSE= bestcost;
+N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
+MSE= bestcost;
 Nodes=estim.state_names;
 Nodes(estim.Input_idx(1,:))=[];
 pn=length(Nodes);
 p= numel(Param_original);
 
-AIC_complete = N*log(SSE/N) + 2*p; %AIC for base model
+AIC_complete = N*log(MSE) + 2*p; %AIC for base model
 
 p_KD = zeros(1,pn);
 param_vector=estim.param_vector;
@@ -92,7 +92,7 @@ for counter =  1:size(p_KD,2)
     
     %% reduced model (- parameter)
     
-    N_r = numel(estim.Output); %number of datapoints
+    N_r = numel(estim.Output)-sum(sum(isnan(estim.Output))); %number of datapoints
     p_r= numel(estim.param_vector); %number of parameters
     %remove parameters related to the knocked-out node
     Is=Interactions_original(strcmp(Interactions_original(:,2),thisNode),5); %fetch outgoing parameters
@@ -104,7 +104,7 @@ for counter =  1:size(p_KD,2)
     end
     
     
-    AIC_KD(counter) = N_r*log(cost_KD(counter)/N_r) + 2*(p_r-numel(unique(Is)));
+    AIC_KD(counter) = N_r*log(cost_KD(counter)) + 2*(p_r-numel(unique(Is)));
     
     %%Plot AIC values
     
