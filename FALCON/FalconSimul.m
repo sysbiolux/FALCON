@@ -247,7 +247,7 @@ end
 
 if graphs(3) && sum(std(estim.Output_idx))==0
     % Plot optimal cost for each experiment
-    hm=HeatMap(Diffs, 'RowLabels',estim.Annotation,'ColumnLabels',estim.state_names(estim.Output_idx(1,:)),'Colormap',hot, 'Symmetric', false);
+    hm=HeatMap(Diffs, 'RowLabels',cellstr(estim.Annotation),'ColumnLabels',estim.state_names(estim.Output_idx(1,:)),'Colormap',hot, 'Symmetric', false);
     addTitle(hm, 'Cross-error Analysis: Heatmap');
     if ToSave
         fighm=plot(hm);
