@@ -258,7 +258,7 @@ for m=1:length(MeasFileList)
     temp=[temp;num2cell(SDSheet(:,:,m))];
     Page3=[Page3,temp];
 end
-stamp=mat2str((floor(now*10000))/10000);
+stamp=mat2str((floor(now*100000000)));
 tempfile=['Results_' stamp '_.xls'];
 varargout{1}=stamp;
 varargout{2}=tempfile;
@@ -279,13 +279,23 @@ if useexcel
 %     xlswrite(tempfile,Page1,1)
 %     xlswrite(tempfile,Page2,2)
 %     xlswrite(tempfile,Page3,3)
-    xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
-    xlswrite(tempfile, Page1 , 1, 'B1');
-%     xlswrite(tempfile, estim.Input, 1, 'B2');
-    xlswrite(tempfile, Page2, 2, 'A1');
-%     xlswrite(tempfile, estim.Output, 2, 'A2');
-    xlswrite(tempfile, Page3, 3, 'A1');
-%     xlswrite(tempfile, estim.SD, 3, 'A2');
+    try
+        xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+        xlswrite(tempfile, Page1 , 1, 'B1');
+    %     xlswrite(tempfile, estim.Input, 1, 'B2');
+        xlswrite(tempfile, Page2, 2, 'A1');
+    %     xlswrite(tempfile, estim.Output, 2, 'A2');
+        xlswrite(tempfile, Page3, 3, 'A1');
+    %     xlswrite(tempfile, estim.SD, 3, 'A2');
+    catch
+        xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+        xlswrite(tempfile, Page1 , 1, 'B1');
+    %     xlswrite(tempfile, estim.Input, 1, 'B2');
+        xlswrite(tempfile, Page2, 2, 'A1');
+    %     xlswrite(tempfile, estim.Output, 2, 'A2');
+        xlswrite(tempfile, Page3, 3, 'A1');
+    %     xlswrite(tempfile, estim.SD, 3, 'A2');    
+    end
 else
     setupxlwrite();
 %     xlswrite(tempfile,Page1,1)
