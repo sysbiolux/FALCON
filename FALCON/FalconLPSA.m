@@ -106,7 +106,7 @@ for counter =  1:size(p_SA,2) %for each parameter
                 Interactions{replace_idx(counter3),5}=char(num2str(p_SA(counter2, counter)));
             end
             FalconInt2File(Interactions,'LPSA_TempFile.txt');
-            estim=FalconMakeModel('LPSA_TempFile.txt',MeasFile,HLbound,1);
+            estim=FalconMakeModel('LPSA_TempFile.txt',MeasFile,HLbound);
             estim.Interactions
             estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',5000,'MaxIter',5000); % Default
             estim.SSthresh=SSthresh;
@@ -164,7 +164,7 @@ for counter =  1:size(p_SA,2) %for each parameter
                 Interactions{replace_idx(counter3),5}=char(num2str(p_SA(counter2, counter)));
             end
             FalconInt2File(Interactions,'TempFile.txt');
-            estim=FalconMakeModel('TempFile.txt',MeasFile,HLbound,1);
+            estim=FalconMakeModel('TempFile.txt',MeasFile,HLbound);
             estim.Interactions
             estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',5000,'MaxIter',5000); % Default
             estim.SSthresh=SSthresh;

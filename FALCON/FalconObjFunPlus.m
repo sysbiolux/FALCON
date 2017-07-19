@@ -81,7 +81,6 @@ function [xval,fval]=FalconObjFunPlus(estim,k)
     Measurements=estim.Output;
 
     % Evaluation
-    diff=0; % Initialize fitting cost
     TimeSoFar=tic;
     
     x=rand(n,size(Measurements,1)); %initial random values for the nodes

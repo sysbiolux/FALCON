@@ -167,8 +167,8 @@ MeanCostAll=[];
 StdCostAll=[];
 Diffs=[];
 Max=10000;
-Input_index=estim.Input_idx;
-Output_index=estim.Output_idx;
+% Input_index=estim.Input_idx;
+% Output_index=estim.Output_idx;
 Inputs=estim.Input;
 
 Measurements=estim.Output;
@@ -176,6 +176,8 @@ SD=estim.SD;
 param_index=estim.param_index;
 ma=estim.ma;
 mi=estim.mi;
+N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
+np= numel(estim.param_vector);
 
 % Perform simulation based on the best parameter set
 
@@ -279,24 +281,26 @@ mask=isnan(xmeas);
 xsim(mask)=0; xmeas(mask)=0;
 
 %calculate the sum-of-squared errors
-diff=sum(sum((xsim-xmeas).^2));
-
-% disp(diff)
-    
-% MeanAllState=mean(Collect_x,1);
-% StdAllState=std(Collect_x,0,1);
-% Diffs=[Diffs;(x(Output_index(counter_exp,:))'-xmeas).^2];
-% mean_diff_ALL=mean(diff_ALL,1);
-% std_diff_ALL=std(diff_ALL,0,1);
-% 
-% MeanStateValueAll=[MeanStateValueAll; MeanAllState];
-% StdStateValueAll=[StdStateValueAll; StdAllState];
-% MeanCostAll=[MeanCostAll; mean_diff_ALL];
-% StdCostAll=[StdCostAll; std_diff_ALL];
-%     
+mse=(sum(sum((xsim-xmeas).^2)))/N;
+diff=mse;
+disp(['MSE: ', num2str(mse), ' ; SSE: ', num2str(mse*N)])
 
 x=x';
 estim.Results.Optimisation.BestStates = x;
+IdxOut=estim.Output_idx(1,:);
+Heading=estim.state_names(IdxOut);
+Numb=num2cell(x(:,IdxOut));
+useexcel = isExcelPresent();
+if useexcel
+    xlswrite([Folder filesep 'Predictions.xls'],[Heading;Numb])
+else
+    
+%     tab = table(x(:,IdxOut),'VariableNames',Heading);
+%     writetable(tab,[FinalFolderName, filesep, 'Predictions.csv'],'Delimiter',',');
+end
+
+estim.Results.Validation.Outputs=Numb;
+
 
 % PlotFitSummary: graph of state values at steady-state versus measurements in validation dataset
 num_plots=size(estim.Output,2);
@@ -312,7 +316,7 @@ for counter=1:num_plots
     if ~isempty(SD)
         errorbar(1:size(Measurements,1),Measurements(:,counter),SD(:,counter),'gs','LineWidth',1,'MarkerSize',2,'Color',[0.4 0.6 0]), hold on,
     else
-        errorbar(1:size(Measurements,1),Measurements(:,counter),zeros(size(Measurements,1),1),'gs','LineWidth',1,'MarkerSize',1,'Color',[0.4 0.6 0]), hold on,
+        errorbar(1:size(Measurements,1),Measurements(:,counter),zeros(size(Measurements,1),1),'gs','LineWidth',1,'MarkerSize',20/sqrt(num_plots),'Color',[0.4 0.6 0]), hold on,
     end
 
     % Plot simulated data on top
@@ -321,7 +325,7 @@ for counter=1:num_plots
     % Figure adjustment
     axis([0 size(Measurements,1)+1 0 1.1])
     set(gca,'fontsize',15/sqrt(num_plots))
-    set(gca,'XMinorGrid','on')
+    set(gca,'XGrid','on')
     t=title(state_names(Output_index(1,counter)));
     xt=xlabel('experimental condition');
     set(xt,'fontsize',15/sqrt(num_plots))
@@ -335,12 +339,11 @@ for counter=1:num_plots
     subplot(NLines,NCols,counter), hold on,
     
     SSres=nansum((x(:,Output_index(1,counter))-Measurements(:,counter)).^2);
-    SStot=nansum((Measurements(:,counter))-(nanmean(Measurements(:,counter))).^2);
+    SStot=nansum((Measurements(:,counter)-nanmean(Measurements(:,counter))).^2);
 
-    plot(Measurements(:,counter), x(:,Output_index(1,counter)),'.k', 'MarkerSize', 8)
-    b1 =x(:,Output_index(1,counter))\ Measurements(:,counter);
-    yx= 1*Measurements(:,counter);
-
+    plot(Measurements(:,counter), x(:,Output_index(1,counter)),'.k', 'MarkerSize', 10)
+    plot([0,1],[0,1], 'Color', [0.8 0.8 0.8]);
+    
     % Figure adjustment
     axis([0 1.1 0 1.1]), title([char(state_names(Output_index(1,counter))),': R^2= ', num2str(1-SSres/SStot)]);
     xlabel('observed');ylabel('estimated');
@@ -348,11 +351,22 @@ for counter=1:num_plots
     hold off
 end
 
+h3=figure; hold on
+X=estim.Output(:); Y=cell2mat(Numb(:));
+Rsq2 = 1 - nansum((Y - X).^2)/nansum((Y - mean(Y)).^2);
+plot(X,Y,'.k', 'MarkerSize', 10)
+plot([0,1],[0,1], 'Color', [0.8 0.8 0.8]);
+
+title(['Validation dataset: R^2=',num2str(Rsq2)])
+
+
 if ToSave
     saveas(h1,[Folder,filesep,'Validation_plot'],'tif')
     saveas(h1,[Folder,filesep,'Validation_plot'],'fig')
     saveas(h2,[Folder,filesep,'Validation_plot2'],'tif')
     saveas(h2,[Folder,filesep,'Validation_plot2'],'fig')
+    saveas(h3,[Folder,filesep,'Validation_plot3'],'tif')
+    saveas(h3,[Folder,filesep,'Validation_plot3'],'fig')
     
 end
 

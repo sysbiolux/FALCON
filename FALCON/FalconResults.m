@@ -16,10 +16,11 @@ function [bestx, meanx, stdx] = FalconResults(varargin)
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
 
-fxt_all=varargin{1};
-param_vector=varargin{2};
-if length(varargin)>2
-    FinalFolderName=varargin{3};
+estim=varargin{1};
+fxt_all=varargin{2};
+param_vector=varargin{3};
+if length(varargin)>3
+    FinalFolderName=varargin{4};
 end
 
 % Extract best parameter set and calculate means & SDs
@@ -38,7 +39,7 @@ Heading(1,1)={'-------'};
 Heading(1,2)={'best'};
 Heading(1,3)={'mean'};
 Heading(1,4)={'S.D.'};
-Heading_1stCol={'FitCost';'Time(s)'};
+Heading_1stCol={'SSE';'Time(s)'};
 FitCost_Time=[Heading_1stCol num2cell([bestfxt(1) bestfxt(end)]') num2cell([mean(fxt_all(:,1),1) mean(fxt_all(:,end),1)]') num2cell([std(fxt_all(:,1),0,1) std(fxt_all(:,end),0,1)]')];
 
 disp('Summarized fitting cost and time:')
@@ -75,6 +76,54 @@ if length(varargin)>2
         tab = table(param_vector,bestx',meanx',stdx','VariableNames',{'Parameter','Best','Average','Std'});
         writetable(tab,[FinalFolderName, filesep, 'Summary_Optimised_Parameters.csv'],'Delimiter',',');
     end
+end
+
+%writing log file:
+if exist(FinalFolderName)
+    Start=FinalFolderName(9:end);
+else
+    Start='?';
+end
+
+Now=datestr(now);
+fid = fopen([FinalFolderName, filesep, [FinalFolderName, '.log']],'at');
+fprintf(fid, 'FALCON log file \n');
+fprintf(fid, 'Start timestamp: %s \n', Start);
+fprintf(fid, 'Finish timestamp: %s \n', Now);
+fprintf(fid, 'Final MSE: %d \n', min(fxt_all(:,1)));
+fprintf(fid, 'Network: \n');
+[L,C]=size(estim.Interactions);
+for c=1:L
+    fprintf(fid, '%s %s %s %s %s %s %s \n', estim.Interactions{c,:});
+end
+
+fprintf(fid, 'Dataset: \n');
+[L,C]=size(estim.Input);
+FormatIn=repmat('%d ', 1, C);
+fprintf(fid, 'Inputs: \n');
+for c=1:L
+    fprintf(fid, [FormatIn, '\n'], estim.Input(c,:));
+end
+
+[L,C]=size(estim.Input_idx);
+FormatIn=repmat('%d ', 1, C);
+fprintf(fid, 'Inputs indices: \n');
+for c=1:L
+    fprintf(fid, [FormatIn, '\n'], estim.Input_idx(c,:));
+end
+
+[L,C]=size(estim.Output);
+FormatIn=repmat('%d ', 1, C);
+fprintf(fid, 'Outputs: \n');
+for c=1:L
+    fprintf(fid, [FormatIn, '\n'], estim.Output(c,:));
+end
+
+[L,C]=size(estim.Output_idx);
+FormatIn=repmat('%d ', 1, C);
+fprintf(fid, 'Outputs indices: \n');
+for c=1:L
+    fprintf(fid, [FormatIn, '\n'], estim.Output_idx(c,:));
 end
 
 disp('==============================================')

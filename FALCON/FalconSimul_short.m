@@ -37,10 +37,15 @@ param_index=estim.param_index;
 ma=estim.ma;
 mi=estim.mi;
 
+num_plots=length(Output_index);
+NLines=ceil(sqrt(num_plots));
+NCols=ceil(num_plots/NLines);
 % Perform simulation based on the best parameter set
 
 n=estim.NrStates;
-
+N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
+np= numel(estim.param_vector);
+    
 %initial and successive number of steps for evaluation
 if n<=25, initial_t=10; step_t=10;
 elseif n>25 && n<=100, initial_t=100; step_t=10;
@@ -143,9 +148,9 @@ mask=isnan(xmeas);
 xsim(mask)=0; xmeas(mask)=0;
 
 %calculate the sum-of-squared errors
-diff=sum(sum((xsim-xmeas).^2));
-
-disp(diff)
+diff=(sum(sum((xsim-xmeas).^2)))/N;
+AIC = N.*log(diff) + 2*np;
+fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', diff, diff*N, AIC);
 
 diff_ALL=diff;
 
@@ -182,10 +187,14 @@ if graphs(1)
 
         % Figure adjustment
         axis([0 size(Measurements,1)+1 0 1.1])
+        set(gca,'XTick', [1:length(estim.Annotation)])
+        set(gca,'XTickLabel', estim.Annotation)
+        xtickangle(45)
         set(gca,'fontsize',15/sqrt(num_plots))
-        set(gca,'XMinorGrid','on')
+%         set(gca,'XMinorGrid','on')
         t=title(state_names(Output_index(1,counter)));
         xt=xlabel('experimental condition');
+        yt=ylabel('state-value');
         set(xt,'fontsize',15/sqrt(num_plots))
         set(t,'fontsize',25/sqrt(num_plots))
         hold off
@@ -214,10 +223,13 @@ if graphs(2)
         end
 
         % Plot simulated data on top
-        plot(1:size(Measurements,1),x(counter,:),'b.','MarkerSize',5)
+        plot(1:size(Measurements,1),x(counter,:),'b.','MarkerSize',15)
 
         % Figure adjustment
         axis([0 size(Measurements,1)+1 0 1.1])
+        set(gca,'XTick', [1:length(estim.Annotation)])
+        set(gca,'XTickLabel', estim.Annotation)
+        xtickangle(45)
         set(gca,'fontsize',15)
         t=title(state_names(counter));
         xt=xlabel('exp');
@@ -235,17 +247,18 @@ end
 
 if graphs(3) && sum(std(estim.Output_idx))==0
     % Plot optimal cost for each experiment
-    hm=HeatMap(Diffs, 'RowLabels',1:size(estim.Output_idx,1),'ColumnLabels',estim.state_names(estim.Output_idx(1,:)),'Colormap',hot, 'Symmetric', false);
+    hm=HeatMap(Diffs, 'RowLabels',estim.Annotation,'ColumnLabels',estim.state_names(estim.Output_idx(1,:)),'Colormap',hot, 'Symmetric', false);
     addTitle(hm, 'Cross-error Analysis: Heatmap');
     if ToSave
         fighm=plot(hm);
         saveas(fighm,[Folder, '\CrossErrorHeatMap'],'tif');
         close(gcf)
     end
-    figure, hist(Diffs(:)); title('Cross-error Analysis: Histogram');
-    if ToSave
-        saveas(gcf,[Folder, '\CrossErrorHistogram'],'tif')
-    end
+%%%% Modif removal of histogram
+%     figure, hist(Diffs(:)); title('Cross-error Analysis: Histogram');
+%     if ToSave
+%         saveas(gcf,[Folder, '\CrossErrorHistogram'],'tif')
+%     end
 end
 
 if graphs(4)
@@ -286,32 +299,41 @@ if graphs(5)
     end
 
 
+num_plots=length(Output_index);
+NLines=ceil(sqrt(num_plots));
+NCols=ceil(num_plots/NLines);
+
     h51=figure; hold on,
+     suptitle('Dynamics through the simulation (outputs)');
     for p=1:size(Output_index,1)
-        subplot(size(Output_index,1),1,p)
+        subplot(NLines, NCols,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,Output_index(p,:))))
-        legend(state_names(Output_index(p,:)),'Location','EastOutside')
-        title('Dynamics through the simulation (outputs)');
         axis([0, T+1, 0, 1]);
         hold off
     end
+    legend(state_names(Output_index(p,:)))
+       
     if ToSave
         saveas(h51,[Folder, '\ConvergenceOutputNodes'],'tif')
     end
 
     h52=figure; hold on,
+      
+        suptitle('Dynamics through the simulation (all nodes)')
     for p=1:size(Output_index,1)
-        subplot(size(Output_index,1),1,p)
+        subplot(NLines, NCols,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,:)))
-        legend(state_names(:),'Location','EastOutside')
-        title('Dynamics through the simulation (all nodes)')
         axis([0, T+1, 0, 1]);
         hold off
     end
+      legend(state_names(:))
     if ToSave
         saveas(h52,[Folder, '\ConvergenceAllNodes'],'tif')
     end
 end
+estim.MeanStateValueSim = MeanStateValueAll;
 MeanStateValueAll = x';
+estim.Results.Optimisation.StdStateValueAll =  StdStateValueAll;
+estim.Results.Optimisation.Diffs = Diffs;
 end
 
