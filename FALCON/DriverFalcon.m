@@ -1,7 +1,7 @@
 % ======================================
 % Driver script (run-through) for FALCON
 % ======================================
-
+%%%
 % FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
 clc, clear all % clear screen and workspace 
 
