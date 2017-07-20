@@ -24,7 +24,7 @@ if ~isempty(GlobalEdgesList)
             tline = fgetl(fid); %read a line
             if ~ischar(tline), break, end %break out of the loop if line is empty
             LineCounter=LineCounter+1; %count the lines
-            disp(tline) %display the line
+%             disp(tline) %display the line
             Input = regexp(tline,'\t','split'); %find the tabs in the line's text
             if length(Input)==5
                 if ~exist('FixedInteractions')
@@ -46,7 +46,7 @@ if ~isempty(GlobalEdgesList)
         LineCounter=2; %initialize the line counter
         while LineCounter<=size(Other,1) %get out only when line is empty
             Input = Other(LineCounter,:); %read a line
-            disp(Input) %display the line
+%             disp(Input) %display the line
             if length(Input)==5
                 if ~exist('FixedInteractions')
                     FixedInteractions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),num2str(cell2mat(Input(4))),cell2mat(Input(5))};
@@ -317,5 +317,6 @@ GlobalFile=['GlobalInputFile_' stamp '.txt'];
 FalconInt2File(Itot,GlobalFile);
 
 estim=FalconMakeModel(GlobalFile,tempfile,HLbound);
+disp(['There are ', num2str(size(MeasFileList,2)), ' different contexts'])
 
 end

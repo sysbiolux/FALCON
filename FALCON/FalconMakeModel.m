@@ -20,6 +20,7 @@ function [estim]=FalconMakeModel(InputFile,MeasFile,HLbound)
 
 clearvars Interactions
 
+disp('...reading network file...')
 %%% Reading the model file
 Point=find(ismember(InputFile,'.'),1,'last'); %finding the last point in the file name
 Ext=InputFile(Point+1:end); %retrieving the extension
@@ -30,7 +31,7 @@ if strcmp(Ext,'txt') %if text file
         tline = fgetl(fid); %read a line
         if ~ischar(tline), break, end %break out of the loop if line is empty
         LineCounter=LineCounter+1; %count the lines
-        disp(tline) %display the line
+%         disp(tline) %display the line
         Input = regexp(tline,'\t','split'); %find the tabs in the line's text
         if length(Input)==5 
             if ~exist('Interactions')
@@ -52,7 +53,7 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
     LineCounter=2; %initialize the line counter
     while LineCounter<=size(Other,1) %get out only when line is empty
         Input = Other(LineCounter,:); %read a line
-        disp(Input) %display the line
+%         disp(Input) %display the line
         if length(Input)==5 
             if ~exist('Interactions')
                 Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),num2str(cell2mat(Input(4))),cell2mat(Input(5))};
@@ -73,6 +74,8 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% QUALITY CONTROL %%%
+disp('...checking network consistency...')
+
 
 state_names=unique([Interactions(:,2);Interactions(:,4)]'); % extract state names
 
@@ -110,6 +113,7 @@ DidChange=1;
 while DidChange==1
     [DidChange, InteractionsNew]=FalconExpand(Interactions);
     Interactions=InteractionsNew;
+    if DidChange, disp('...network has been expanded...'), end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -129,19 +133,15 @@ state_names=unique([Interactions(:,2);Interactions(:,4)]'); % extract state name
 ma=zeros(size(state_names,2));
 mi=zeros(size(state_names,2));
 
-% if Forced
-    Interactions(IsBool,5)=repmat({'1'},sum(IsBool),1);
-% end
+Interactions(IsBool,5)=repmat({'1'},sum(IsBool),1);
 
 for i=1:length(UOutInNAct) % for each Output node in single interactions
     thisOut=UOutInNAct(i); % node ID
     isAlone=strcmp(thisOut,ReactInNAct(:,4)); % vector of identities in activating links
-%     if Forced % if probabilities are forced
-        if sum(isAlone)==1 % if this is the only activating interaction
-            Idx=(strcmp(thisOut,Interactions(:,4))) & IdxAct; % look for it
-            Interactions(Idx,5)=repmat({'1'},sum(Idx),1); % fix to 1
-        end
-%     end
+    if sum(isAlone)==1 % if this is the only activating interaction
+        Idx=(strcmp(thisOut,Interactions(:,4))) & IdxAct; % look for it
+        Interactions(Idx,5)=repmat({'1'},sum(Idx),1); % fix to 1
+    end
     if sum(isAlone)>1 % if there are several interactions
         SumFixed=0;
         Idx=(strcmp(thisOut,Interactions(:,4))) & IdxAct;
@@ -193,7 +193,7 @@ for i=1:length(UOutInNInh) % for each Output node in inhibitions
     end
 end
 
-disp(Interactions)
+% disp(Interactions)
 
 UniqueParamNames=unique(Interactions(:,5),'stable')'; %parameter names
 for u=length(UniqueParamNames):-1:1 %removing numeric values, starts from the end (otherwise suppresses the wrong line)
@@ -257,13 +257,7 @@ for i=1:length(UniqueOutputList)%for each unique output
         idxi=find(ismember(state_names,Interactions(Idx,2)));
         param_index=[param_index; idxo, idxi(1), isAct, ~isAct, cntb, pGate, pHL(1)];
         param_index=[param_index; idxo, idxi(2), isAct, ~isAct, cntb, pGate, pHL(2)];
-%         if Forced
-            FixBool=[FixBool,1,1]; PN=[PN,1,1];
-%         elseif str2num(char(Interactions(Idx,5)))>=0
-%             FixBool=[FixBool,1,1]; PN=[PN,1,1];
-%         else
-%             FixBool=[FixBool,0,0]; PN=[PN,Interactions(Idx(1),5),Interactions(Idx(2),5)];
-%         end
+        FixBool=[FixBool,1,1]; PN=[PN,1,1];
         
     else % if only single interactions
         for ii=1:length(Idx) % for each interactions
@@ -343,6 +337,7 @@ param_vector=UniqueParamNames';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % getting the info from the measurement file
+disp('...reading datafile...')
 
 Point=find(ismember(MeasFile,'.'),1,'last'); %finding the last point in the file name
 Ext=MeasFile(Point+1:end); %retrieving the extension
@@ -355,7 +350,7 @@ if strcmp(Ext,'txt') %if text file
     Output_vector=[];
     Output_index=[];
     SD_vector=[];
-    Annotation= []
+    Annotation=[];
     while 1
         tline = fgetl(fid);
         if ~ischar(tline), break, end
@@ -374,7 +369,7 @@ if strcmp(Ext,'txt') %if text file
         end
         
 %        Annotation= [];
-       Annotation = [Annotation; Annotation_data]
+       Annotation=[Annotation; Annotation_data];
 
                
         count_input=1;
@@ -531,5 +526,11 @@ estim.BoolMax=BoolMax;
 estim.BoolIdx=BoolIdx;
 estim.BoolOuts=BoolOuts;
 estim.FixBool=FixBool;
-estim.Annotation = Annotation;    
+estim.Annotation = Annotation;
+disp('... ... ...')
+
+disp(['Network loaded: ', num2str(estim.NrStates), ' nodes and ', num2str(size(estim.Interactions,1)), ' interactions (', num2str(BoolMax), ' Boolean gates)'])
+disp(['Data loaded: ', num2str(size(Input_vector,2)), ' inputs, ', num2str(size(Output_vector,2)), ' outputs and ', num2str(size(Input_vector,1)), ' experimental conditions'])
+disp(['The model has ', num2str(estim.NrParams), ' parameters for ', num2str(prod(size(Output_vector))), ' datapoints'])
+
 end
