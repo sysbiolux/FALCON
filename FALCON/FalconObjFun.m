@@ -176,7 +176,7 @@
     %calculate the sum-of-squared errors
     mse=(sum(sum((xsim-xmeas).^2)))/N;
     Diff=mse+l*Var;
-    AIC = N.*log(Diff) + 2.*(sum(k>0));
+    AIC = N.*log(Diff) + 2.*(sum(k>0.01));
     fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', mse, l*Var, Diff, AIC);
 %     disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
@@ -216,6 +216,10 @@
             end
         elseif strcmp(estim.Reg,'L2')
             Var=sum(k.^2);
+            elseif strcmp(estim.Reg,'L1/2')
+            Var=sum(k.^0.5);
+        elseif strcmp(estim.Reg, 'Lx')
+            Var=1/sum(k.^2);
         end
     else
         Var=0;
@@ -223,6 +227,6 @@
     
     R_mse=fval-(l*Var);
     
-    R_AIC=N.*log(fval) + 2.*(sum(k>0));
+    R_AIC=N.*log(fval) + 2.*(sum(k>0.01));
 
 end
