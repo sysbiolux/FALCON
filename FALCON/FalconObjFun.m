@@ -53,6 +53,10 @@
             end
         elseif strcmp(estim.Reg,'L2')
             Var=sum(k.^2);
+        elseif strcmp(estim.Reg,'L1/2')
+            Var=sum(k.^0.5);
+        elseif strcmp(estim.Reg, 'Lx')
+            Var=1/sum(k.^2);
         end
     else
         Var=0;
