@@ -39,7 +39,7 @@ Heading(1,1)={'-------'};
 Heading(1,2)={'best'};
 Heading(1,3)={'mean'};
 Heading(1,4)={'S.D.'};
-Heading_1stCol={'SSE';'Time(s)'};
+Heading_1stCol={'MSE';'Time(s)'};
 FitCost_Time=[Heading_1stCol num2cell([bestfxt(1) bestfxt(end)]') num2cell([mean(fxt_all(:,1),1) mean(fxt_all(:,end),1)]') num2cell([std(fxt_all(:,1),0,1) std(fxt_all(:,end),0,1)]')];
 
 disp('Summarized fitting cost and time:')
