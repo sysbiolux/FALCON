@@ -174,59 +174,15 @@
     xsim(mask)=0; xmeas(mask)=0;
 
     %calculate the sum-of-squared errors
-    mse=(sum(sum((xsim-xmeas).^2)))/N;
-    Diff=mse+l*Var;
+    MSE=(sum(sum((xsim-xmeas).^2)))/N;
+    Diff=MSE+l*Var;
     AIC = N.*log(Diff) + 2.*(sum(k>0.01));
-    fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', mse, l*Var, Diff, AIC);
+    fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', MSE, l*Var, Diff, AIC);
 %     disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
     end
 
-
-    n=estim.NrStates;
-    N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
-    np= numel(estim.param_vector);
-    
-    
-    if isfield(estim, 'Lambda')
-        l=estim.Lambda;
-    else
-        l=0;
-    end
-    
-    if isfield(estim, 'RegMatrix')
-        Reg=estim.RegMatrix;
-    end
-    
-    if isfield(estim, 'Reg')
-        if strcmp(estim.Reg,'none')
-            Var=0;
-        elseif strcmp(estim.Reg,'L1')
-            Var=sum(abs(k));
-        elseif strcmp(estim.Reg,'L1Groups')
-            Var=0;
-            for v=1:size(Reg,1)
-                km=mean(k(Reg(v,:)));
-                Var=Var+sum(abs(k(Reg(v,:))-km));
-            end
-        elseif strcmp(estim.Reg,'L1Smooth')
-            Var=0;
-            for v=1:size(Reg,1)
-                Var=Var+sum(abs(k(Reg(v,2:end))-k(Reg(v,1:end-1))));
-            end
-        elseif strcmp(estim.Reg,'L2')
-            Var=sum(k.^2);
-            elseif strcmp(estim.Reg,'L1/2')
-            Var=sum(k.^0.5);
-        elseif strcmp(estim.Reg, 'Lx')
-            Var=1/sum(k.^2);
-        end
-    else
-        Var=0;
-    end
-    
-    R_mse=fval-(l*Var);
-    
-    R_AIC=N.*log(fval) + 2.*(sum(k>0.01));
+    R_AIC=AIC;
+    R_mse=MSE;
 
 end
