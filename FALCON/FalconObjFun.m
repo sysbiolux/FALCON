@@ -21,9 +21,7 @@
     function [ Diff ] = nestedfun(k)
         
     n=estim.NrStates;
-    N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
-    np= numel(estim.param_vector);
-    
+    N = numel(estim.Output)-sum(sum(isnan(estim.Output)));    
     
     if isfield(estim, 'Lambda')
         l=estim.Lambda;
@@ -57,6 +55,13 @@
             Var=sum(k.^0.5);
         elseif strcmp(estim.Reg, 'Lx')
             Var=1/sum(k.^2);
+        elseif strcmp(estim.Reg,'Ldrug')
+            Var(1)=sum(k.^0.5);
+            Var(2)=0;
+            for v=1:size(Reg,1)
+                km=mean(k(Reg(v,:)));
+                Var(2)=Var(2)+sum(abs(k(Reg(v,:))-km));
+            end
         end
     else
         Var=0;
@@ -120,7 +125,6 @@
     Measurements=estim.Output;
 
     % Evaluation
-    Diff=0; % Initialize fitting cost
     TimeSoFar=tic;
     
     x=rand(n,size(Measurements,1)); %initial random values for the nodes
@@ -175,9 +179,9 @@
 
     %calculate the sum-of-squared errors
     MSE=(sum(sum((xsim-xmeas).^2)))/N;
-    Diff=MSE+l*Var;
+    Diff=MSE+sum(l.*Var);
     AIC = N.*log(Diff) + 2.*(sum(k>0.01));
-    fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', MSE, l*Var, Diff, AIC);
+    fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', MSE, sum(l.*Var), Diff, AIC);
 %     disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
     end
