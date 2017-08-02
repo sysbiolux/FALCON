@@ -39,11 +39,7 @@
         elseif strcmp(estim.Reg,'L1')
             Var=sum(abs(k));
         elseif strcmp(estim.Reg,'L1Groups')
-            Var=0;
-            for v=1:size(Reg,1)
-                km=mean(k(Reg(v,:)));
-                Var=Var+sum(abs(k(Reg(v,:))-km));
-            end
+            Var=sum(sum(abs(k(Reg)-repmat(mean(k(Reg),2),1,size(Reg,2)))));
         elseif strcmp(estim.Reg,'L1Smooth')
             Var=0;
             for v=1:size(Reg,1)
@@ -180,7 +176,19 @@
     %calculate the sum-of-squared errors
     MSE=(sum(sum((xsim-xmeas).^2)))/N;
     Diff=MSE+sum(l.*Var);
+    
     AIC = N.*log(Diff) + 2.*(sum(k>0.01));
+    if isfield(estim, 'Reg')
+        if strcmp(estim.Reg,'L1Groups')
+            Std_group=std(k(Reg),0,1);
+            Collapsed=Std_group<0.01;
+            Nparams=sum(Collapsed)+size(Reg,1)*sum(~Collapsed);
+            AIC = N.*log(Diff) + 2.*Nparams;
+        elseif strcmp(estim.Reg,'L1Smooth')
+            %%% code smth here
+        end
+    end
+    
     fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', MSE, sum(l.*Var), Diff, AIC);
 %     disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
