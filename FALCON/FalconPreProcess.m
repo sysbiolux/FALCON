@@ -20,7 +20,7 @@ function [estim2]=FalconPreProcess(estim, varargin)
 % [estim2]=FalconPreProcess(estim, 'subsample', 0.5)
 % [estim2]=FalconPreProcess(estim, 'subsample', 2.5)
 % [estim2]=FalconPreProcess(estim, 'normalize', [-0.2 0.9], 'bootstrap', 'both','randomize', 0.5, 'subsample', 0.5)
-%
+% [estim2]=FalconPreProcess(estim, 'noise', 1)
 % :: Contact ::
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
@@ -31,6 +31,7 @@ BS_row=0;
 BS_col=0;
 Rand=0;
 Subs=0;
+Noise=0;
 
 estim2=estim;
 
@@ -57,6 +58,9 @@ for c=1:numel(varargin)
     elseif strcmp('subsample', Option)
         Subs=1;
         FractS=varargin{c+1};
+    elseif strcmp('noise', Option)
+        Noise=1;
+        FractN=varargin{c+1};
     end
 
 end
@@ -73,6 +77,7 @@ if Norm
     Y=(Y.*(t_max-t_min))+t_min;
     estim2.Input=X;
     estim2.Output=Y;
+    %still need to normalize SD
 end
 
 [nRows,nColsX]=size(X);
@@ -82,12 +87,14 @@ if BS_row
     disp('bootstrapping rows...')
     Chosen=ceil(rand(1,nRows).*nRows);
     estim2.Output=Y(Chosen,:);
+    estim2.SD=estim.SD(Chosen,:);
 end
 
 if BS_col
     disp('bootstrapping columns...')
     Chosen=ceil(rand(1,nColsY).*nColsY);
     estim2.Output=Y(:,Chosen);
+    estim2.SD=estim.SD(Chosen,:);
 end
 
 if Rand
@@ -96,10 +103,12 @@ if Rand
     Perm_ColsY=randperm(nColsY);
     
     Y2=Y(Perm_Rows, Perm_ColsY);
+    SD2=estim.SD(Perm_Rows, Perm_ColsY);
     
     My=rand(nRows,nColsY)<FractR;
     
     Y(My)=Y2(My);
+    estim2.SD(My)=SD2(My);
     estim2.Output=Y;
 end
 
@@ -116,6 +125,15 @@ if Subs
     estim2.Output_idx=estim.Output_idx(Chosen,:);
     estim2.SD=estim.SD(Chosen,:);
     estim2.Annotation=estim.Annotation(Chosen,:);
+end
+
+if Noise
+    disp('...adding noise...')
+    Y=estim.Output;
+    SD=estim2.SD;
+    Y2=randn(size(Y)).*SD.*FractN;
+    Y=max(min((Y+Y2),1),0);
+    estim2.Output=Y;
 end
 
 
