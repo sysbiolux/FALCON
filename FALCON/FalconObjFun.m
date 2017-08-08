@@ -1,4 +1,4 @@
- function [xval,fval,R_AIC,R_mse]=FalconObjFun(estim,k)
+ function [xval,fval,R_AIC,R_mse,varargout]=FalconObjFun(estim,k)
 % FalconObjFun serves as the objective function for the optimisation.
 % Apply the non-linear optimiser 'fmincon' with the default algorithm (interior-point)
 % Return the optimised parameters values and fitting cost calculated from the sum-of-squared error (SSE)
@@ -177,13 +177,17 @@
     MSE=(sum(sum((xsim-xmeas).^2)))/N;
     Diff=MSE+sum(l.*Var);
     
-    AIC = N.*log(Diff) + 2.*(sum(k>0.01));
+    AIC = N.*log(MSE) + 2.*(sum(k>0.01));
+    BIC = N.*log(MSE) + (sum(k>0.01))*log(N);
+    Nparams=(sum(k>0.01));
+
     if isfield(estim, 'Reg')
         if strcmp(estim.Reg,'L1Groups')
-            Std_group=std(k(Reg),0,1);
+            Std_group=std(k(Reg),0,2);
             Collapsed=Std_group<0.01;
-            Nparams=sum(Collapsed)+size(Reg,1)*sum(~Collapsed);
-            AIC = N.*log(Diff) + 2.*Nparams;
+            Nparams=sum(Collapsed)+size(Reg,2)*sum(~Collapsed);
+            AIC = N.*log(MSE) + 2.*Nparams;
+            BIC = N.*log(MSE) + Nparams*log(N);
         elseif strcmp(estim.Reg,'L1Smooth')
             %%% code smth here
         end
@@ -196,5 +200,6 @@
 
     R_AIC=AIC;
     R_mse=MSE;
-
+    varargout{1}=BIC;
+    varargout{2}=Nparams;
 end
