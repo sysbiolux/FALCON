@@ -1,4 +1,4 @@
-function Lcombined_analysis(estim, M, ListLambda1, ListLambda2, PowerLambda1, PowerLambda2, vartest ,FinalFolderName)
+function Lcombined_analysis(estim,ContextsList, M, ListLambda12, ListLambda1group, PowerLambda12, PowerLambda1group, vartest ,FinalFolderName)
 
 %%%%%%%%%%%% TO DO %%%%%%%%%%%%
 % % get the ranking of the most important parameters
@@ -15,28 +15,28 @@ t= num2cell(vartest)
 % AIC evolution
 figure, 
 AICs=M(:,end-3);
-AICs=reshape(AICs,length(ListLambda1),length(ListLambda2));
+AICs=reshape(AICs,length(ListLambda12),length(ListLambda1group));
 imagesc(AICs);
 title('AIC')
-set(gca,'XTick',1:length(ListLambda1))
-set(gca,'xticklabels',['  0'; num2str(PowerLambda2(:))])
+set(gca,'XTick',1:length(ListLambda12))
+set(gca,'xticklabels',['0'; num2str(PowerLambda1group(:))])
 set(gca,'xticklabelrotation',90)
-set(gca,'YTick',1:length(ListLambda2))
-set(gca,'yticklabels',['  0'; num2str(PowerLambda1(:))])
+set(gca,'YTick',1:length(ListLambda1group))
+set(gca,'yticklabels',['0'; num2str(PowerLambda12(:))])
 ylabel('L1 grouped')
 xlabel('L1/2')
 
 % BIC evolution
 figure, 
 BICs=M(:,end-2);
-BICs=reshape(BICs,length(ListLambda1),length(ListLambda2));
+BICs=reshape(BICs,length(ListLambda12),length(ListLambda1group));
 imagesc(BICs);
 title('BIC')
-set(gca,'XTick',1:length(ListLambda1))
-set(gca,'xticklabels',['  0'; num2str(PowerLambda2(:))])
+set(gca,'XTick',1:length(ListLambda12))
+set(gca,'xticklabels',['0'; num2str(PowerLambda1group(:))])
 set(gca,'xticklabelrotation',90)
-set(gca,'YTick',1:length(ListLambda2))
-set(gca,'yticklabels',['  0'; num2str(PowerLambda1(:))])
+set(gca,'YTick',1:length(ListLambda1group))
+set(gca,'yticklabels',['0'; num2str(PowerLambda12(:))])
 ylabel('L1 grouped')
 xlabel('L1/2')
 
@@ -44,7 +44,7 @@ xlabel('L1/2')
 
 figure,
 MSEs=M(:,end-2);
-MSEs=reshape(MSEs,length(ListLambda1),length(ListLambda2));
+MSEs=reshape(MSEs,length(ListLambda12),length(ListLambda1group));
 imagesc(log(MSEs))
 title('MSE L1 vs L1/2 regularization')
 ylabel('L1 grouped')
@@ -53,7 +53,7 @@ xlabel('L1/2')
 % parameter evolution
 figure, 
 Nps=M(:,end);
-Nps=reshape(Nps,length(ListLambda1),length(ListLambda2));
+Nps=reshape(Nps,length(ListLambda12),length(ListLambda1group));
 imagesc(Nps)
 title('#Parameters')
 ylabel('L1 grouped')
@@ -62,14 +62,14 @@ xlabel('L1/2')
 %%% SBC
 SBC= numel(estim.Output) .* log(M(:,1)) + M(:,end) .* log(numel(estim.Output));
 figure, 
-SBCs=reshape(SBC,length(ListLambda1),length(ListLambda2));
+SBCs=reshape(SBC,length(ListLambda12),length(ListLambda1group));
 imagesc(SBCs)
 title('SBC')
-set(gca,'XTick',1:length(ListLambda1))
-set(gca,'xticklabels',['  0'; num2str(PowerLambda2(:))])
+set(gca,'XTick',1:length(ListLambda12))
+set(gca,'xticklabels',['0'; num2str(PowerLambda1group(:))])
 set(gca,'xticklabelrotation',90)
-set(gca,'YTick',1:length(ListLambda2))
-set(gca,'yticklabels',['  0'; num2str(PowerLambda1(:))])
+set(gca,'YTick',1:length(ListLambda1group))
+set(gca,'yticklabels',['0'; num2str(PowerLambda12(:))])
 ylabel('L1 grouped')
 xlabel('L1/2')
 
@@ -130,7 +130,7 @@ for rows= 1: size(M,1)
 end
 % test_std_sort=sortrows(test_std(:,1))
 
-figure; plot(test_std(1:length(ListLambda2),:));
+figure; plot(test_std(1:length(ListLambda1group),:));
 ylabel('standard deviation')
 xlabel('Lambda')
 title(['Regularization dynamics'])  
