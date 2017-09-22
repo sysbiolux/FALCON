@@ -259,7 +259,9 @@ for m=1:length(MeasFileList)
     Page3=[Page3,temp];
 end
 stamp=mat2str((floor(now*100000000)));
-tempfile=['Results_' stamp '_.xls'];
+tempdir = tempname;
+mkdir(tempdir);
+tempfile=[tempdir filesep 'Results_' stamp '_.xls'];
 varargout{1}=stamp;
 varargout{2}=tempfile;
 
@@ -301,19 +303,20 @@ else
 %     xlswrite(tempfile,Page1,1)
 %     xlswrite(tempfile,Page2,2)
 %     xlswrite(tempfile,Page3,3)
-    xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
-    xlswrite(tempfile, Page1 , 1, 'B1');
+    xlwrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+    xlwrite(tempfile, Page1 , 1, 'B1');
 %     xlswrite(tempfile, estim.Input, 1, 'B2');
-    xlswrite(tempfile, Page2, 2, 'A1');
+    xlwrite(tempfile, Page2, 2, 'A1');
 %     xlswrite(tempfile, estim.Output, 2, 'A2');
-    xlswrite(tempfile, Page3, 3, 'A1');
+    xlwrite(tempfile, Page3, 3, 'A1');
 %     xlswrite(tempfile, estim.SD, 3, 'A2');
 end
 
 
 
 clearvars estim
-GlobalFile=['GlobalInputFile_' stamp '.txt'];
+
+GlobalFile=[tempdir filesep 'GlobalInputFile_' stamp '.txt'];
 FalconInt2File(Itot,GlobalFile);
 
 estim=FalconMakeModel(GlobalFile,tempfile,HLbound);
