@@ -171,9 +171,9 @@ function [xval,fval,R_AIC,R_mse]=FalconObjFunPlus(estim,k)
     xsim(mask)=0; xmeas(mask)=0;
 
     %calculate the sum-of-squared errors
-    diff=(sum(sum((xsim-xmeas).^2)))/N;
-    AIC = N.*log(diff) + 2*(sum(k>0.01));
-    fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', diff, diff*N, AIC);
+    MSE=(sum(sum((xsim-xmeas).^2)))/N;
+    AIC = N.*log(MSE) + 2*(sum(k>0.01));
+    fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', MSE, MSE*N, AIC);
     
     n=estim.NrStates;
     N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
@@ -217,11 +217,11 @@ function [xval,fval,R_AIC,R_mse]=FalconObjFunPlus(estim,k)
         Var=0;
     end
     
-    R_mse=fval-(l*Var);
-    
-    R_AIC=N.*log(fval) + 2.*(sum(k>0.01));
+    R_mse=MSE;
+    diff=MSE+sum(l.*Var);
+    R_AIC=N.*log(MSE) + 2.*(sum(k>0.01));
 
     global Costs
-    Costs=[Costs;diff];
+    Costs=[Costs;MSE];
     end
 end
