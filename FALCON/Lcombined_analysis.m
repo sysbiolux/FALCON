@@ -135,4 +135,10 @@ ylabel('standard deviation')
 xlabel('Lambda')
 title(['Regularization dynamics'])  
 
+% get for each param the value where STD  is below 1%
+
+[row col] = find(test_std(1:length(ListLambda1group),:)< 0.01)
+A= [row col]
+
+
 end
