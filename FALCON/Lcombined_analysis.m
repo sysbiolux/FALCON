@@ -1,16 +1,9 @@
-function Lcombined_analysis(estim,ContextsList, M, ListLambda12, ListLambda1group, PowerLambda12, PowerLambda1group, vartest ,FinalFolderName)
+function [ResultsLambda, ResultsParams] = Lcombined_analysis(estim,InputFile, MeasFileList, ContextsList, M, ListLambda12, ListLambda1group, PowerLambda12, PowerLambda1group, vartest ,FinalFolderName)
 
-%%%%%%%%%%%% TO DO %%%%%%%%%%%%
-% % get the ranking of the most important parameters
-% % additional selection criterion
-%%%%%%%%%%%% %%%%%%%%%%%%
-
-        clear all, clc,
-        load('Lcombined.mat')
         
 %% Analyis of combined L1 and L1/2 regularization
-t= num2cell(vartest) 
-[PlotFitSummary, PlotFitIndividual, PlotHeatmapCost, PlotStateSummary, PlotStateEvolution] = deal(t{:})
+t= num2cell(vartest);
+[PlotFitSummary, PlotFitIndividual, PlotHeatmapCost, PlotStateSummary, PlotStateEvolution] = deal(t{:});
 
 
 %% Overview of the data analysis with general plots
@@ -117,7 +110,7 @@ title(['Parameter means and standard error at AIC=' num2str(min_AIC)])
 
 %% identification of crucial parameters based on L1_groups
     
-ref=FalconMakeModel(InputFile, MeasFile, 0.5)
+ref=FalconMakeModel(InputFile, MeasFileList{1}, 0.5)
 Mgroup=M(1:length(ListLambda1group),2:end-5);
 
 L=length(ContextsList);
@@ -134,8 +127,8 @@ figure, imagesc(STDs)
 
 Threshold=0.01;
 STDs_pass=STDs<Threshold;
-STDs_x=STDs_pass(1:end-1,:)~=STDs_pass(2:end,:)
-[row col] = find(STDs_x)
+STDs_x=STDs_pass(1:end-1,:)~=STDs_pass(2:end,:);
+[row col] = find(STDs_x);
 
 ResultsLambda=[];
 ResultsParams={};
@@ -146,14 +139,5 @@ for c=size(Mgroup,1):-1:1
         ResultsParams=[ResultsParams; {ref.param_vector(Idx)'}]
     end
 end
-
-
-%%
-
-% get for each param the value where STD  is below 1%
-
-[row col] = find(test_std(1:length(ListLambda1group),:)< 0.01)
-A= [row col]
-
 
 end
