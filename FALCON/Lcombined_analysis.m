@@ -94,18 +94,49 @@ best = best(estim.RegMatrix);
 best_mean=mean(best, 2);
 best_std=std(best, 0, 2);
 
+% % new for correct text
+out =  estim.param_vector(1:2:end,:)
+estim.param_vector2 = extractBefore (out , '-')
+estim.param_vector2 = cellstr(estim.param_vector2)
 
+% compare coditions by barplot
+[best_param, Order] =sortrows(best)
+figure;
+bar(best_param)
+set(gca, 'xtick', 1:length(best_param))
+set(gca, 'xticklabels', estim.param_vector2(Order))
+set(gca, 'xticklabelrotation', 90)
+xlabel('parameters')
+ylabel('parameter means')
+title(['Parameter means at AIC=' num2str(min_AIC)])
+legend(ContextsList)
 
-[best_std, Order] = sortrows(best_std);
+% % compare coditions by barplot and sort by standard deviation
+[best_std2, Order] = sortrows(best_std);
+figure;
+bar(best(Order,:))
+set(gca, 'xtick', 1:length(best))
+set(gca, 'xticklabels', estim.param_vector2(Order))
+set(gca, 'xticklabelrotation', 90)
+xlabel('parameters')
+ylabel('parameter means')
+title(['Parameter means at AIC=' num2str(min_AIC)])
+legend(ContextsList)
+
+% with standard deviation between conditions
+[best_std2, Order] = sortrows(best_std);
 figure, 
 bar(best_mean), hold on
-errorbar(best_mean,best_std, '.k')
-set(gca, 'xtick', 1:length(best_std))
-set(gca, 'xticklabels', estim.param_vector(Order))
+errorbar(best_mean,best_std2, '.k')
+set(gca, 'xtick', 1:length(best_std2))
+set(gca, 'xticklabels', estim.param_vector2(Order))
 set(gca, 'xticklabelrotation', 90)
 xlabel('parameters')
 ylabel('parameter means')
 title(['Parameter means and standard error at AIC=' num2str(min_AIC)])
+
+
+
 
 
 %% identification of crucial parameters based on L1_groups
