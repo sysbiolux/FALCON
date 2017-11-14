@@ -95,7 +95,7 @@ best_mean=mean(best, 2);
 best_std=std(best, 0, 2);
 
 % % new for correct text
-out =  estim.param_vector(1:2:end,:)
+out =  estim.param_vector(1:length(ContextsList):end,:)
 estim.param_vector2 = extractBefore (out , '-')
 estim.param_vector2 = cellstr(estim.param_vector2)
 
