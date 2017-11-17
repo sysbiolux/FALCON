@@ -261,7 +261,7 @@ end
 stamp=mat2str((floor(now*100000000)));
 tempdir = tempname;
 mkdir(tempdir);
-tempfile=[tempdir filesep 'Results_' stamp '_.xls'];
+tempfile=[tempdir filesep 'Results_' stamp '_.xlsx'];
 varargout{1}=stamp;
 varargout{2}=tempfile;
 
