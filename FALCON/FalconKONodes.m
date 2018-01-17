@@ -41,14 +41,14 @@ num_params=estim.param_vector;
 bestcost = min(fxt_all(:,1));
 
 %% AIC calculation
-N = numel(estim.Output);
-SSE= bestcost;
+N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
+MSE= bestcost;
 Nodes=estim.state_names;
 Nodes(estim.Input_idx(1,:))=[];
 pn=length(Nodes);
 p= numel(Param_original);
 
-AIC_complete = N*log(SSE/N) + 2*p; %AIC for base model
+AIC_complete = N*log(MSE) + 2*p; %AIC for base model
 
 p_KD = zeros(1,pn);
 param_vector=estim.param_vector;
@@ -77,7 +77,7 @@ for counter =  1:size(p_KD,2)
     MeasFile=FalconData2File(estim);
     FalconInt2File(Interactions,'KDN_TempFile.txt')
     
-    estim=FalconMakeModel('KDN_TempFile.txt',MeasFile,HLbound,1);
+    estim=FalconMakeModel('KDN_TempFile.txt',MeasFile,HLbound);
     estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',3000,'MaxIter',3000); % Default
     estim.SSthresh=1e-3;
     fval_all=[];
@@ -92,7 +92,7 @@ for counter =  1:size(p_KD,2)
     
     %% reduced model (- parameter)
     
-    N_r = numel(estim.Output); %number of datapoints
+    N_r = numel(estim.Output)-sum(sum(isnan(estim.Output))); %number of datapoints
     p_r= numel(estim.param_vector); %number of parameters
     %remove parameters related to the knocked-out node
     Is=Interactions_original(strcmp(Interactions_original(:,2),thisNode),5); %fetch outgoing parameters
@@ -104,25 +104,26 @@ for counter =  1:size(p_KD,2)
     end
     
     
-    AIC_KD(counter) = N_r*log(cost_KD(counter)/N_r) + 2*(p_r-numel(unique(Is)));
+    AIC_KD(counter) = N_r*log(cost_KD(counter)) + 2*(p_r-numel(unique(Is)));
     
     %%Plot AIC values
     
     AIC_merge=[AIC_complete,AIC_KD];
+    AIC_merge_scaled = AIC_merge - AIC_complete   %% set ctrl model to 0
     set(0,'CurrentFigure',thisfig);
     figko=thisfig; hold on;
     
-    h=bar(1,AIC_complete); hold on
+    h=bar(1,AIC_merge_scaled(1,1)); hold on
     for counter2 = 2:counter+1
-        h=bar(counter2,AIC_merge(counter2)); hold on
-        if AIC_merge(counter2) <= AIC_complete
-            set(h,'FaceColor','g');
+        h=bar(counter2,AIC_merge_scaled(counter2)); hold on
+        if AIC_merge_scaled(counter2) <= AIC_merge_scaled(1,1)
+            set(h,'FaceColor','r');
         else%if AIC_merge(counter2) > AIC_complete
             set(h,'FaceColor','k');
         end
     end
     
-    hline=refline([0 AIC_complete]);
+    hline=refline([0 AIC_merge_scaled(1,1)]);
     hline.Color = 'r';
     
     set(gca,'XTick',[1:length(Nodes)+1])
@@ -131,9 +132,9 @@ for counter =  1:size(p_KD,2)
     %     title('AIC');
     xlabel('');
     set(gca, 'XTickLabelRotation', 45)
-    ylabel('Akaike Information Criterion (AIC)');
+    ylabel('scaled Akaike Information Criterion (AIC)');
     hold off
-    Min=min(AIC_merge(1:counter)); Max=max(AIC_merge(1:counter));
+    Min=min(AIC_merge_scaled(1:counter)); Max=max(AIC_merge_scaled(1:counter));
     if counter>1
         axis([0.5 counter+1.5 Min-0.1*abs(Max-Min) Max+0.1*abs(Max-Min)])
     end

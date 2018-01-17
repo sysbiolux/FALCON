@@ -1,4 +1,4 @@
- function [xval,fval]=FalconObjFun(estim,k)
+ function [xval,fval,varargout]=FalconObjFun(estim,k)
 % FalconObjFun serves as the objective function for the optimisation.
 % Apply the non-linear optimiser 'fmincon' with the default algorithm (interior-point)
 % Return the optimised parameters values and fitting cost calculated from the sum-of-squared error (SSE)
@@ -9,7 +9,7 @@
 % k          initial guess for parameter values (initial condition)
 % 
 % :: Output ::
-% fval       all fitting costs over different optmization rounds
+% fval       all fitting costs over different optimization rounds
 % xval       all optimized parameter values over different optmization rounds
 %
 % :: Contact ::
@@ -18,10 +18,90 @@
 
 [xval,fval]=fmincon(@nestedfun,k,estim.A,estim.b,estim.Aeq,estim.beq,estim.LB,estim.UB,[],estim.options);
 
-    function [ diff ] = nestedfun(k)
+    function [ Diff ] = nestedfun(k)
         
     n=estim.NrStates;
-
+    N = numel(estim.Output)-sum(sum(isnan(estim.Output)));    
+    
+    if isfield(estim, 'Lambda')
+        l=estim.Lambda;
+    else
+        l=0;
+    end
+    
+    if isfield(estim, 'RegMatrix')
+        if isfield(estim.RegMatrix, 'Groups')
+            RegGroups=estim.RegMatrix.Groups;
+        end
+        if isfield(estim.RegMatrix, 'Smooth')
+            RegSmooth=estim.RegMatrix.Smooth;
+        end
+        if isfield(estim.RegMatrix, 'Cluster')
+            RegCluster=estim.RegMatrix.Cluster;
+        end
+    end
+    
+    if isfield(estim, 'Reg')
+        if strcmp(estim.Reg,'none')
+            Var=0;
+        elseif strcmp(estim.Reg,'L1')
+            Var=sum(abs(k));
+        elseif strcmp(estim.Reg,'L1Groups')
+            Var=sum(sum(abs(k(RegGroups)-repmat(mean(k(RegGroups),2),1,size(RegGroups,2)))));
+        elseif strcmp(estim.Reg,'L1Smooth')
+            Var=0;
+            for v=1:size(RegSmooth,1)
+                Var=Var+sum(abs(k(RegSmooth(v,2:end))-k(RegSmooth(v,1:end-1))));
+            end
+        elseif strcmp(estim.Reg,'L2')
+            Var=sum(k.^2);
+        elseif strcmp(estim.Reg,'L1/2')
+            Var=sum(k.^0.5);
+        elseif strcmp(estim.Reg, 'Lx')
+            Var=1/sum(k.^2);
+        elseif strcmp(estim.Reg,'Ldrug')
+            Var(1)=sum(k.^0.5);
+            Var(2)=0;
+            for v=1:size(RegGroups,1)
+                km=mean(k(RegGroups(v,:)));
+                Var(2)=Var(2)+sum(abs(k(RegGroups(v,:))-km));
+            end
+        elseif strcmp(estim.Reg,'LTriple')
+            Var(1)=sum(k.^0.5);
+            Var(2)=0;
+            for v=1:size(RegGroups,1)
+                km=mean(k(RegGroups(v,:)));
+                Var(2)=Var(2)+sum(abs(k(RegGroups(v,:))-km));
+            end
+            Var(3)=0;
+            for v=1:size(RegSmooth,1)
+                Var(3)=Var(3)+sum(abs(k(RegSmooth(v,2:end))-k(RegSmooth(v,1:end-1))));
+            end
+        elseif strcmp(estim.Reg, 'LCluster')
+            Var=0; [S,T]=size(RegCluster);
+            kg=sort(k(RegCluster),2,'ascend');
+            for c=1:T-1
+                for cc=c+1:T
+                    Var=Var+abs((kg(:,cc)-kg(:,c))-repmat((cc-c)/T,S,1));
+                end
+            end
+            Var=S/sum(Var);
+        elseif strcmp(estim.Reg, 'PruneCluster')
+            VarA=0; [S,T]=size(RegCluster);
+            kg=sort(k(RegCluster),2,'ascend');
+            for c=1:T-1
+                for cc=c+1:T
+                    VarA=VarA+abs((kg(:,cc)-kg(:,c))-repmat((cc-c)/T,S,1));
+                end
+            end
+            Var(2)=S/sum(VarA);
+            Var(1)=sum(k.^0.5);            
+        end
+    else
+        Var=0;
+    end
+    
+    
     %initial and successive number of steps for evaluation
     %this still needs to be worked on
     if n<=25, initial_t=10; step_t=10;
@@ -79,7 +159,6 @@
     Measurements=estim.Output;
 
     % Evaluation
-    diff=0; % Initialize fitting cost
     TimeSoFar=tic;
     
     x=rand(n,size(Measurements,1)); %initial random values for the nodes
@@ -133,10 +212,63 @@
     xsim(mask)=0; xmeas(mask)=0;
 
     %calculate the sum-of-squared errors
-    diff=sum(sum((xsim-xmeas).^2));
+    MSE=(sum(sum((xsim-xmeas).^2)))/N;
+    Diff=MSE+sum(l.*Var);
+    
+    Nparams=(sum(k>0.01));
 
-    disp(diff)
+    if isfield(estim, 'Reg')
+        if strcmp(estim.Reg,'L1Groups')
+            Std_group=std(k(RegGroups),0,2);
+            Collapsed=Std_group<0.01;
+            Nparams=sum(Collapsed)+size(RegGroups,2)*sum(~Collapsed);
+        elseif strcmp(estim.Reg,'L1Smooth')
+            Smoothed=(max(k(RegSmooth),[],2)-min(k(RegSmooth),[],2))<0.1;
+            RP=(mean(k(RegSmooth),2))>0.01;
+            Nparams=sum(Collapsed.*RP)+size(RegGroups,2)*sum(~Smoothed.*RP);
+        elseif strcmp(estim.Reg, 'Ldrug')
+            Std_group=std(k(RegGroups),0,2);
+            Collapsed=Std_group<0.01;
+            RP=(mean(k(RegGroups),2))>0.01;
+            Nparams=sum(Collapsed.*RP)+size(RegGroups,2)*sum(~Collapsed.*RP);            
+        elseif strcmp(estim.Reg, 'LTriple')
+            Std_group=std(k(RegGroups),0,2);
+            Collapsed=Std_group<0.01;
+            Smoothed=(max(k(RegSmooth),[],2)-min(k(RegSmooth),[],2))<0.1;
+            RP1=(mean(k(RegGroups),2))>0.01;
+            RP2=(mean(k(RegSmooth),2))>0.01;
+            %%%%following formula is not correct
+            
+            Nparams=sum(Collapsed.*RP1)...
+                +sum(Smoothed.*RP2)...
+                +size(RegGroups,2)*sum(~Collapsed.*RP1)...
+                +size(RegSmooth,2)*sum(~Smoothed.*RP2);
+        elseif strcmp(estim.Reg, 'LCluster')
+            Par=(k(RegCluster));
+            Dist=Par(:,2:end)-Par(:,1:end-1);
+            Collapsed=Dist<0.01;
+            Nparams=sum(Collapsed(:))+size(RegCluster,2)*sum(~Collapsed(:));
+        elseif strcmp(estim.Reg, 'PruneCluster')
+            Par=(k(RegCluster));
+            Par=sort(Par,2);
+            Sig=Par>0.01;
+            Dist=Par(:,2:end)-Par(:,1:end-1);
+            Collapsed=Dist<0.01;
+            Sig=Sig.*[ones(size(Collapsed,1),1),~Collapsed];
+            Nparams=sum(Sig(:));%+size(RegCluster,2)*sum(~Collapsed(:));
+        end
+    end
+    
+    AIC = N.*log(MSE) + 2.*Nparams;
+    BIC = N.*log(MSE) + Nparams*log(N);
+    
+    fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', MSE, sum(l.*Var), Diff, AIC);
+%     disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
     end
 
+    varargout{1}=AIC;
+    varargout{2}=MSE;
+    varargout{3}=BIC;
+    varargout{4}=Nparams;
 end

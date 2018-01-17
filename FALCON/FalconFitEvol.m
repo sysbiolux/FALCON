@@ -1,5 +1,7 @@
 function [estim] = FalconFitEvol(varargin)
 % FalconFitEvol re-optimise the model and plot the evolution of fitting costs (3 rounds)
+% Cannot run in parallel because we need a global variable, as we ask
+% fmincon to return additional info.
 % FalconFitEvol(estim,IC_Dist,[FinalFolderName])
 % 
 % :: Input values ::
@@ -47,8 +49,8 @@ PlotCosts(3,1:length(Cost3))=Cost3;
 
 hconv=figure;
 plot(1:max([length(Cost1),length(Cost2),length(Cost3)]),PlotCosts)
-title('SSE convergence during optimization')
-xlabel('iteration'); ylabel('SSE');
+title('MSE convergence during optimization')
+xlabel('iteration'); ylabel('MSE');
 saveas(hconv,[FinalFolderName, filesep, 'OptimiserConvergence'],'tif')
 saveas(hconv,[FinalFolderName, filesep, 'OptimiserConvergence'],'fig')
 saveas(hconv,[FinalFolderName, filesep, 'OptimiserConvergence'],'jpg')

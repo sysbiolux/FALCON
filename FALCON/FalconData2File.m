@@ -18,16 +18,18 @@ useexcel = isExcelPresent();
 
 delete 'tempMeasFile.xls';
 if useexcel    
-    xlswrite('tempMeasFile.xls', NamesIn , 1, 'A1');
-    xlswrite('tempMeasFile.xls', estim.Input, 1, 'A2');
+    xlswrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A1');
+    xlswrite('tempMeasFile.xls', NamesIn , 1, 'B1');
+    xlswrite('tempMeasFile.xls', estim.Input, 1, 'B2');
     xlswrite('tempMeasFile.xls', NamesOut, 2, 'A1');
     xlswrite('tempMeasFile.xls', estim.Output, 2, 'A2');
     xlswrite('tempMeasFile.xls', NamesOut, 3, 'A1');
     xlswrite('tempMeasFile.xls', estim.SD, 3, 'A2');
 else    
     setupxlwrite();
-    xlwrite('tempMeasFile.xls', NamesIn , 1, 'A1');
-    xlwrite('tempMeasFile.xls', estim.Input, 1, 'A2');
+    xlswrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A1');
+    xlwrite('tempMeasFile.xls', NamesIn , 1, 'B1');
+    xlwrite('tempMeasFile.xls', estim.Input, 1, 'B2');
     xlwrite('tempMeasFile.xls', NamesOut, 2, 'A1');
     xlwrite('tempMeasFile.xls', estim.Output, 2, 'A2');
     xlwrite('tempMeasFile.xls', NamesOut, 3, 'A1');

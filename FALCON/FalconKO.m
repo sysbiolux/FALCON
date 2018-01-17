@@ -20,6 +20,7 @@ function [estim] = FalconKO(varargin)
 
 %fetching values from arguments
 estim=varargin{1};
+
 bestx=varargin{2};
 fxt_all=varargin{3};
 MeasFile=varargin{4};
@@ -39,11 +40,11 @@ num_params=estim.param_vector;
 bestcost = min(fxt_all(:,1)); %lowest cost from base model
 
 %% AIC calculation
-N = numel(estim.Output);
-SSE= bestcost;
+N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
+MSE= bestcost;
 p= numel(Param_original);
 
-AIC_complete = N*log(SSE/N) + 2*p; %AIC for base model
+AIC_complete = N*log(MSE) + 2*p; %AIC for base model
 
 p_KD = zeros(1,p);
 param_vector=estim.param_vector;
@@ -68,7 +69,7 @@ for counter =  1:size(p_KD,2)
     end
     
     FalconInt2File(Interactions,'KD_TempFile.txt') %write this as a temp file
-    estim=FalconMakeModel('KD_TempFile.txt',MeasFile,HLbound,1); %make model variant
+    estim=FalconMakeModel('KD_TempFile.txt',MeasFile,HLbound); %make model variant
     estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',3000,'MaxIter',3000); % Default
     estim.SSthresh=1e-3;
     fval_all=[];
@@ -83,10 +84,10 @@ for counter =  1:size(p_KD,2)
     
     %% reduced model (-1 parameter)
     
-    N_r = numel(estim.Output); %number of datapoints
+    N_r = numel(estim.Output)-sum(sum(isnan(estim.Output))); %number of datapoints
     p_r= (numel(estim.param_vector)); %number of parameters
     
-    AIC_KD(counter) = N_r*log(cost_KD(counter)/N_r) + 2*p_r;
+    AIC_KD(counter) = N_r*log(cost_KD(counter)) + 2*p_r;
     
     %%Plot AIC values
     
