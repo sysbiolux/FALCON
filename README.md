@@ -1,6 +1,5 @@
 **Contact info**: thomas.sauter@uni.lu or sebastien.delandtsheer@uni.lu  
 **Please cite** : [FALCON: A Toolbox for the Fast Contextualisation of Logical Networks](https://academic.oup.com/bioinformatics/article/doi/10.1093/bioinformatics/btx380/3897376/FALCON-A-Toolbox-for-the-Fast-Contextualisation-of) (De Landtsheer et al. Bioinformatics (2017))  
-**Follow us on Twitter** : [FALCON toolbox](https://twitter.com/FALCON_toolbox)  
 **Copyright**: This software is freely available for non-commercial users under the GPLv3 license  
 
 # FALCON
