@@ -3,7 +3,7 @@
 % ======================================
 
 % FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
-%clc, clear all % clear screen and workspace 
+clc, clear all % clear screen and workspace 
 
 % Define optmisation options
 optRound=2; % Number of optimisation round
@@ -45,16 +45,16 @@ KO_Nodes_Analysis   = 1; % Node knock-out analysis
 % Read model and measurement files 
 FALCONFolder = fileparts(which('DriverFalconDiff'));
 
-InputFile= [FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff.xlsx'];
+InputFile= [FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff' filesep 'ToyDiff.xlsx'];
 
-FixedEdgesList=[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff_FixedKi2.xlsx']; % all edges are fixed i.e. same parameter value for all contexts
+FixedEdgesList=[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff' filesep 'ToyDiff_FixedKi2.xlsx']; % all edges are fixed i.e. same parameter value for all contexts
 % FixedEdgesList='ToyDiff_fixed.xlsx'; % no edge is fixed. The specified interaction is equal to 1 by definition
 % FixedEdgesList='ToyDiff_FixedKi2.xlsx'; % only the specified edge is fixed. The other ones have different parameter values for each context 
 
 MeasFileList={};
-ContextsList={'1','2','3'};
+ContextsList={'1','2','3','4'};
 for f=1:length(ContextsList)
-    MeasFileList=[MeasFileList,[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff_meas_CL' char(ContextsList(f)) '.xlsx']];
+    MeasFileList=[MeasFileList,[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff' filesep 'ToyDiff_meas_CL' char(ContextsList(f)) 'a.xlsx']];
 end
 
 % Create a save folder
@@ -94,7 +94,7 @@ if Parallelisation == 1
         x_all=[x_all; xval];
         fval_all=[fval_all; fval];
     end
- 
+
 else
     h = waitbar(0,'Please wait...');
     for counter=1:optRound %'parfor' will run the parallel computing toolbox

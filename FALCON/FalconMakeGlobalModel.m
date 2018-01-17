@@ -26,7 +26,7 @@ if ~isempty(GlobalEdgesList)
             LineCounter=LineCounter+1; %count the lines
             disp(tline) %display the line
             Input = regexp(tline,'\t','split'); %find the tabs in the line's text
-            if length(Input)==5 
+            if length(Input)==5
                 if ~exist('FixedInteractions')
                     FixedInteractions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))};
                 else
@@ -38,7 +38,7 @@ if ~isempty(GlobalEdgesList)
                 else
                     FixedInteractions=[FixedInteractions; {['i' num2str(LineCounter)],cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5)),cell2mat(Input(6))}];
                 end
-            end        
+            end
         end
         fclose(fid);
     elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
@@ -47,7 +47,7 @@ if ~isempty(GlobalEdgesList)
         while LineCounter<=size(Other,1) %get out only when line is empty
             Input = Other(LineCounter,:); %read a line
             disp(Input) %display the line
-            if length(Input)==5 
+            if length(Input)==5
                 if ~exist('FixedInteractions')
                     FixedInteractions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),num2str(cell2mat(Input(4))),cell2mat(Input(5))};
                 else
@@ -62,7 +62,7 @@ if ~isempty(GlobalEdgesList)
             end
             LineCounter=LineCounter+1; %count the lines
         end
-
+        
     end
 end
 FixParams=unique(FixedInteractions(:,5));
@@ -113,29 +113,33 @@ for m=1:length(MeasFileList)
     if strcmp(Ext,'txt') %if text file
         fid=fopen(thisMeasFile,'r');
         LineCounter=0;
-
+        
         Input_vector=[];
         Input_index=[];
         Output_vector=[];
         Output_index=[];
         SD_vector=[];
-
+        Annotation=[];
         while 1
             tline = fgetl(fid);
             if ~ischar(tline), break, end
-
+            
             LineCounter=LineCounter+1;
             ReadIO = regexp(tline,'\t','split');
-            InputRaw=ReadIO(1);
-            OutputRaw=ReadIO(2);
+            Annotation_data=ReadIO(1);
+            InputRaw=ReadIO(2);
+            OutputRaw=ReadIO(3);
             ReadInput=strsplit(char(InputRaw),',');
             ReadOutput=strsplit(char(OutputRaw),',');
-
+            
             if length(ReadIO)==3 % Shared index between output value and SD
                 SDRaw=ReadIO(3);
                 ReadSD=strsplit(char(SDRaw),',');
             end
-
+            
+            Annotation = [Annotation; Annotation_data];
+            
+            
             count_input=1;
             Input_idx_collect=[];
             Input_value_collect=[];
@@ -146,10 +150,10 @@ for m=1:length(MeasFileList)
                 Input_value_collect=[Input_value_collect value_ReadInput];
                 count_input=count_input+2;
             end
-
+            
             Input_vector=[Input_vector; Input_value_collect];
             Input_index=[Input_index; Input_idx_collect];
-
+            
             count_output=1;
             Output_idx_collect=[];
             Output_value_collect=[];
@@ -160,12 +164,12 @@ for m=1:length(MeasFileList)
                 Output_value_collect=[Output_value_collect value_ReadOutput];
                 count_output=count_output+2;
             end
-
+            
             Output_vector=[Output_vector; Output_value_collect];
             Output_index=[Output_index; Output_idx_collect];
-
-            if length(ReadIO)==3 % Shared index between output value and SD
-
+            
+            if length(ReadIO)==4 % Shared index between output value and SD
+                
                 count_SD=1;
                 SD_value_collect=[];
                 for counter=1:(size(ReadSD,2)/2)
@@ -173,11 +177,11 @@ for m=1:length(MeasFileList)
                     SD_value_collect=[SD_value_collect value_ReadSD];
                     count_SD=count_SD+2;
                 end
-
+                
                 SD_vector=[SD_vector; SD_value_collect];
-
+                
             end
-
+            
         end
         fclose(fid);
     elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
@@ -187,16 +191,17 @@ for m=1:length(MeasFileList)
         [~,~,OtherErr]=xlsread(thisMeasFile,sheetnames{3});
         Input_index=[];
         Output_index=[];
-
-        Input_vector=cell2mat(OtherIn(2:end,:));
-        for jj=2:length(OtherIn(:,1))
+        
+        Input_vector=cell2mat(OtherIn(2:end,2:end));
+        Annotation = (OtherIn(2:end,1));
+        for jj=2:length(OtherIn(:,2))   %%%% modif Philippe OtherIn(:,1)
             Input_index_coll=[];
             for j=1:length(OtherIn(1,:))
-%                 if ~isnan(cell2mat(OtherIn(jj,j)))
-                    Input_index_coll=[Input_index_coll,find(ismember(estim.state_names,OtherIn(1,j)))];
-%                 else
-%                     Input_index_coll=[Input_index_coll,NaN]
-%                 end
+                %                 if ~isnan(cell2mat(OtherIn(jj,j)))
+                Input_index_coll=[Input_index_coll,find(ismember(estim.state_names,OtherIn(1,j)))];
+                %                 else
+                %                     Input_index_coll=[Input_index_coll,NaN]
+                %                 end
             end
             Input_index=[Input_index;Input_index_coll];
         end
@@ -206,11 +211,11 @@ for m=1:length(MeasFileList)
         for jj=2:length(OtherOut(:,1))
             Output_index_coll=[];
             for j=1:length(OtherOut(1,:))
-%                 if ~isnan(cell2mat(OtherOut(jj,j)))
-                    Output_index_coll=[Output_index_coll,find(ismember(estim.state_names,OtherOut(1,j)))];
-%                 else
-%                     Output_index_coll=[Output_index_coll,NaN];
-%                 end
+                %                 if ~isnan(cell2mat(OtherOut(jj,j)))
+                Output_index_coll=[Output_index_coll,find(ismember(estim.state_names,OtherOut(1,j)))];
+                %                 else
+                %                     Output_index_coll=[Output_index_coll,NaN];
+                %                 end
             end
             Output_index=[Output_index;Output_index_coll];
         end
@@ -226,7 +231,7 @@ for m=1:length(MeasFileList)
     for l=1:size(OutputNames,1)
         for c=1:size(OutputNames,2)
             OutputNames(l,c)=cellstr([char(OutputNames(l,c)),'-',char(ContextsList(m))]);
-                
+            
         end
     end
     
@@ -235,7 +240,7 @@ for m=1:length(MeasFileList)
     InputsSheet(:,:,m)=InputValues;
     OutputsSheet(:,:,m)=Output_vector;
     SDSheet(:,:,m)=SD_vector;
-
+    
     
 end
 
@@ -271,14 +276,28 @@ Page3(Page3nan>0) ={'NaN'};
 useexcel = isExcelPresent();
 
 if useexcel
-    xlswrite(tempfile,Page1,1)
-    xlswrite(tempfile,Page2,2)
-    xlswrite(tempfile,Page3,3)
+%     xlswrite(tempfile,Page1,1)
+%     xlswrite(tempfile,Page2,2)
+%     xlswrite(tempfile,Page3,3)
+    xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+    xlswrite(tempfile, Page1 , 1, 'B1');
+%     xlswrite(tempfile, estim.Input, 1, 'B2');
+    xlswrite(tempfile, Page2, 2, 'A1');
+%     xlswrite(tempfile, estim.Output, 2, 'A2');
+    xlswrite(tempfile, Page3, 3, 'A1');
+%     xlswrite(tempfile, estim.SD, 3, 'A2');
 else
     setupxlwrite();
-    xlwrite(tempfile,Page1,1)
-    xlwrite(tempfile,Page2,2)
-    xlwrite(tempfile,Page3,3)
+%     xlswrite(tempfile,Page1,1)
+%     xlswrite(tempfile,Page2,2)
+%     xlswrite(tempfile,Page3,3)
+    xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+    xlswrite(tempfile, Page1 , 1, 'B1');
+%     xlswrite(tempfile, estim.Input, 1, 'B2');
+    xlswrite(tempfile, Page2, 2, 'A1');
+%     xlswrite(tempfile, estim.Output, 2, 'A2');
+    xlswrite(tempfile, Page3, 3, 'A1');
+%     xlswrite(tempfile, estim.SD, 3, 'A2');
 end
 
 
