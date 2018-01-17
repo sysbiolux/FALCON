@@ -43,7 +43,9 @@ NCols=ceil(num_plots/NLines);
 % Perform simulation based on the best parameter set
 
 n=estim.NrStates;
-
+N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
+np= numel(estim.param_vector);
+    
 %initial and successive number of steps for evaluation
 if n<=25, initial_t=10; step_t=10;
 elseif n>25 && n<=100, initial_t=100; step_t=10;
@@ -146,9 +148,9 @@ mask=isnan(xmeas);
 xsim(mask)=0; xmeas(mask)=0;
 
 %calculate the sum-of-squared errors
-diff=sum(sum((xsim-xmeas).^2));
-
-disp(diff)
+diff=(sum(sum((xsim-xmeas).^2)))/N;
+AIC = N.*log(diff) + 2*np;
+fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', diff, diff*N, AIC);
 
 diff_ALL=diff;
 
@@ -185,10 +187,14 @@ if graphs(1)
 
         % Figure adjustment
         axis([0 size(Measurements,1)+1 0 1.1])
+        set(gca,'XTick', [1:length(estim.Annotation)])
+        set(gca,'XTickLabel', estim.Annotation)
+        xtickangle(45)
         set(gca,'fontsize',15/sqrt(num_plots))
-        set(gca,'XMinorGrid','on')
+%         set(gca,'XMinorGrid','on')
         t=title(state_names(Output_index(1,counter)));
         xt=xlabel('experimental condition');
+        yt=ylabel('state-value');
         set(xt,'fontsize',15/sqrt(num_plots))
         set(t,'fontsize',25/sqrt(num_plots))
         hold off
@@ -221,6 +227,9 @@ if graphs(2)
 
         % Figure adjustment
         axis([0 size(Measurements,1)+1 0 1.1])
+        set(gca,'XTick', [1:length(estim.Annotation)])
+        set(gca,'XTickLabel', estim.Annotation)
+        xtickangle(45)
         set(gca,'fontsize',15)
         t=title(state_names(counter));
         xt=xlabel('exp');
@@ -238,7 +247,7 @@ end
 
 if graphs(3) && sum(std(estim.Output_idx))==0
     % Plot optimal cost for each experiment
-    hm=HeatMap(Diffs, 'RowLabels',1:size(estim.Output_idx,1),'ColumnLabels',estim.state_names(estim.Output_idx(1,:)),'Colormap',hot, 'Symmetric', false);
+    hm=HeatMap(Diffs, 'RowLabels',estim.Annotation,'ColumnLabels',estim.state_names(estim.Output_idx(1,:)),'Colormap',hot, 'Symmetric', false);
     addTitle(hm, 'Cross-error Analysis: Heatmap');
     if ToSave
         fighm=plot(hm);
