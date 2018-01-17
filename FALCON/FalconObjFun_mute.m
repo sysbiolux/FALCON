@@ -1,4 +1,4 @@
- function [xval,fval]=FalconObjFun_Regularized_L1(estim,k)
+ function [xval,fval,varargout]=FalconObjFun(estim,k)
 % FalconObjFun serves as the objective function for the optimisation.
 % Apply the non-linear optimiser 'fmincon' with the default algorithm (interior-point)
 % Return the optimised parameters values and fitting cost calculated from the sum-of-squared error (SSE)
@@ -18,14 +18,51 @@
 
 [xval,fval]=fmincon(@nestedfun,k,estim.A,estim.b,estim.Aeq,estim.beq,estim.LB,estim.UB,[],estim.options);
 
-    function [ diff ] = nestedfun(k)
+    function [ Diff ] = nestedfun(k)
         
     n=estim.NrStates;
-    l=estim.Lambda;
-    N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
-    np= numel(estim.param_vector);
+    N = numel(estim.Output)-sum(sum(isnan(estim.Output)));    
     
-    Var=sum(abs(k));
+    if isfield(estim, 'Lambda')
+        l=estim.Lambda;
+    else
+        l=0;
+    end
+    
+    if isfield(estim, 'RegMatrix')
+        Reg=estim.RegMatrix;
+    end
+    
+    if isfield(estim, 'Reg')
+        if strcmp(estim.Reg,'none')
+            Var=0;
+        elseif strcmp(estim.Reg,'L1')
+            Var=sum(abs(k));
+        elseif strcmp(estim.Reg,'L1Groups')
+            Var=sum(sum(abs(k(Reg)-repmat(mean(k(Reg),2),1,size(Reg,2)))));
+        elseif strcmp(estim.Reg,'L1Smooth')
+            Var=0;
+            for v=1:size(Reg,1)
+                Var=Var+sum(abs(k(Reg(v,2:end))-k(Reg(v,1:end-1))));
+            end
+        elseif strcmp(estim.Reg,'L2')
+            Var=sum(k.^2);
+        elseif strcmp(estim.Reg,'L1/2')
+            Var=sum(k.^0.5);
+        elseif strcmp(estim.Reg, 'Lx')
+            Var=1/sum(k.^2);
+        elseif strcmp(estim.Reg,'Ldrug')
+            Var(1)=sum(k.^0.5);
+            Var(2)=0;
+            for v=1:size(Reg,1)
+                km=mean(k(Reg(v,:)));
+                Var(2)=Var(2)+sum(abs(k(Reg(v,:))-km));
+            end
+        end
+    else
+        Var=0;
+    end
+    
     
     %initial and successive number of steps for evaluation
     %this still needs to be worked on
@@ -84,7 +121,6 @@
     Measurements=estim.Output;
 
     % Evaluation
-    diff=0; % Initialize fitting cost
     TimeSoFar=tic;
     
     x=rand(n,size(Measurements,1)); %initial random values for the nodes
@@ -138,10 +174,39 @@
     xsim(mask)=0; xmeas(mask)=0;
 
     %calculate the sum-of-squared errors
-    mse=(sum(sum((xsim-xmeas).^2)))/N;
-    diff=mse+l*Var;
-    disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
+    MSE=(sum(sum((xsim-xmeas).^2)))/N;
+    Diff=MSE+sum(l.*Var);
+    
+    AIC = N.*log(MSE) + 2.*(sum(k>0.01));
+    BIC = N.*log(MSE) + (sum(k>0.01))*log(N);
+    Nparams=(sum(k>0.01));
+
+    if isfield(estim, 'Reg')
+        if strcmp(estim.Reg,'L1Groups')
+            Std_group=std(k(Reg),0,2);
+            Collapsed=Std_group<0.01;
+            Nparams=sum(Collapsed)+size(Reg,2)*sum(~Collapsed);
+            AIC = N.*log(MSE) + 2.*Nparams;
+            BIC = N.*log(MSE) + Nparams*log(N);
+        elseif strcmp(estim.Reg,'L1Smooth')
+            %%% code smth here
+        elseif strcmp(estim.Reg, 'Ldrug')
+            Std_group=std(k(Reg),0,2);
+            Collapsed=Std_group<0.01;
+            RP=(mean(k(Reg),2))>0.01;
+            Nparams=sum(Collapsed.*RP)+size(Reg,2)*sum(~Collapsed.*RP);
+            AIC = N.*log(MSE) + 2.*Nparams;
+            BIC = N.*log(MSE) + Nparams*log(N);
+        end
+    end
+    
+    if rand()<0.01, fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', MSE, sum(l.*Var), Diff, AIC); end
+%     disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
     end
 
+    varargout{1}=AIC;
+    varargout{2}=MSE;
+    varargout{3}=BIC;
+    varargout{4}=Nparams;
 end

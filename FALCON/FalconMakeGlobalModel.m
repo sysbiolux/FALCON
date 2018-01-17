@@ -1,4 +1,4 @@
-function [estim, varargout] = FalconMakeGlobalModel(InputFile,GlobalEdgesList,MeasFileList,ContextsList,HLbound,Forced)
+function [estim, varargout] = FalconMakeGlobalModel(InputFile,GlobalEdgesList,MeasFileList,ContextsList,HLbound)
 % Allows for the expansion of logical networks from one seed network.
 % InputFile is a interaction list (txt or xlsx). See 'FalconMakeModel'
 % FixedEdgesList is an interaction list of only the edges that should
@@ -9,7 +9,7 @@ function [estim, varargout] = FalconMakeGlobalModel(InputFile,GlobalEdgesList,Me
 % ContextList is a cell with names of cell lines, time points, etc..
 % HLBound, Forced, see 'FalconMakeModel'
 
-estim=FalconMakeModel(InputFile,cell2mat(MeasFileList(1)),HLbound,Forced);
+estim=FalconMakeModel(InputFile,cell2mat(MeasFileList(1)),HLbound);
 
 
 %%% Reading the fixed interactions file
@@ -24,7 +24,7 @@ if ~isempty(GlobalEdgesList)
             tline = fgetl(fid); %read a line
             if ~ischar(tline), break, end %break out of the loop if line is empty
             LineCounter=LineCounter+1; %count the lines
-            disp(tline) %display the line
+%             disp(tline) %display the line
             Input = regexp(tline,'\t','split'); %find the tabs in the line's text
             if length(Input)==5
                 if ~exist('FixedInteractions')
@@ -46,7 +46,7 @@ if ~isempty(GlobalEdgesList)
         LineCounter=2; %initialize the line counter
         while LineCounter<=size(Other,1) %get out only when line is empty
             Input = Other(LineCounter,:); %read a line
-            disp(Input) %display the line
+%             disp(Input) %display the line
             if length(Input)==5
                 if ~exist('FixedInteractions')
                     FixedInteractions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),num2str(cell2mat(Input(4))),cell2mat(Input(5))};
@@ -258,8 +258,10 @@ for m=1:length(MeasFileList)
     temp=[temp;num2cell(SDSheet(:,:,m))];
     Page3=[Page3,temp];
 end
-stamp=mat2str((floor(now*10000))/10000);
-tempfile=['Results_' stamp '_.xls'];
+stamp=mat2str((floor(now*100000000)));
+tempdir = tempname;
+mkdir(tempdir);
+tempfile=[tempdir filesep 'Results_' stamp '_.xlsx'];
 varargout{1}=stamp;
 varargout{2}=tempfile;
 
@@ -279,33 +281,45 @@ if useexcel
 %     xlswrite(tempfile,Page1,1)
 %     xlswrite(tempfile,Page2,2)
 %     xlswrite(tempfile,Page3,3)
-    xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
-    xlswrite(tempfile, Page1 , 1, 'B1');
-%     xlswrite(tempfile, estim.Input, 1, 'B2');
-    xlswrite(tempfile, Page2, 2, 'A1');
-%     xlswrite(tempfile, estim.Output, 2, 'A2');
-    xlswrite(tempfile, Page3, 3, 'A1');
-%     xlswrite(tempfile, estim.SD, 3, 'A2');
+    try
+        xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+        xlswrite(tempfile, Page1 , 1, 'B1');
+    %     xlswrite(tempfile, estim.Input, 1, 'B2');
+        xlswrite(tempfile, Page2, 2, 'A1');
+    %     xlswrite(tempfile, estim.Output, 2, 'A2');
+        xlswrite(tempfile, Page3, 3, 'A1');
+    %     xlswrite(tempfile, estim.SD, 3, 'A2');
+    catch
+        xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+        xlswrite(tempfile, Page1 , 1, 'B1');
+    %     xlswrite(tempfile, estim.Input, 1, 'B2');
+        xlswrite(tempfile, Page2, 2, 'A1');
+    %     xlswrite(tempfile, estim.Output, 2, 'A2');
+        xlswrite(tempfile, Page3, 3, 'A1');
+    %     xlswrite(tempfile, estim.SD, 3, 'A2');    
+    end
 else
     setupxlwrite();
 %     xlswrite(tempfile,Page1,1)
 %     xlswrite(tempfile,Page2,2)
 %     xlswrite(tempfile,Page3,3)
-    xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
-    xlswrite(tempfile, Page1 , 1, 'B1');
+    xlwrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
+    xlwrite(tempfile, Page1 , 1, 'B1');
 %     xlswrite(tempfile, estim.Input, 1, 'B2');
-    xlswrite(tempfile, Page2, 2, 'A1');
+    xlwrite(tempfile, Page2, 2, 'A1');
 %     xlswrite(tempfile, estim.Output, 2, 'A2');
-    xlswrite(tempfile, Page3, 3, 'A1');
+    xlwrite(tempfile, Page3, 3, 'A1');
 %     xlswrite(tempfile, estim.SD, 3, 'A2');
 end
 
 
 
 clearvars estim
-GlobalFile=['GlobalInputFile_' stamp '.txt'];
+
+GlobalFile=[tempdir filesep 'GlobalInputFile_' stamp '.txt'];
 FalconInt2File(Itot,GlobalFile);
 
-estim=FalconMakeModel(GlobalFile,tempfile,HLbound,Forced);
+estim=FalconMakeModel(GlobalFile,tempfile,HLbound);
+disp(['There are ', num2str(size(MeasFileList,2)), ' different contexts'])
 
 end

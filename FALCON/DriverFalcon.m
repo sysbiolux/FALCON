@@ -1,7 +1,7 @@
 % ======================================
 % Driver script (run-through) for FALCON
 % ======================================
-
+%%%
 % FalconInstall % In case the Falcon toolbox has not yet been added to Matlab's path
 clc, clear all % clear screen and workspace 
 
@@ -133,7 +133,9 @@ fxt_all=[fval_all x_all toc_all];
 beep; pause(0.5); beep;
 
 %Retrieving the results
-[bestx,meanx,stdx]=FalconResults(estim, fxt_all,estim.param_vector,FinalFolderName);
+
+[bestx,meanx,stdx]=FalconResults(estim,fxt_all,estim.param_vector,FinalFolderName);
+
 
 estim.MaxTime = mean(fxt_all(:,end))*3;
 estim.Results.Optimisation.FittingCost = fxt_all(:,1);
