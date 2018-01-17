@@ -82,19 +82,19 @@
             kg=sort(k(RegCluster),2,'ascend');
             for c=1:T-1
                 for cc=c+1:T
-                    Var=Var+abs((kg(:,cc)-kg(:,c))-repmat((cc-c)/T,S,1));
+                    Var=Var+sum(abs((kg(:,cc)-kg(:,c))-repmat((cc-c)/T,S,1)));
                 end
             end
-            Var=S/sum(Var);
+            Var=S/Var;
         elseif strcmp(estim.Reg, 'PruneCluster')
             VarA=0; [S,T]=size(RegCluster);
             kg=sort(k(RegCluster),2,'ascend');
             for c=1:T-1
                 for cc=c+1:T
-                    VarA=VarA+abs((kg(:,cc)-kg(:,c))-repmat((cc-c)/T,S,1));
+                    VarA=VarA+sum(abs((kg(:,cc)-kg(:,c))-repmat((cc-c)/T,S,1)));
                 end
             end
-            Var(2)=S/sum(VarA);
+            Var(2)=S/VarA;
             Var(1)=sum(k.^0.5);            
         end
     else

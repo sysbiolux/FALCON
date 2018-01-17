@@ -254,11 +254,15 @@ if graphs(3) && sum(std(estim.Output_idx))==0
         saveas(fighm,[Folder, '\CrossErrorHeatMap'],'tif');
         close(gcf)
     end
-%%%% Modif removal of histogram
-%     figure, hist(Diffs(:)); title('Cross-error Analysis: Histogram');
-%     if ToSave
-%         saveas(gcf,[Folder, '\CrossErrorHistogram'],'tif')
-%     end
+    
+    plotx=Measurements(:); ploty=MeanStateValueAll(estim.Output_idx); ploty=ploty(:);
+    
+    figure, cp=plot(plotx,ploty,'.k'); xlabel('Measured'), ylabel('Simulated');
+    title('Simulated versus Measurements');
+    if ToSave
+        saveas(cp,[Folder, '\CorrelationPlot'],'tif');
+        close(gcf)
+    end
 end
 
 if graphs(4)
