@@ -316,7 +316,7 @@ end
 
 clearvars estim
 
-GlobalFile=[tempdir filesep 'GlobalInputFile_' stamp '.txt'];
+GlobalFile=['GlobalInputFile_' stamp '.txt'];
 FalconInt2File(Itot,GlobalFile);
 
 estim=FalconMakeModel(GlobalFile,tempfile,HLbound);
