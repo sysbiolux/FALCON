@@ -245,6 +245,7 @@
                 +size(RegSmooth,2)*sum(~Smoothed.*RP2);
         elseif strcmp(estim.Reg, 'LCluster')
             Par=(k(RegCluster));
+            Par=sort(Par,2);
             Dist=Par(:,2:end)-Par(:,1:end-1);
             Collapsed=Dist<0.01;
             Nparams=sum(Collapsed(:))+size(RegCluster,2)*sum(~Collapsed(:));

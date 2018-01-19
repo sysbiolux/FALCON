@@ -255,7 +255,7 @@ if graphs(3) && sum(std(estim.Output_idx))==0
         close(gcf)
     end
     
-    plotx=Measurements(:); ploty=MeanStateValueAll(estim.Output_idx); ploty=ploty(:);
+    plotx=Measurements(:); ploty=MeanStateValueAll(:,estim.Output_idx(1,:)); ploty=ploty(:);
     
     figure, cp=plot(plotx,ploty,'.k'); xlabel('Measured'), ylabel('Simulated');
     title('Simulated versus Measurements');
