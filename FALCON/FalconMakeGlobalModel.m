@@ -259,7 +259,14 @@ for m=1:length(MeasFileList)
     Page3=[Page3,temp];
 end
 stamp=mat2str((floor(now*100000000)));
-tempdir = tempname;
+clusterDir = getenv('WORK');
+
+if ~isempty(clusterDir)
+    tempdir = [clusterDir filesep tempname];
+else
+    tempdir = tempname;
+end
+
 mkdir(tempdir);
 tempfile=[tempdir filesep 'Results_' stamp '_.xls'];
 varargout{1}=stamp;
