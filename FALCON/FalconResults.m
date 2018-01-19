@@ -86,7 +86,8 @@ else
 end
 
 Now=datestr(now);
-fid = fopen([FinalFolderName, filesep, [FinalFolderName, '.log']],'at');
+Now=strrep(Now, ':', '.');
+fid = fopen([FinalFolderName, filesep, ['FALCONrun.log']],'at');
 fprintf(fid, 'FALCON log file \n');
 fprintf(fid, 'Start timestamp: %s \n', Start);
 fprintf(fid, 'Finish timestamp: %s \n', Now);
