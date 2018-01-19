@@ -428,6 +428,7 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
 
     Input_vector=cell2mat(OtherIn(2:end,2:end)); 
     Annotation = cellfun(@num2str,(OtherIn(2:end,1)),'UniformOutput',0); 
+    OtherIn
     for jj=2:length(OtherIn(:,2))
         Input_index_coll=[];
         for j=1:length(OtherIn(1,:))
