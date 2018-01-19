@@ -254,8 +254,8 @@ if graphs(3) && sum(std(estim.Output_idx))==0
         saveas(fighm,[Folder, '\CrossErrorHeatMap'],'tif');
         close(gcf)
     end
-    
-    plotx=Measurements(:); ploty=MeanStateValueAll(:,estim.Output_idx(1,:)); ploty=ploty(:);
+    ploty=x';
+    plotx=Measurements(:); ploty=ploty(:,estim.Output_idx(1,:)); ploty=ploty(:);
     
     figure, cp=plot(plotx,ploty,'.k'); xlabel('Measured'), ylabel('Simulated');
     title('Simulated versus Measurements');
