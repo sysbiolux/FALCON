@@ -248,7 +248,7 @@
             Par=sort(Par,2);
             Dist=Par(:,2:end)-Par(:,1:end-1);
             Collapsed=Dist<0.01;
-            Nparams=sum(Collapsed(:))+size(RegCluster,2)*sum(~Collapsed(:));
+            Nparams=size(RegCluster,1)+sum(~Collapsed(:));
         elseif strcmp(estim.Reg, 'PruneCluster')
             Par=(k(RegCluster));
             Par=sort(Par,2);
