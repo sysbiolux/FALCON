@@ -58,8 +58,14 @@ if Model_Example == 1
     InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'example' filesep 'example_model.txt'];
     MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'example' filesep 'example_meas.txt'];
 elseif Model_Example == 2
+    %%%for xls
     InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_model.xlsx'];
+    %%%for sif
+    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_model.sif'];
+    %%%for xls
     MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_meas.xlsx'];
+    %%%for csv
+    MeasFile={'PDGF_meas_in.csv';'PDGF_meas_out.csv';'PDGF_meas_err.csv'};
 elseif Model_Example == 3
     InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'CNO' filesep 'CNO_model.xlsx'];
     MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'CNO' filesep 'CNO_data.xlsx'];
@@ -71,8 +77,7 @@ else
 end
 
 % Create a save folder
-SaveFolderName=['Results_' datestr(now)];
-FinalFolderName=strrep(SaveFolderName, ':', '.'); 
+SaveFolderName=['Results_' datestr(now)]; FinalFolderName=strrep(SaveFolderName, ':', '.'); 
 mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Build a FALCON model for optimisation
@@ -81,13 +86,7 @@ estim=FalconMakeModel(InputFile,MeasFile,HLbound); %make the model
 % Define optimisation options
 estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEvals,'MaxIter',MaxIter); % Default setting
 estim.SSthresh=eps;
-if InitIC == 1
-    IC_Dist ='uniform';
-elseif InitIC == 2
-    IC_Dist ='normal';
-else
-    error('Please choose the initial parameter distribution')
-end
+if InitIC == 1,     IC_Dist ='uniform'; elseif InitIC == 2, IC_Dist ='normal'; else,    error('Please choose the initial parameter distribution'), end
 
 % estim.Lambda=0.5;
 % estim.Reg='L1';
@@ -95,35 +94,24 @@ end
 
 
 % Optimization
-toc_all=[];
-x_all=[];
-fval_all=[];
+toc_all=[]; x_all=[]; fval_all=[];
 
 if Parallelisation
-
     parfor counter=1:optRound %'parfor' will run the parallel computing toolbox
-        tic
-        k=FalconIC(estim,IC_Dist); %initial conditions
+        tic, k=FalconIC(estim,IC_Dist); %initial conditions
+        
         [xval,fval]=FalconObjFun(estim,k); %objective function
-        Fitting_Time=toc;
-        %collecting the run's outcome
-        toc_all=[toc_all; Fitting_Time];
-        x_all=[x_all; xval];
-        fval_all=[fval_all; fval];
+        
+        toc_all=[toc_all; toc]; x_all=[x_all; xval]; fval_all=[fval_all; fval];
     end
 
 else
-    h = waitbar(0,'Please wait...');
     for counter=1:optRound %'parfor' will run the parallel computing toolbox
-        waitbar(counter/optRound,h,sprintf('Running Optimisation Round %d out of %d ...',counter,optRound))
-        tic
-        k=FalconIC(estim,IC_Dist); %initial conditions
+        tic, k=FalconIC(estim,IC_Dist); %initial conditions
+        
         [xval,fval]=FalconObjFun(estim,k); %objective function
-        Fitting_Time=toc;
-        %collecting the run's outcome
-        toc_all=[toc_all; Fitting_Time];
-        x_all=[x_all; xval];
-        fval_all=[fval_all; fval];
+        
+        toc_all=[toc_all; toc]; x_all=[x_all; xval]; fval_all=[fval_all; fval];
     end
     close(h);
 end
@@ -132,10 +120,10 @@ fxt_all=[fval_all x_all toc_all];
 
 beep; pause(0.5); beep;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Retrieving the results
 
 [bestx,meanx,stdx]=FalconResults(estim,fxt_all,estim.param_vector,FinalFolderName);
-
 
 estim.MaxTime = mean(fxt_all(:,end))*3;
 estim.Results.Optimisation.FittingCost = fxt_all(:,1);
@@ -144,30 +132,31 @@ estim.Results.Optimisation.ParamNames = estim.param_vector;
 estim.Results.Optimisation.BestParams = bestx;
 estim.Results.Optimisation.StateNames = estim.state_names;
 
-%% Re-simulate results based on the best optimised parameter set
+%%% Re-simulate results based on the best optimised parameter set
 [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(estim,bestx,[PlotFitSummary PlotFitIndividual PlotHeatmapCost PlotStateSummary PlotStateEvolution],FinalFolderName);
 estim.MeanStateValueAll=MeanStateValueAll; estim.bestx=bestx;
 
 save([FinalFolderName filesep 'OptimizedModel'])
 
-%% Analyzing the evolution of fitting cost
+%%
+%%% Analyzing the evolution of fitting cost
 if PlotFitEvolution
   estim=FalconFitEvol(estim,IC_Dist,FinalFolderName);
 end
 
-%% Displayed optimised network with weights
+%%% Displayed optimised network with weights
 if PlotBiograph
     FalconShowNetwork(estim, PlotAllBiographs, FinalFolderName)
 end
 
-%% Obtaining robust estimates for the parameters by resampling
+%%% Obtaining robust estimates for the parameters by resampling
 if Resampling_Analysis
     optRound_Sampling=optRound;
     CV_cutoff = 10; % Percent cut-off for large coefficient of variation
     [~,~,estim]=FalconResample(estim, bestx, optRound_Sampling, NDatasets, CV_cutoff, FinalFolderName);
 end
 
-%% Sensitivity analysis
+%%% Sensitivity analysis
 if LPSA_Analysis 
     optRound_LPSA=1;
     if Fast_Option
@@ -180,7 +169,7 @@ if LPSA_Analysis
     [~, estim]=FalconLPSA(estim, bestx, MeasFile, HLbound, optRound_LPSA, LPSA_Increments, IsFast, Parallelisation, FinalFolderName);
 end
 
-%% Knock-out analysis
+%%% Knock-out analysis
 if KO_Analysis
     optRound_KO=1;
     Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*length(estim.param_vector);
@@ -188,7 +177,7 @@ if KO_Analysis
     estim=FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
 
-%% Nodes Knock-out analysis
+%%% Nodes Knock-out analysis
 % if KO_Nodes_Analysis
 %     optRound_KO=1;
 %     Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
@@ -196,7 +185,7 @@ end
 %     estim=FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 % end
 
-%% Nodes Knock-out efficency analysis
+%%% Nodes Knock-out efficency analysis
 if KO_Nodes_Analysis_eff
     optRound_KO=1;
     big_matrix = []
@@ -260,7 +249,7 @@ if KO_Nodes_Analysis_eff
 
 end
 
-%% Guided to display results in estim.Results
+%%% Guided to display results in estim.Results
 disp(' ')
 disp('================================================')
 disp('The optimisation and analyses are completed')

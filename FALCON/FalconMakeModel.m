@@ -24,7 +24,7 @@ disp('...reading network file...')
 %%% Reading the model file
 Point=find(ismember(InputFile,'.'),1,'last'); %finding the last point in the file name
 Ext=InputFile(Point+1:end); %retrieving the extension
-if strcmp(Ext,'txt') %if text file
+if strcmp(Ext,'txt') || strcmp(Ext,'sif')%if text file
     fid=fopen(InputFile,'r'); %open the file
     LineCounter=0; %zero the line counter
     while 1 %get out only when line is empty
@@ -33,13 +33,28 @@ if strcmp(Ext,'txt') %if text file
         LineCounter=LineCounter+1; %count the lines
 %         disp(tline) %display the line
         Input = regexp(tline,'\t','split'); %find the tabs in the line's text
-        if length(Input)==5 
+        if length(Input)==3 %if no param names, no gate, no high/low constrains
+            Input{4}=[char(Input{1}),char(Input{2}),char(Input{3})]
+            Input{5}='N'
             if ~exist('Interactions')
                 Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))};
             else
                 Interactions=[Interactions; {['i' num2str(LineCounter)],cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))}];
             end
-        elseif length(Input)==6
+        elseif length(Input)==4 %if there are param names
+            Input{5}='N'
+            if ~exist('Interactions')
+                Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))};
+            else
+                Interactions=[Interactions; {['i' num2str(LineCounter)],cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))}];
+            end
+        elseif length(Input)==5 %if there are gates
+            if ~exist('Interactions')
+                Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))};
+            else
+                Interactions=[Interactions; {['i' num2str(LineCounter)],cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))}];
+            end
+        elseif length(Input)==6 %if there are high/low constrains
             if ~exist('Interactions')
                 Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5)),cell2mat(Input(6))};
             else
@@ -339,7 +354,7 @@ param_vector=UniqueParamNames';
 % getting the info from the measurement file
 disp('...reading datafile...')
 if size(MeasFile,1)==1
-    Point=find(ismember(MeasFile2,'.'),1,'last'); %finding the last point in the file name
+    Point=find(ismember(MeasFile,'.'),1,'last'); %finding the last point in the file name
 
     Ext=MeasFile(Point+1:end); %retrieving the extension
     if strcmp(Ext,'txt') %if text file
@@ -458,35 +473,36 @@ if size(MeasFile,1)==1
     end
     
 else
-    
+    Input_index=[];
+    Output_index=[];
     data=readtable(char(MeasFile(1)));
     Input_vector=table2array(data(:,2:end));
-    Input_names=data.Properties.VariableNames;
+    Input_names=data.Properties.VariableNames(2:end);
     Annotation=table2array(data(:,1));
     
     data=readtable(char(MeasFile(2)));
-    Output_vector=table2array(data(:,2:end));
+    Output_vector=table2array(data);
     Output_names=data.Properties.VariableNames;
     
     if size(MeasFile,1)>2
         data=readtable(char(MeasFile(3)));
-        SD_vector=table2array(data(:,2:end));
+        SD_vector=table2array(data);
     else
         SD_vector=zeros(size(Output_vector));
     end
     
     for jj=1:length(Input_vector(:,1))
         Input_index_coll=[];
-        for j=1:length(OtherIn(1,:))
-            Input_index_coll=[Input_index_coll,find(ismember(state_names,OtherIn(1,j)))];
+        for j=1:length(Input_vector(1,:))
+            Input_index_coll=[Input_index_coll,find(ismember(state_names,Input_names(j)))];
         end
         Input_index=[Input_index;Input_index_coll];
     end
     
-    for jj=2:length(OtherOut(:,1))
+    for jj=1:length(Output_vector(:,1))
         Output_index_coll=[];
-        for j=1:length(OtherOut(1,:))
-            Output_index_coll=[Output_index_coll,find(ismember(state_names,OtherOut(1,j)))];
+        for j=1:length(Output_vector(1,:))
+            Output_index_coll=[Output_index_coll,find(ismember(state_names,Output_names(j)))];
         end
         Output_index=[Output_index;Output_index_coll];
     end
