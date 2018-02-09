@@ -24,7 +24,7 @@ disp('...reading network file...')
 %%% Reading the model file
 Point=find(ismember(InputFile,'.'),1,'last'); %finding the last point in the file name
 Ext=InputFile(Point+1:end); %retrieving the extension
-if strcmp(Ext,'txt') %if text file
+if strcmp(Ext,'txt') || strcmp(Ext,'sif')%if text file
     fid=fopen(InputFile,'r'); %open the file
     LineCounter=0; %zero the line counter
     while 1 %get out only when line is empty
@@ -33,13 +33,28 @@ if strcmp(Ext,'txt') %if text file
         LineCounter=LineCounter+1; %count the lines
 %         disp(tline) %display the line
         Input = regexp(tline,'\t','split'); %find the tabs in the line's text
-        if length(Input)==5 
+        if length(Input)==3 %if no param names, no gate, no high/low constrains
+            Input{4}=[char(Input{1}),char(Input{2}),char(Input{3})]
+            Input{5}='N'
             if ~exist('Interactions')
                 Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))};
             else
                 Interactions=[Interactions; {['i' num2str(LineCounter)],cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))}];
             end
-        elseif length(Input)==6
+        elseif length(Input)==4 %if there are param names
+            Input{5}='N'
+            if ~exist('Interactions')
+                Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))};
+            else
+                Interactions=[Interactions; {['i' num2str(LineCounter)],cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))}];
+            end
+        elseif length(Input)==5 %if there are gates
+            if ~exist('Interactions')
+                Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))};
+            else
+                Interactions=[Interactions; {['i' num2str(LineCounter)],cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))}];
+            end
+        elseif length(Input)==6 %if there are high/low constrains
             if ~exist('Interactions')
                 Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5)),cell2mat(Input(6))};
             else
@@ -338,88 +353,88 @@ param_vector=UniqueParamNames';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % getting the info from the measurement file
 disp('...reading datafile...')
+if size(MeasFile,1)==1
+    Point=find(ismember(MeasFile,'.'),1,'last'); %finding the last point in the file name
 
-Point=find(ismember(MeasFile,'.'),1,'last'); %finding the last point in the file name
-Ext=MeasFile(Point+1:end); %retrieving the extension
-if strcmp(Ext,'txt') %if text file
-    fid=fopen(MeasFile,'r');
-    LineCounter=0;
+    Ext=MeasFile(Point+1:end); %retrieving the extension
+    if strcmp(Ext,'txt') %if text file
+        fid=fopen(MeasFile,'r');
+        LineCounter=0;
 
-    Input_vector=[];
-    Input_index=[];
-    Output_vector=[];
-    Output_index=[];
-    SD_vector=[];
-    Annotation=[];
-    while 1
-        tline = fgetl(fid);
-        if ~ischar(tline), break, end
+        Input_vector=[];
+        Input_index=[];
+        Output_vector=[];
+        Output_index=[];
+        SD_vector=[];
+        Annotation=[];
+        while 1
+            tline = fgetl(fid);
+            if ~ischar(tline), break, end
 
-        LineCounter=LineCounter+1;
-        ReadIO = regexp(tline,'\t','split');
-        Annotation_data=string(ReadIO(1));
-        InputRaw=ReadIO(2);
-        OutputRaw=ReadIO(3);
-        ReadInput=strsplit(char(InputRaw),',');
-        ReadOutput=strsplit(char(OutputRaw),',');
+            LineCounter=LineCounter+1;
+            ReadIO = regexp(tline,'\t','split');
+            Annotation_data=string(ReadIO(1));
+            InputRaw=ReadIO(2);
+            OutputRaw=ReadIO(3);
+            ReadInput=strsplit(char(InputRaw),',');
+            ReadOutput=strsplit(char(OutputRaw),',');
 
-        if length(ReadIO)==4 % Shared index between output value and SD
-            SDRaw=ReadIO(4);
-            ReadSD=strsplit(char(SDRaw),',');
-        end
-        
-%        Annotation= [];
-       Annotation=[Annotation; Annotation_data];
-
-               
-        count_input=1;
-        Input_idx_collect=[];
-        Input_value_collect=[];
-        for counter=1:(size(ReadInput,2)/2)
-            idx_ReadInput=find(ismember(state_names,ReadInput(count_input)));
-            value_ReadInput=str2num(cell2mat(ReadInput(count_input+1)));
-            Input_idx_collect=[Input_idx_collect idx_ReadInput];
-            Input_value_collect=[Input_value_collect value_ReadInput];
-            count_input=count_input+2;
-        end
-
-        Input_vector=[Input_vector; Input_value_collect];
-        Input_index=[Input_index; Input_idx_collect];
-
-        count_output=1;
-        Output_idx_collect=[];
-        Output_value_collect=[];
-        for counter=1:(size(ReadOutput,2)/2)
-            idx_ReadOutput=find(ismember(state_names,ReadOutput(count_output)));
-            value_ReadOutput=str2num(cell2mat(ReadOutput(count_output+1)));
-            Output_idx_collect=[Output_idx_collect idx_ReadOutput];
-            Output_value_collect=[Output_value_collect value_ReadOutput];
-            count_output=count_output+2;
-        end
-
-        Output_vector=[Output_vector; Output_value_collect];
-        Output_index=[Output_index; Output_idx_collect];
-
-        if length(ReadIO)==4 % Shared index between output value and SD
-
-            count_SD=1;
-            SD_value_collect=[];
-            for counter=1:(size(ReadSD,2)/2)
-                value_ReadSD=str2num(cell2mat(ReadSD(count_SD+1)));
-                SD_value_collect=[SD_value_collect value_ReadSD];
-                count_SD=count_SD+2;
+            if length(ReadIO)==4 % Shared index between output value and SD
+                SDRaw=ReadIO(4);
+                ReadSD=strsplit(char(SDRaw),',');
             end
 
-            SD_vector=[SD_vector; SD_value_collect];
+    %        Annotation= [];
+           Annotation=[Annotation; Annotation_data];
+
+
+            count_input=1;
+            Input_idx_collect=[];
+            Input_value_collect=[];
+            for counter=1:(size(ReadInput,2)/2)
+                idx_ReadInput=find(ismember(state_names,ReadInput(count_input)));
+                value_ReadInput=str2num(cell2mat(ReadInput(count_input+1)));
+                Input_idx_collect=[Input_idx_collect idx_ReadInput];
+                Input_value_collect=[Input_value_collect value_ReadInput];
+                count_input=count_input+2;
+            end
+
+            Input_vector=[Input_vector; Input_value_collect];
+            Input_index=[Input_index; Input_idx_collect];
+
+            count_output=1;
+            Output_idx_collect=[];
+            Output_value_collect=[];
+            for counter=1:(size(ReadOutput,2)/2)
+                idx_ReadOutput=find(ismember(state_names,ReadOutput(count_output)));
+                value_ReadOutput=str2num(cell2mat(ReadOutput(count_output+1)));
+                Output_idx_collect=[Output_idx_collect idx_ReadOutput];
+                Output_value_collect=[Output_value_collect value_ReadOutput];
+                count_output=count_output+2;
+            end
+
+            Output_vector=[Output_vector; Output_value_collect];
+            Output_index=[Output_index; Output_idx_collect];
+
+            if length(ReadIO)==4 % Shared index between output value and SD
+
+                count_SD=1;
+                SD_value_collect=[];
+                for counter=1:(size(ReadSD,2)/2)
+                    value_ReadSD=str2num(cell2mat(ReadSD(count_SD+1)));
+                    SD_value_collect=[SD_value_collect value_ReadSD];
+                    count_SD=count_SD+2;
+                end
+
+                SD_vector=[SD_vector; SD_value_collect];
+
+            end
 
         end
+        fclose(fid);
 
-    end
-    fclose(fid);
-    
-elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx') || strcmp(Ext,'csv')
-    
-    if strcmp(Ext, 'xls') || strcmp(Ext,'xlsx')
+    elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
+
         [~,sheetnames] = xlsfinfo(MeasFile);
 
         [~,~,OtherIn]=xlsread(MeasFile,sheetnames{1});
@@ -429,37 +444,72 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx') || strcmp(Ext,'csv')
         Output_index=[];
 
         Input_vector=cell2mat(OtherIn(2:end,2:end)); 
-        Annotation = cellfun(@num2str,(OtherIn(2:end,1)),'UniformOutput',0);
-    elseif strcmp(Ext,'csv')
-        
-        
-        
+        Annotation = cellfun(@num2str,(OtherIn(2:end,1)),'UniformOutput',0); 
+        OtherIn
+
+        for jj=2:length(OtherIn(:,2))
+            Input_index_coll=[];
+            for j=1:length(OtherIn(1,:))
+                Input_index_coll=[Input_index_coll,find(ismember(state_names,OtherIn(1,j)))];
+            end
+            Input_index=[Input_index;Input_index_coll];
+        end
+        OtherOut(strcmp(OtherOut,'NaN'))={NaN};
+        OtherOut(strcmp(OtherOut,''))={NaN};
+
+        Output_vector=cell2mat(OtherOut(2:end,:));
+        for jj=2:length(OtherOut(:,1))
+            Output_index_coll=[];
+            for j=1:length(OtherOut(1,:))
+                Output_index_coll=[Output_index_coll,find(ismember(state_names,OtherOut(1,j)))];
+            end
+            Output_index=[Output_index;Output_index_coll];
+        end
+        OtherErr(strcmp(OtherErr,'NaN'))={NaN};
+        OtherErr(strcmp(OtherErr,''))={NaN};
+        if ~isempty(OtherErr)
+            SD_vector=cell2mat(OtherErr(2:end,:));
+        end
     end
-    OtherIn
-    for jj=2:length(OtherIn(:,2))
+    
+else
+    Input_index=[];
+    Output_index=[];
+    data=readtable(char(MeasFile(1)));
+    Input_vector=table2array(data(:,2:end));
+    Input_names=data.Properties.VariableNames(2:end);
+    Annotation=table2array(data(:,1));
+    
+    data=readtable(char(MeasFile(2)));
+    Output_vector=table2array(data);
+    Output_names=data.Properties.VariableNames;
+    
+    if size(MeasFile,1)>2
+        data=readtable(char(MeasFile(3)));
+        SD_vector=table2array(data);
+    else
+        SD_vector=zeros(size(Output_vector));
+    end
+    
+    for jj=1:length(Input_vector(:,1))
         Input_index_coll=[];
-        for j=1:length(OtherIn(1,:))
-            Input_index_coll=[Input_index_coll,find(ismember(state_names,OtherIn(1,j)))];
+        for j=1:length(Input_vector(1,:))
+            Input_index_coll=[Input_index_coll,find(ismember(state_names,Input_names(j)))];
         end
         Input_index=[Input_index;Input_index_coll];
     end
-    OtherOut(strcmp(OtherOut,'NaN'))={NaN};
-    OtherOut(strcmp(OtherOut,''))={NaN};
     
-    Output_vector=cell2mat(OtherOut(2:end,:));
-    for jj=2:length(OtherOut(:,1))
+    for jj=1:length(Output_vector(:,1))
         Output_index_coll=[];
-        for j=1:length(OtherOut(1,:))
-            Output_index_coll=[Output_index_coll,find(ismember(state_names,OtherOut(1,j)))];
+        for j=1:length(Output_vector(1,:))
+            Output_index_coll=[Output_index_coll,find(ismember(state_names,Output_names(j)))];
         end
         Output_index=[Output_index;Output_index_coll];
     end
-    OtherErr(strcmp(OtherErr,'NaN'))={NaN};
-    OtherErr(strcmp(OtherErr,''))={NaN};
-    if ~isempty(OtherErr)
-        SD_vector=cell2mat(OtherErr(2:end,:));
-    end
+    
+    
 end
+
 
 NewOutput_index=[];
 Nexp=size(Output_index,1);
