@@ -33,7 +33,7 @@ FalconResults.m     : summarises the optimization output and display the best an
 
 FalconFitEvol.m     : re-optimise the model and plot the evolution of fitting costs (3 rounds)
 
-FalconSimul.m       : resimulates the optimized network,displays the results as plots, and saves a bunch of figures and tables to the result folder.
+FalconSimul.m       : resimulates the optimized network, displays the results as plots, and saves a bunch of figures and tables to the result folder.
 
 FalconShowNetwork.m : uses the 'biograph' environment to display the interaction graphs of the networks.
 ***known issue with this function on some platforms***
@@ -46,12 +46,12 @@ FalconKONodes.m     : FalconKO creates new models for each knock-outed node by s
 
 FalconResample.m    : creates a new dataset from the original one, given the mean and standard deviation of the original one. Useful to assess the variability of the parameter estimates, in conjunction with FalconLPSA.m. ***note: more options are available with the new function FalconPreProcess.m (cfr infra)
 
-FalconPreProcess	: see in-function help for 
+FalconPreProcess	: allows useful data manipulation like subsampling, bootstrapping, etc. See NEWFUNCTIONS.md or in-function help for detailed use.
 
-FalconValidation.m  : resimulates the optimized network and compare to the validation dataset
+FalconValidation.m  : re-simulates the optimized network and compares to the validation dataset
 
 FalconPlots.m       : re-plot the figures from the chosen analysis (in case the plot(s) crashed during the analytical process)
 
 FalconGUI.m         : graphic-user interface (GUI) version of the run-through script
 
-DriverFalcon.m      : run-through script with provided examples, also possible to integrate more example and to       perform    manual tuning
+DriverFalcon.m      : run-through script with provided examples, also possible to integrate more examples and to perform manual tuning

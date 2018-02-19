@@ -267,31 +267,20 @@ if ToSave
 end
 
 
-%% Parameter covariance
+%%% Parameter covariance
 
-% figure, hold on
-% Np=length(p);
-% sub=1;
-% for ppl=1:Np
-%     for ppc=1:Np
-%         subplot(Np,Np,sub)
-%         thisfig2=plot(p_SA(:,ppl),params_SA(:,ppl,ppc));
-%         axis([0 1 max(min(params_SA(:,ppl,ppc))-0.1,0) min(max(params_SA(:,ppl,ppc))+0.1,1)])
-%         xlabel(Param_original(ppl))
-%         ylabel(Param_original(ppc))
-%         sub=sub+1;
-%     end
-% end
-%
-% suptitle('Covariance');
-%
-% if ToSave
-%     saveas(thisfig2,[Folder, filesep, 'Covariance'],'tif')
-%     saveas(thisfig2,[Folder, filesep, 'Covariance'],'fig')
-%     saveas(thisfig2,[Folder, filesep, 'Covariance'],'jpg')
-%     saveas(thisfig2,[Folder, filesep, 'Covariance'],'svg')
+thisfig2=figure;
+disp('generating correlation plot matrix...')
+corrplot(cost_SA,'varNames',Param_original)
+suptitle('Covariance');
 
-% end
+if ToSave
+    saveas(thisfig2,[Folder, filesep, 'Covariance'],'tif')
+    saveas(thisfig2,[Folder, filesep, 'Covariance'],'fig')
+    saveas(thisfig2,[Folder, filesep, 'Covariance'],'jpg')
+    saveas(thisfig2,[Folder, filesep, 'Covariance'],'svg')
+
+end
 
 estim=estim_orig;
 
@@ -330,5 +319,5 @@ end
 
 delete('LPSA_TempFile.txt')
 delete('TempFile.txt')
-estim.Results.LPSA.p_increment = LPSA_Increments;
+% estim.Results.LPSA.p_increment = LPSA_Increments;
 end
