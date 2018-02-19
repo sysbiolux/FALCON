@@ -34,15 +34,15 @@ if strcmp(Ext,'txt') || strcmp(Ext,'sif')%if text file
 %         disp(tline) %display the line
         Input = regexp(tline,'\t','split'); %find the tabs in the line's text
         if length(Input)==3 %if no param names, no gate, no high/low constrains
-            Input{4}=[char(Input{1}),char(Input{2}),char(Input{3})]
-            Input{5}='N'
+            Input{4}=[char(Input{1}),char(Input{2}),char(Input{3})];
+            Input{5}='N';
             if ~exist('Interactions')
                 Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))};
             else
                 Interactions=[Interactions; {['i' num2str(LineCounter)],cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))}];
             end
         elseif length(Input)==4 %if there are param names
-            Input{5}='N'
+            Input{5}='N';
             if ~exist('Interactions')
                 Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),cell2mat(Input(4)),cell2mat(Input(5))};
             else
@@ -589,6 +589,6 @@ disp('... ... ...')
 
 disp(['Network loaded: ', num2str(estim.NrStates), ' nodes and ', num2str(size(estim.Interactions,1)), ' interactions (', num2str(BoolMax), ' Boolean gates)'])
 disp(['Data loaded: ', num2str(size(Input_vector,2)), ' inputs, ', num2str(size(Output_vector,2)), ' outputs and ', num2str(size(Input_vector,1)), ' experimental conditions'])
-disp(['The model has ', num2str(estim.NrParams), ' parameters for ', num2str(prod(size(Output_vector))), ' datapoints'])
+disp(['The model has ', num2str(estim.NrParams), ' parameters for ', num2str(numel(Output_vector)), ' datapoints'])
 
 end

@@ -32,16 +32,16 @@ PlotBiograph        = 0; % Graph of network topology, nodes activities, and opti
 PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biographs above
 
 % Additional analyses after the optimisation with the default setting (0=no, 1=yes)
-Resampling_Analysis = 0; % Resampling of experimental data and re-optimise
+Resampling_Analysis = 1; % Resampling of experimental data and re-optimise
 NDatasets           = 10;% Number of artificial datasets from which to resample.
 
-LPSA_Analysis       = 0; % Local parameter sensitivity analysis
-Fast_Option         = 1; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
+LPSA_Analysis       = 1; % Local parameter sensitivity analysis
+Fast_Option         = 0; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
 LPSA_Increments     = 4; % Number of increments for LPSA. Increase for finer resolution
 
-KO_Analysis         = 0; % Parameter knock-out analysis
+KO_Analysis         = 1; % Parameter knock-out analysis
 
-KO_Nodes_Analysis_eff = 0; % test different KO efficencies on each node and analyse the entire network based on this information
+KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
 efficency_range = [0:0.5:1]; % indicate the different KO efficencies you want to test (vector from 0 to 1)
 % ===================================================
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -61,7 +61,7 @@ elseif Model_Example == 2
     %%%for xls
     InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_model.xlsx'];
     %%%for sif
-    InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_model.sif'];
+%     InputFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_model.sif'];
     %%%for xls
     MeasFile=[FALCONFolder filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_meas.xlsx'];
     %%%for csv
@@ -259,13 +259,12 @@ disp(' ')
 disp('Please also check the results in "estim.Results"')
 disp(estim.Results)
 save([pwd filesep FinalFolderName filesep 'estim_Results'])
-save([])
 disp('================================================')
 
 %% Model Prediction
 
 if Model_Example == 2
-    ValidationDataset = [filesep 'ExampleDatasets' filesep 'PDGF_validation.xlsx'];
+    ValidationDataset = [filesep 'ExampleDatasets' filesep 'PDGF' filesep 'PDGF_validation.xlsx'];
     FalconValidation(estim,bestx,ValidationDataset,FinalFolderName);
 end
 
