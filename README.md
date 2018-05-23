@@ -1,5 +1,6 @@
 **Contact info**: thomas.sauter@uni.lu or sebastien.delandtsheer@uni.lu  
-**Please cite** : **Please cite** : De Landtsheer _et al._, FALCON: A Toolbox for the Fast Contextualisation of Logical Networks  (2017), Bioinformatics [Link](https://academic.oup.com/bioinformatics/article/33/21/3431/3897376)  
+**Please cite** : De Landtsheer _et al._, FALCON: A Toolbox for the Fast Contextualisation of Logical Networks (2017), Bioinformatics [Link](https://academic.oup.com/bioinformatics/article/33/21/3431/3897376)  
+De Landtsheer _et al._, Using Regularization to Infer Cell Line Specificity in Logical Network Models of Signaling Pathways (2018) [Link](https://www.frontiersin.org/articles/10.3389/fphys.2018.00550/full)  
 **Follow us on Twitter** : [FALCON toolbox](https://twitter.com/FALCON_toolbox)  
 **Copyright**: This software is freely available for non-commercial users under the GPLv3 license.
 
