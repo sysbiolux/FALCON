@@ -189,7 +189,7 @@ if graphs(1)
         axis([0 size(Measurements,1)+1 0 1.1])
         set(gca,'XTick', [1:length(estim.Annotation)])
         set(gca,'XTickLabel', estim.Annotation)
-        xtickangle(45)
+        set(gca,'XTickLabelRotation',45)
         set(gca,'fontsize',15/sqrt(num_plots))
 %         set(gca,'XMinorGrid','on')
         t=title(state_names(Output_index(1,counter)));
@@ -229,7 +229,7 @@ if graphs(2)
         axis([0 size(Measurements,1)+1 0 1.1])
         set(gca,'XTick', [1:length(estim.Annotation)])
         set(gca,'XTickLabel', estim.Annotation)
-        xtickangle(45)
+        set(gca,'XTickLabelRotation',45)
         set(gca,'fontsize',15)
         t=title(state_names(counter));
         xt=xlabel('exp');
