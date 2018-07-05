@@ -42,8 +42,8 @@ if ~isempty(estim.MeanStateValueAll)
                             Val(counter)=estim.bestx(find(ismember(estim.param_vector,K(counter))));
                         end
                         Val_position=find(Val==max(Val));
-                        Val=Val(Val_position);
-                        isAct=isAct(Val_position);
+                        Val=Val(Val_position(1));
+                        isAct=isAct(Val_position(1));
                     end
                     
                     EdgeVals=[EdgeVals;round(Val*100)/100];

@@ -161,7 +161,7 @@ save(ExpName)
 
 clear all, load('20180117_reg')
 
-IdxBest=find(AICs==min(AICs))
+IdxBest=find(BICs==min(BICs))
 
 % Create a save folder
 SaveFolderName=['FinalResults_', ExpName, '_', char(datetime)];
