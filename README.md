@@ -2,6 +2,7 @@
 **Please cite** :  
 De Landtsheer _et al._, FALCON: A Toolbox for the Fast Contextualisation of Logical Networks (2017), Bioinformatics [Link](https://academic.oup.com/bioinformatics/article/33/21/3431/3897376)  
 De Landtsheer _et al._, Using Regularization to Infer Cell Line Specificity in Logical Network Models of Signaling Pathways (2018), Front. Physiol. [Link](https://www.frontiersin.org/articles/10.3389/fphys.2018.00550/full)  
+Del Mistro & Lucarelli _et al._, Systemic network analysis identifies XIAP and IκBα as potential drug targets in TRAIL resistant BRAF mutated melanoma (2018), npj Systems Biology and Applications [Link](https://www.nature.com/articles/s41540-018-0075-y)  
 **Follow us on Twitter** : [FALCON toolbox](https://twitter.com/FALCON_toolbox)  
 **Copyright**: This software is freely available for non-commercial users under the GPLv3 license.
 
