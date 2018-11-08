@@ -261,7 +261,7 @@ if graphs(3) && sum(std(estim.Output_idx))==0
     title('Simulated versus Measurements');
     if ToSave
         saveas(cp,[Folder, '\CorrelationPlot'],'tif');
-        close(gcf)
+%         close(gcf)
     end
 end
 
