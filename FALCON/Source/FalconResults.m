@@ -127,7 +127,10 @@ for c=1:L
     fprintf(fid, [FormatIn, '\n'], estim.Output_idx(c,:));
 end
 
+fclose(fid)
+
 disp('==============================================')
 disp(' ')
+
 
 end

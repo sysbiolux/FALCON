@@ -271,7 +271,7 @@ end
 
 thisfig2=figure;
 disp('generating correlation plot matrix...')
-corrplot(cost_SA,'varNames',Param_original)
+AllCorrelations=ScatterMatrix(cost_SA,Param_original,ones(size(cost_SA,1),1),{}, 1)
 suptitle('Covariance');
 
 if ToSave
