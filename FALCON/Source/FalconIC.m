@@ -21,7 +21,8 @@ function [k] = FalconIC(estim, varargin)
 
 DefaultMode='uniform';
 DefaultStd=0.167;
-DefaultSeed=sum(clock());
+Clock=clock(); Clock(6)=Clock(6)*1000;
+DefaultSeed=sum(Clock);
 
 ExpectedModes={'uniform', 'normal'};
 ValidStd=@(x) isnumeric(x) && isscalar(x) && (x>0);

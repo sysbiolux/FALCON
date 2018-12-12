@@ -264,7 +264,7 @@ clusterDir = getenv('WORK');
 if ~isempty(clusterDir)
     tempdir = [clusterDir filesep tempname];
 else
-    tempdir = tempname;
+    tempdir = 'temp';
 end
 
 mkdir(tempdir);
