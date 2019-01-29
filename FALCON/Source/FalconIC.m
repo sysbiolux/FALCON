@@ -24,7 +24,7 @@ DefaultStd=0.167;
 Clock=clock(); Clock(6)=Clock(6)*1000;
 DefaultSeed=sum(Clock);
 
-ExpectedModes={'uniform', 'normal'};
+ExpectedModes={'uniform', 'normal', 'scratch'};
 ValidStd=@(x) isnumeric(x) && isscalar(x) && (x>0);
 p=inputParser;
 addRequired(p, 'estim');
@@ -44,6 +44,8 @@ if strcmp(Mode,'uniform')
     k=rand(1,size(estim.param_vector,1));
 elseif strcmp(Mode,'normal')
     k=min(max((Std.*randn(1,size(estim.param_vector,1))+0.5),0),1);
+elseif strcmp(Mode,'scratch')
+    k=zeros(1,size(estim.param_vector,1))+(rand(1,size(estim.param_vector,1))./1000000);
 end
 
 % scaling down parameters so that they satisfy the constrains
@@ -56,7 +58,7 @@ end
 if ~isempty(estim.Aeq)
     for eq=1:size(estim.Aeq,1)
         IdxConst=find(estim.Aeq(eq,:)>0);
-        k(IdxConst)=k(IdxConst)./sum(k(IdxConst));
+        k(IdxConst)=(k(IdxConst)./sum(k(IdxConst))).*estim.beq(eq);
     end
 end
 

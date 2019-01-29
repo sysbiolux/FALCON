@@ -23,6 +23,7 @@ h = waitbar(0,'Please wait...');
 
 % Resimulation 3 times and collect fitting costs
 global Costs
+Costs=[];
 k=FalconIC(estim,IC_Dist);
 waitbar(1/3,h,'Running Fitting Evolution Round 1/3 ...')
 [~,~]=FalconObjFunPlus(estim,k);
