@@ -87,13 +87,13 @@ end
 
 Now=datestr(now);
 Now=strrep(Now, ':', '.');
-fid = fopen([FinalFolderName, filesep, ['FALCONrun.log']],'at');
+fid = fopen([FinalFolderName, filesep, 'FALCONrun.log'],'at');
 fprintf(fid, 'FALCON log file \n');
 fprintf(fid, 'Start timestamp: %s \n', Start);
 fprintf(fid, 'Finish timestamp: %s \n', Now);
 fprintf(fid, 'Final MSE: %d \n', min(fxt_all(:,1)));
 fprintf(fid, 'Network: \n');
-[L,C]=size(estim.Interactions);
+[L,~]=size(estim.Interactions);
 for c=1:L
     fprintf(fid, '%s %s %s %s %s %s %s \n', estim.Interactions{c,:});
 end
@@ -127,7 +127,7 @@ for c=1:L
     fprintf(fid, [FormatIn, '\n'], estim.Output_idx(c,:));
 end
 
-fclose(fid)
+fclose(fid);
 
 disp('==============================================')
 disp(' ')

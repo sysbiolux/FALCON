@@ -9,9 +9,6 @@ AllCorrelations=nan(mn,mn,max(Category));
 
 colors=distinguishable_colors(max(Category));
 leg=1;
-if Plot
-%     figure,
-end
 
 for c=1:mn
     for cc=c:mn
@@ -20,7 +17,6 @@ for c=1:mn
 
             if c==cc
                 hist(D(:,c),40)
-%                 xlim([0 1]);
             end
         end
         if ~(c==cc)
@@ -41,31 +37,22 @@ for c=1:mn
             end
         end
         if Plot
-%             ylim([0 1]);
-%             xlim([0 1]);
-        end
-%         Fit=fitlm(D(:,c), D(:,cc));
-%         Rsq=Fit.Rsquared.Adjusted;
-        if Plot
             if ~c==cc
 
                 text(0.5,0.5,num2str((ceil(Rsq*100))/100))
             end
         end
-
         if Plot
             if c==1 && cc==mn && leg==1
                 leg=0;
                 legend(Legend,'Location','eastoutside')
             end
         end
-
         if Plot
             if c==1
                 title(Names{cc})
                 set(gca, 'FontSize', 5);
             end
-
             if cc==1
                 title(Names{c})
                 set(gca, 'FontSize', 5);
@@ -83,8 +70,5 @@ for c=1:mn
         drawnow
     end
 end
-% if Plot
-%     set(gcf,'Position',get(0,'Screensize'));
-% end
 
 end

@@ -6,6 +6,8 @@ function [ID] = FalconClusterSelect(params)
 %%% optimal clustering is determined as the first maximum in the silhouette
 %%% plot over all k.
 
+%%% DEPRECATED as of V1.2 (February 2019)
+
 
 N=length(params);
 silA=zeros(1,N);

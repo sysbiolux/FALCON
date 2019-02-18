@@ -20,6 +20,7 @@ function [estim] = FalconKO(varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %fetching values from arguments
+%%% TODO: remove argument 2 (redundant).
 estim=varargin{1};
 
 fxt_all=varargin{3};
@@ -56,6 +57,7 @@ cost_error = zeros(1,p);
 
 %%% parameter perturbation and refitting
 thisfig=figure; hold on
+set(gca,'TickLabelInterpreter','none')
 suptitle('Virtual Interaction KO');
 
 wb = waitbar(0,'Please wait...');
@@ -137,6 +139,7 @@ if ToSave
     saveas(figko,[Folder,filesep,'KO_interactions'],'fig')
     saveas(figko,[Folder,filesep,'KO_interactions'],'jpg')
     saveas(figko,[Folder,filesep,'KO_interactions'],'svg')
+    saveas(figko,[Folder,filesep,'KO_interactions'],'pdf')
 end
 
 toc

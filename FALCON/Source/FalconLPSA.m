@@ -82,6 +82,7 @@ params_SA = NaN([size(p_SA),length(p)]);
 %% Resimulation with perturbed parameter values
 estim=estim_orig;
 thisfig=figure; hold on
+set(gca,'TickLabelInterpreter','none')
 Param_original=estim.param_vector;
 Interactions_original=estim.Interactions;
 MidPoint=ceil(size(p_SA,1)/2);

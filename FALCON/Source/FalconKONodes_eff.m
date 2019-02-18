@@ -24,6 +24,7 @@ function [estim] = FalconKONodes_eff(varargin)
 
 %fetching values from arguments
 estim=varargin{1};
+%%% TODO: remove argument 2 (bc redundant)
 fxt_all=varargin{3};
 efficiency_range=varargin{4};
 HLbound=varargin{5};
@@ -63,6 +64,7 @@ for j= 1:length(efficiency_range)
 
     %%% parameter perturbation and refitting
     thisfig=figure; hold on
+    set(gca,'TickLabelInterpreter','none')
     suptitle(['Virtual node partial silencing for ', num2str(efficiency_range(j)), ' silencing']);
 
     wb = waitbar(0,'Please wait...');
@@ -110,7 +112,7 @@ for j= 1:length(efficiency_range)
         Is=Interactions_original(strcmp(Interactions_original(:,2),thisNode),5); %fetch outgoing parameters
         Is=[Is;Interactions_original(strcmp(Interactions_original(:,4),thisNode),5)]; %fetch incoming parameters
         for cc=length(Is):-1:1 %remove numbers
-            if str2num(char(Is(cc)))>=0
+            if str2double(char(Is(cc)))>=0
                 Is(cc)=[];
             end
         end
@@ -186,201 +188,5 @@ for counter1 = 1: length(Nodes)
     end
     colorbar
 end
-
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% %fetching values from arguments
-% estim=varargin{1};
-% % bestx=varargin{2};
-% fxt_all=varargin{3};
-% efficiency_range=varargin{4};
-% HLbound=varargin{5};
-% optRound_KO=varargin{6};
-% ToSave=0;
-% if nargin>6
-%     Folder=varargin{7};
-%     ToSave=1;
-% end
-% 
-% estim_orig = estim;
-% Param_original=estim.param_vector;
-% Interactions_original=estim.Interactions;
-% bestcost = min(fxt_all(:,1));
-% StateValue_screen = [];
-% StateStd_screen = [];
-% 
-% 
-% 
-% 
-% 
-% 
-% %% BIC calculation
-% N = numel(estim.Output);
-% MSE= bestcost;
-% Nodes=estim.state_names;
-% Nodes(estim.Input_idx(1,:))=[];
-% pn=length(Nodes);
-% p= numel(Param_original);
-% 
-% BIC_complete = N*log(MSE) + (log(N))*p; %BIC for base model
-% 
-% p_KD = zeros(1,pn);
-% PreviousOptions=estim.options;
-% SSthresh=estim.SSthresh;
-% 
-% cost_KD = zeros(1,pn);
-% 
-% %%% parameter perturbation and refitting
-% thisfig=figure; hold on
-% suptitle('Knock-out analysis (nodes)');
-% 
-% wb = waitbar(0,'Please wait...');
-% for counter =  1:size(p_KD,2)
-%     waitbar(counter/pn,wb,sprintf('Running Nodes Knock-out Round %d out of %d ...',counter,pn))
-%     
-%     Interactions=Interactions_original;
-%     estim=estim_orig;
-%     thisNode=Nodes(counter);
-%     if isfield(estim, 'efficency')
-%         efficency = estim.efficency;
-%     else
-%         efficency = '1';
-%     end
-%     Interactions=[Interactions; ['ix', 'X_INHIB_X', '-|', thisNode, efficency, 'N', 'D']];
-%     estim.state_names=[estim.state_names, 'X_INHIB_X'];
-%     
-%     estim.Input_idx=[estim.Input_idx,ones(size(estim.Input_idx,1),1).*length(estim.state_names)];
-%     estim.Input=[estim.Input,ones(size(estim.Input,1),1)];
-%     
-%     MeasFile=FalconData2File(estim);
-%     FalconInt2File(Interactions,'KDN_TempFile.txt')
-%     
-%     estim=FalconMakeModel('KDN_TempFile.txt',MeasFile,HLbound);
-%     estim.options = PreviousOptions;
-%     estim.SSthresh=SSthresh;
-%     fval_all=[];
-%     x_all = [];
-%     try
-%         for counterround=1:optRound_KO %computation for modified model
-%             k=FalconIC(estim); %initial conditions
-%             [xval,fval]=FalconObjFun(estim,k); %objective function
-%             x_all=[x_all; xval];
-%             fval_all=[fval_all; fval];
-%             
-%         end
-%     catch
-%         for counterround=1:optRound_KO %computation for modified model
-%             k=FalconIC(estim); %initial conditions
-%             [xval,fval]=FalconObjFun(estim,k); %objective function
-%             x_all=[x_all; xval];
-%             fval_all=[fval_all; fval];
-%             
-%         end
-%     end
-%     fxt_all=[fval_all x_all];
-%     cost_KD(1,counter)=min(fval_all);
-%     
-%     % % Simulate new data
-%     min_fval = fval_all == min(fval_all);
-%     bestx = fxt_all(min_fval, 2:end);
-%     [MeanStateValueAll, StdStateValueAll, ~, ~, estim] = FalconSimul(estim,bestx,[0 0 0 0 0]);
-%     StateValue_screen = [StateValue_screen ; MeanStateValueAll(:, find(ismember(estim.state_names, estim_orig.state_names)))];
-%     StateStd_screen = [StateStd_screen ; StdStateValueAll(:, find(ismember(estim.state_names, estim_orig.state_names)))];
-%     
-%     %% reduced model (- parameter)
-%     
-%     N_r = numel(estim.Output); %number of datapoints
-%     p_r= numel(estim.param_vector); %number of parameters
-%     %remove parameters related to the knocked-out node
-%     Is=Interactions_original(strcmp(Interactions_original(:,2),thisNode),5); %fetch outgoing parameters
-%     Is=[Is;Interactions_original(strcmp(Interactions_original(:,4),thisNode),5)]; %fetch incoming parameters
-%     for cc=length(Is):-1:1 %remove numbers
-%         if str2num(char(Is(cc)))>=0
-%             Is(cc)=[];
-%         end
-%     end
-%     
-%     BIC_KD(counter) = N_r*log(cost_KD(counter)) + (log(N_r))*(p_r-numel(unique(Is)));
-%     
-%     %%Plot BIC values
-%     
-%     BIC_merge=[BIC_complete,BIC_KD];
-%     BIC_merge_scaled = BIC_merge - BIC_complete;   %% set ctrl model to 0
-%     set(0,'CurrentFigure',thisfig);
-%     figko=thisfig; hold on;
-%     
-%     bar(1,BIC_merge_scaled(1,1)); hold on
-%     for counter2 = 2:counter+1
-%         h=bar(counter2,BIC_merge_scaled(counter2)); hold on
-%         if BIC_merge_scaled(counter2) <= BIC_merge_scaled(1,1)
-%             set(h,'FaceColor','r');
-%         else %if BIC_merge(counter2) > AIC_complete
-%             set(h,'FaceColor','k');
-%         end
-%     end
-%     
-%     hline=refline([0 BIC_merge_scaled(1,1)]);
-%     hline.Color = 'r';
-%     
-%     set(gca,'XTick',[1:length(Nodes)+1])
-%     Xtitles=['Ctrl';Nodes'];
-%     set(gca, 'XTicklabel', Xtitles);
-%     %     title('AIC');
-%     xlabel('');
-%     set(gca, 'XTickLabelRotation', 45)
-%     ylabel('scaled Akaike Information Criterion (AIC)');
-%     hold off
-%     Min=min(BIC_merge_scaled(1:counter)); Max=max(BIC_merge_scaled(1:counter));
-%     if counter>1
-%         axis([0.5 counter+1.5 Min-0.1*abs(Max-Min) Max+0.1*abs(Max-Min)])
-%     end
-%     drawnow;
-%     if ToSave
-%         saveas(figko,[Folder,filesep,'Virtual Partial KO'],'fig')        
-%     end
-%     
-% end
-% 
-% close(wb);
-% 
-% if ToSave
-%     saveas(figko,[Folder,filesep,'Virtual Partial KO'],'tif')
-%     saveas(figko,[Folder,filesep,'Virtual Partial KO'],'fig')
-%     saveas(figko,[Folder,filesep,'Virtual Partial KO'],'jpg')
-%     saveas(figko,[Folder,filesep,'Virtual Partial KO'],'svg')
-% end
-% 
-% toc
-% 
-% estim = estim_orig;
-% 
-% estim.Results.KnockOutNodes.Parameters=Xtitles';
-% estim.Results.KnockOutNodes.AIC_values=BIC_merge;
-% estim.Results.KnockOutNodes.KO_effect=BIC_merge>=BIC_merge(1);
-% estim.Results.KnockOutNodes.Interpretation={'0 = no KO effect','1 = KO effect'};
-% estim.Results.KnockOutNodes.BIC_complete = BIC_complete;
-% estim.Results.KnockOutNodes.BIC_KD = BIC_KD;
-% estim.Results.KnockOutNodes.StateValue_screen = StateValue_screen;
-% delete('KDN_TempFile.txt')
 
 end

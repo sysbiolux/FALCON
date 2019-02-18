@@ -16,8 +16,8 @@ NamesOut=estim.state_names(estim.Output_idx);
 %Test for presence of excel to select the I/O method
 useexcel = isExcelPresent();
 
-delete 'tempMeasFile.xls';
-if useexcel    
+delete 'tempMeasFile.xls'; %delete previous instance of the file
+if useexcel
     xlswrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A1');
     xlswrite('tempMeasFile.xls', NamesIn , 1, 'B1');
     xlswrite('tempMeasFile.xls', estim.Input, 1, 'B2');
@@ -25,7 +25,7 @@ if useexcel
     xlswrite('tempMeasFile.xls', estim.Output, 2, 'A2');
     xlswrite('tempMeasFile.xls', NamesOut, 3, 'A1');
     xlswrite('tempMeasFile.xls', estim.SD, 3, 'A2');
-else    
+else
     setupxlwrite();
     xlswrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A1');
     xlwrite('tempMeasFile.xls', NamesIn , 1, 'B1');

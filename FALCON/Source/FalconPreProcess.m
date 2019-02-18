@@ -77,7 +77,7 @@ if Norm
     Y=(Y.*(t_max-t_min))+t_min;
     estim2.Input=X;
     estim2.Output=Y;
-    %still need to normalize SD
+    %%% TODO: still need to normalize SD
 end
 
 [nRows,nColsX]=size(X);

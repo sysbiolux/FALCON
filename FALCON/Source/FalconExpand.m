@@ -69,26 +69,20 @@ for i=1:length(ListOut) %for each output node
                 I2(Idx(1:2),5)={['k',NewNode];['k',NewNode]}; %parameter value is fixed to new param (fixed to 1 later on)
                 I2(Idx(1:2),3)={'->';'->'}; %interaction becomes positive anyway.
                 nLine=1+size(I2,1); %number of the line
-%                 Type=unique(I2(Idx(1:2),3)); %type of interaction (activation or inhibition)
                 Lim=unique(I2(Idx(1:2),7)); %bound of the parameter
                 %new line
                 I2=[I2;{['i',num2str(nLine)], NewNode, '->', cell2mat(ThisOut), cell2mat(UParams(p)), cell2mat(GateType), cell2mat(Lim)}];
-                
                 break
-                
             end
-            
         end
-        
     end
-    
 end
 
 if DidChange %check for doublons
     for i=size(I2,1):-1:2
-        q=I2(i,[2:6]);
+        q=I2(i,2:6);
         for ii=i-1:-1:1
-           r=I2(ii,[2:6]);
+           r=I2(ii,2:6);
            if sum(strcmp(q,r))==5, I2(i,:)=[]; end
         end
     end

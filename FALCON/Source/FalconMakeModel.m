@@ -31,7 +31,6 @@ if strcmp(Ext,'txt') || strcmp(Ext,'sif')%if text file
         tline = fgetl(fid); %read a line
         if ~ischar(tline), break, end %break out of the loop if line is empty
         LineCounter=LineCounter+1; %count the lines
-%         disp(tline) %display the line
         Input = regexp(tline,'\t','split'); %find the tabs in the line's text
         if length(Input)==3 %if no param names, no gate, no high/low constrains
             Input{4}=[char(Input{1}),char(Input{2}),char(Input{3})];
@@ -68,7 +67,6 @@ elseif strcmp(Ext,'xls') || strcmp(Ext,'xlsx')
     LineCounter=2; %initialize the line counter
     while LineCounter<=size(Other,1) %get out only when line is empty
         Input = Other(LineCounter,:); %read a line
-%         disp(Input) %display the line
         if length(Input)==5 
             if ~exist('Interactions')
                 Interactions={'i1',cell2mat(Input(1)),cell2mat(Input(2)),cell2mat(Input(3)),num2str(cell2mat(Input(4))),cell2mat(Input(5))};
@@ -100,7 +98,7 @@ for counter=1:size(state_names,2) % for each state
         AND_Index = char(Interactions(output_index,6)) == 'A'; % get the AND indices
         OR_Index  = char(Interactions(output_index,6)) == 'O'; % get the OR indices
         NG_Index  = char(Interactions(output_index,6)) == 'N'; % get the NO GATE indices
-        if ~prod(NG_Index) % if the product of all NO GATE indicies is NOT FALSE (i.e. there exist at least one interaction with AND/OR gate assigned)
+        if ~prod(NG_Index) % if the product of all NO GATE indices is NOT FALSE (i.e. there exist at least one interaction with AND/OR gate assigned)
             if sum(AND_Index) > 1 || sum(OR_Index) > 1 % check if the sum of all AND or OR indicies is more than 1 (i.e. there exist more than one interaction with AND/OR gate)
                 if length(unique(Interactions(output_index(AND_Index),5)))==1 || length(unique(Interactions(output_index(OR_Index),5)))==1 % check if the parameters of those AND/OR interactions are the same
                     if length(unique(Interactions(output_index(AND_Index),3)))>1 || length(unique(Interactions(output_index(OR_Index),3)))>1 % if the same parameter is assigned, check if they have the same type of interaction
@@ -163,9 +161,9 @@ for i=1:length(UOutInNAct) % for each Output node in single interactions
         thisParams=Interactions(Idx,5); % activating parameters related to this node
         fParams=[];
         for cf=1:length(thisParams) % for each one
-            if str2num(char(thisParams(cf)))>=0 % if number
+            if str2double(char(thisParams(cf)))>=0 % if number
                 fParams=[fParams;1]; % vector of boolean for fixed
-                SumFixed=SumFixed+str2num(char(thisParams(cf))); % adding to the sum of probabilities
+                SumFixed=SumFixed+str2double(char(thisParams(cf))); % adding to the sum of probabilities
             else
                 fParams=[fParams;0]; % vector of boolean
             end
@@ -182,9 +180,7 @@ for i=1:length(UOutInNAct) % for each Output node in single interactions
             end
         end
     end
-    
 end
-
 
 for i=1:length(UOutInNInh) % for each Output node in inhibitions
     thisOut=UOutInNInh(i); % node ID
@@ -195,9 +191,9 @@ for i=1:length(UOutInNInh) % for each Output node in inhibitions
         thisParams=Interactions(Idx,5); % inhibiting parameters related to this node
         fParams=[];
         for cf=1:length(thisParams) % for each one
-            if str2num(char(thisParams(cf)))>=0 % if number
+            if str2double(char(thisParams(cf)))>=0 % if number
                 fParams=[fParams;1]; % vector of boolean for fixed
-                SumFixed=SumFixed+str2num(char(thisParams(cf))); % adding to the sum of probabilities
+                SumFixed=SumFixed+str2double(char(thisParams(cf))); % adding to the sum of probabilities
             else
                 fParams=[fParams;0]; % vector of boolean
             end
@@ -208,11 +204,9 @@ for i=1:length(UOutInNInh) % for each Output node in inhibitions
     end
 end
 
-% disp(Interactions)
-
 UniqueParamNames=unique(Interactions(:,5),'stable')'; %parameter names
 for u=length(UniqueParamNames):-1:1 %removing numeric values, starts from the end (otherwise suppresses the wrong line)
-    if str2num(char(UniqueParamNames(u)))>=0
+    if str2double(char(UniqueParamNames(u)))>=0
         UniqueParamNames(u)=[];
     end
 end
@@ -223,7 +217,7 @@ FalconInt2File(Interactions,'Expanded.txt')
 for i=1:size(Interactions,1) % for each interaction
     idxout=find(ismember(state_names,Interactions(i,4)));
     idxin=find(ismember(state_names,Interactions(i,2)));
-    pv=str2num(char(Interactions(i,5)));
+    pv=str2double(char(Interactions(i,5)));
     % write the value in ma or mi, or 1 if free parameter
     if strcmp(Interactions(i,3),'->')
         if pv>=0
@@ -277,7 +271,7 @@ for i=1:length(UniqueOutputList)%for each unique output
     else % if only single interactions
         for ii=1:length(Idx) % for each interactions
             thisIdx=Idx(ii); % its index
-            if str2num(char(Interactions(thisIdx,5)))>=0 % if number: not going to param_index (but is in ma and mi)
+            if str2double(char(Interactions(thisIdx,5)))>=0 % if number: not going to param_index (but is in ma and mi)
             else
                 idxo=find(ismember(state_names,thisOut)); %get the index of that output
                 idxi=find(ismember(state_names,Interactions(thisIdx,2))); %index of the input
@@ -288,7 +282,6 @@ for i=1:length(UniqueOutputList)%for each unique output
                 end
                 param_index=[param_index; idxo, idxi, isAct, ~isAct, 0, 0, pHL];
                 FixBool=[FixBool,0]; PN=[PN,Interactions(thisIdx,5)];
-                
             end
             
         end
@@ -299,16 +292,16 @@ for i=1:length(UniqueOutputList)%for each unique output
         ParamAct=Interactions(IdxAct,5);
         SumAct=0;
         for kp=length(ParamAct):-1:1
-            if str2num(char(ParamAct(kp)))>=0
-                SumAct=SumAct+str2num(char(ParamAct(kp)));
+            if str2double(char(ParamAct(kp)))>=0
+                SumAct=SumAct+str2double(char(ParamAct(kp)));
                 ParamAct(kp)=[];
             end
         end
         ParamInh=Interactions(IdxInh,5);
         SumInh=0;
         for kp=length(ParamInh):-1:1
-            if str2num(char(ParamInh(kp)))>=0
-                SumInh=SumInh+str2num(char(ParamInh(kp)));
+            if str2double(char(ParamInh(kp)))>=0
+                SumInh=SumInh+str2double(char(ParamInh(kp)));
                 ParamInh(kp)=[];
             end
         end
@@ -324,7 +317,6 @@ for i=1:length(UniqueOutputList)%for each unique output
             A(end,idxadd)=1; %these parameters have to be smaller than...
             b=[b; 1-SumInh]; %...remaining
         end
-        
     end
     
 end
@@ -384,16 +376,14 @@ if size(MeasFile,1)==1
                 ReadSD=strsplit(char(SDRaw),',');
             end
 
-    %        Annotation= [];
-           Annotation=[Annotation; Annotation_data];
-
+            Annotation=[Annotation; Annotation_data];
 
             count_input=1;
             Input_idx_collect=[];
             Input_value_collect=[];
             for counter=1:(size(ReadInput,2)/2)
                 idx_ReadInput=find(ismember(state_names,ReadInput(count_input)));
-                value_ReadInput=str2num(cell2mat(ReadInput(count_input+1)));
+                value_ReadInput=str2double(cell2mat(ReadInput(count_input+1)));
                 Input_idx_collect=[Input_idx_collect idx_ReadInput];
                 Input_value_collect=[Input_value_collect value_ReadInput];
                 count_input=count_input+2;
@@ -407,7 +397,7 @@ if size(MeasFile,1)==1
             Output_value_collect=[];
             for counter=1:(size(ReadOutput,2)/2)
                 idx_ReadOutput=find(ismember(state_names,ReadOutput(count_output)));
-                value_ReadOutput=str2num(cell2mat(ReadOutput(count_output+1)));
+                value_ReadOutput=str2double(cell2mat(ReadOutput(count_output+1)));
                 Output_idx_collect=[Output_idx_collect idx_ReadOutput];
                 Output_value_collect=[Output_value_collect value_ReadOutput];
                 count_output=count_output+2;
@@ -445,7 +435,6 @@ if size(MeasFile,1)==1
 
         Input_vector=cell2mat(OtherIn(2:end,2:end)); 
         Annotation = cellfun(@num2str,(OtherIn(2:end,1)),'UniformOutput',0); 
-        OtherIn
 
         for jj=2:length(OtherIn(:,2))
             Input_index_coll=[];
@@ -507,9 +496,7 @@ else
         Output_index=[Output_index;Output_index_coll];
     end
     
-    
 end
-
 
 NewOutput_index=[];
 Nexp=size(Output_index,1);
@@ -520,18 +507,16 @@ for oi=1:size(Output_index,2)
 end
 Output_index=repmat(NewOutput_index,Nexp,1);
 
-
-kInv=[]; kInd=[];
+kInv=[];
 for i=1:length(PN)
     thisParam=PN(i);
-    if str2num(char(cell2mat(thisParam)))>=0
+    if str2double(char(cell2mat(thisParam)))>=0
     else
         kInv=[kInv; find(ismember(param_vector,char(cell2mat(thisParam))))];
     end
 end
 kInd=kInv;
 
-BoolIdx=[];
 BoolLines=param_index(:,6)>0;
 BoolOuts=unique(param_index(BoolLines,1));
 BoolLines2=ismember(param_index(:,1),BoolOuts);

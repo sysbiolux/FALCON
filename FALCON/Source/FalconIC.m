@@ -6,14 +6,17 @@ function [k] = FalconIC(estim, varargin)
 % :: Input ::
 % estim     complete model definition
 % Mode(optional)   type of distribution for initial conditions
-%           1 = uniform parameter distribution 
-%           2 = normal parameter distribtion 
+%           'uniform' = uniform parameter distribution 
+%           'normal' = normal parameter distribution
+%           'scratch' = near-zero (half-normal) parameter distribution
+%
 % Std[0-1]  assigned standard deviation for normal distribution
 %           (default value = 0.167 which makes the 99%IC=[0-1]
-% Seed      Seed for the random number generator
+% Seed      Seed for the random number generator, define to get
+% reproduceable results.
 %
 % :: Output ::
-% k          initial guess for parameter values
+% k         initial guess for parameter values
 %
 % :: Contact ::
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
@@ -21,11 +24,13 @@ function [k] = FalconIC(estim, varargin)
 
 DefaultMode='uniform';
 DefaultStd=0.167;
+% to obtain different random starts on fresh Matlab sessions
 Clock=clock(); Clock(6)=Clock(6)*1000;
 DefaultSeed=sum(Clock);
 
 ExpectedModes={'uniform', 'normal', 'scratch'};
 ValidStd=@(x) isnumeric(x) && isscalar(x) && (x>0);
+% parsing inputs
 p=inputParser;
 addRequired(p, 'estim');
 addOptional(p, 'Mode', DefaultMode,...
@@ -35,7 +40,7 @@ addOptional(p, 'Seed', DefaultSeed, ValidStd);
 parse(p, estim, varargin{:});
 
 Mode=p.Results.Mode;
-Std=p.Results.Std;    
+Std=p.Results.Std;
 Seed=p.Results.Seed;
 
 rng(Seed)

@@ -5,6 +5,10 @@ function sinaplot(X)
 % Sebastien  De Landtsheer November 2018
 % sebdelandtsheer@gmail.com
 
+if isempty(X)
+    X=randn(1000,3) + [1 2 3];
+    disp('No data provided: plotting dummy variables')
+end
 if ~ismatrix(X) %is this a 2D matrix?
     error('Too many dimensions');
 end
@@ -45,7 +49,7 @@ xval=xdef+(jit.*Dens); %new X-axis values
 Colors=distinguishable_colors(p);
 for Group=1:p
     plot(xval(:,Group), X(:,Group), '.', 'Color', Colors(Group,:)), hold on,
-    plot([Group-0.3,Group+0.3],[nanmean(X(:,Group)), nanmean(X(:,Group))],'-k' )
+    plot([Group-0.3,Group+0.3],[nanmean(X(:,Group)), nanmean(X(:,Group))],'-k', 'Linewidth', 3 )
 end
 set(gca, 'XTick', 1:p),
 

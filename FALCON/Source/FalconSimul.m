@@ -23,9 +23,6 @@ tic
 k=optParams;
 MeanStateValueAll=[];
 StdStateValueAll=[];
-% MeanCostAll=[];
-% StdCostAll=[];
-% Diffs=[];
 Max=10000;
 Input_index=estim.Input_idx;
 Output_index=estim.Output_idx;
@@ -36,10 +33,8 @@ SD=estim.SD;
 param_index=estim.param_index;
 ma=estim.ma;
 mi=estim.mi;
+set(0, 'DefaultTextInterpreter', 'none');
 
-num_plots=length(Output_index);
-NLines=ceil(sqrt(num_plots));
-NCols=ceil(num_plots/NLines);
 % Perform simulation based on the best parameter set
 
 n=estim.NrStates;
@@ -97,11 +92,7 @@ cur=1;
 estim.AllofTheXs(:,cur,:)=x';
 xmeas=Measurements;
 
-idx_NaN=find(isnan(xmeas));
-
-diff=0; % Initialize fitting cost
 break_point_ss=1;
-
 runs=initial_t; % Initialize number of time steps
 
 while  break_point_ss
@@ -149,10 +140,8 @@ xsim(mask)=0; xmeas(mask)=0;
 
 %calculate the sum-of-squared errors
 diff=(sum(sum((xsim-xmeas).^2)))/N;
-AIC = N.*log(diff) + 2*np;
-fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', diff, diff*N, AIC);
-
-% diff_ALL=diff;
+BIC = N.*log(diff) + (log(N))*np;
+fprintf('MSE= %d \t SSE= %d \t BIC= %d \n', diff, diff*N, BIC);
 
 MeanAllState=xsim;
 StdAllState=zeros(size(xsim));
@@ -191,16 +180,15 @@ if graphs(1)
         set(gca,'XTickLabel', estim.Annotation)
         set(gca, 'XTickLabelRotation',45)
         set(gca,'fontsize',15/sqrt(num_plots))
-%         set(gca,'XMinorGrid','on')
         t=title(state_names(Output_index(1,counter)));
         xt=xlabel('experimental condition');
-        yt=ylabel('state-value');
         set(xt,'fontsize',15/sqrt(num_plots))
         set(t,'fontsize',25/sqrt(num_plots))
         hold off
     end
     if ToSave
         saveas(h1,[Folder,'\Fitting_plot'],'tif')
+        saveas(h1,[Folder,'\Fitting_plot'],'pdf')
     end
 end
 
@@ -213,7 +201,7 @@ if graphs(2)
         % Plot experimental data first (in green)
         for counter_plot=1:size(Output_index(1,:),2)
             current_counter_plot=Output_index(1,:);
-            if counter==current_counter_plot(counter_plot) %Panuwat's logic
+            if counter==current_counter_plot(counter_plot) %Panuwat's logic ;-)
                 if ~isempty(SD)
                     errorbar(1:size(Measurements,1),Measurements(:,counter_plot),SD(:,counter_plot),'gs','LineWidth',1,'MarkerSize',2, 'Color',[0.4 0.6 0]), hold on,
                 else
@@ -227,7 +215,7 @@ if graphs(2)
 
         % Figure adjustment
         axis([0 size(Measurements,1)+1 0 1.1])
-        set(gca,'XTick', [1:length(estim.Annotation)])
+        set(gca,'XTick', 1:length(estim.Annotation))
         set(gca,'XTickLabel', estim.Annotation)
         set(gca, 'XTickLabelRotation',45)
         set(gca,'fontsize',15)
@@ -240,6 +228,7 @@ if graphs(2)
         hold off
         if ToSave
             saveas(h1,[Folder, '\', cell2mat(state_names(counter)) '_plot'],'tif')
+            saveas(h1,[Folder, '\', cell2mat(state_names(counter)) '_plot'],'pdf')
         end
 
     end
@@ -262,7 +251,7 @@ if graphs(3) && sum(std(estim.Output_idx))==0
     title('Simulated versus Measurements');
     if ToSave
         saveas(cp,[Folder, '\CorrelationPlot'],'tif');
-%         close(gcf)
+        saveas(cp,[Folder, '\CorrelationPlot'],'pdf');
     end
 end
 
@@ -289,6 +278,7 @@ if graphs(4)
     hold off
     if ToSave
         saveas(h4,[Folder, '\Measured_vs_Simul'],'tif')
+        saveas(h4,[Folder, '\Measured_vs_Simul'],'pdf')
     end
 end
 
@@ -320,6 +310,7 @@ NCols=ceil(num_plots/NLines);
        
     if ToSave
         saveas(h51,[Folder, '\ConvergenceOutputNodes'],'tif')
+        saveas(h51,[Folder, '\ConvergenceOutputNodes'],'pdf')
     end
 
     h52=figure; hold on,
@@ -334,6 +325,7 @@ NCols=ceil(num_plots/NLines);
       legend(state_names(:))
     if ToSave
         saveas(h52,[Folder, '\ConvergenceAllNodes'],'tif')
+        saveas(h52,[Folder, '\ConvergenceAllNodes'],'pdf')
     end
 end
 estim.MeanStateValueAll = MeanStateValueAll;

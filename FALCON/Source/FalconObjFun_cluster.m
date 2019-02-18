@@ -256,7 +256,7 @@
             Dist=Par(:,2:end)-Par(:,1:end-1);
             Collapsed=Dist<0.01;
             Sig=Sig.*[ones(size(Collapsed,1),1),~Collapsed];
-            Nparams=sum(Sig(:));%+size(RegCluster,2)*sum(~Collapsed(:));
+            Nparams=sum(Sig(:));
         end
     end
     
@@ -265,7 +265,6 @@
     if rand<0.01
         fprintf('MSE= %d \t reg cost= %d \t total= %d \t AIC= %d \n', MSE, sum(l.*Var), Diff, AIC);
     end
-%     disp(['MSE: ', num2str(mse), ' ; reg cost: ',num2str(l*Var), ' ; Total: ', num2str(diff)])
 
     end
 

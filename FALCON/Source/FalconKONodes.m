@@ -22,6 +22,7 @@ function [estim] = FalconKONodes(varargin)
 
 %fetching values from arguments
 estim=varargin{1};
+%%% TODO: remove argument 2 (redundant)
 fxt_all=varargin{3};
 HLbound=varargin{5};
 optRound_KO=varargin{6};
@@ -54,6 +55,7 @@ cost_error = zeros(1,p);
 
 %%% parameter perturbation and refitting
 thisfig=figure; hold on
+set(gca,'TickLabelInterpreter','none')
 suptitle('Virtual Node KO');
 
 wb = waitbar(0,'Please wait...');
@@ -95,7 +97,7 @@ for counter =  1:size(p_KD,2)
     Is=Interactions_original(strcmp(Interactions_original(:,2),thisNode),5); %fetch outgoing parameters
     Is=[Is;Interactions_original(strcmp(Interactions_original(:,4),thisNode),5)]; %fetch incoming parameters
     for cc=length(Is):-1:1 %remove numbers
-        if str2num(char(Is(cc)))>=0
+        if str2double(char(Is(cc)))>=0
             Is(cc)=[];
         end
     end
@@ -147,6 +149,7 @@ if ToSave
     saveas(figko,[Folder,filesep,'KO_Nodes'],'fig')
     saveas(figko,[Folder,filesep,'KO_Nodes'],'jpg')
     saveas(figko,[Folder,filesep,'KO_Nodes'],'svg')
+    saveas(figko,[Folder,filesep,'KO_Nodes'],'pdf')
 end
 
 toc

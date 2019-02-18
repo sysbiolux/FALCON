@@ -71,7 +71,6 @@ ListInputs=estim.state_names(unique(estim.Input_idx(:)));
 Ncells=size(MeasFileList,2);
 
 I=estim.Interactions;
-
 Itot={};
 
 for c=1:size(I,1) %for each interaction
@@ -139,13 +138,12 @@ for m=1:length(MeasFileList)
             
             Annotation = [Annotation; Annotation_data];
             
-            
             count_input=1;
             Input_idx_collect=[];
             Input_value_collect=[];
             for counter=1:(size(ReadInput,2)/2)
                 idx_ReadInput=find(ismember(estim.state_names,ReadInput(count_input)));
-                value_ReadInput=str2num(cell2mat(ReadInput(count_input+1)));
+                value_ReadInput=str2double(cell2mat(ReadInput(count_input+1)));
                 Input_idx_collect=[Input_idx_collect idx_ReadInput];
                 Input_value_collect=[Input_value_collect value_ReadInput];
                 count_input=count_input+2;
@@ -159,7 +157,7 @@ for m=1:length(MeasFileList)
             Output_value_collect=[];
             for counter=1:(size(ReadOutput,2)/2)
                 idx_ReadOutput=find(ismember(estim.state_names,ReadOutput(count_output)));
-                value_ReadOutput=str2num(cell2mat(ReadOutput(count_output+1)));
+                value_ReadOutput=str2double(cell2mat(ReadOutput(count_output+1)));
                 Output_idx_collect=[Output_idx_collect idx_ReadOutput];
                 Output_value_collect=[Output_value_collect value_ReadOutput];
                 count_output=count_output+2;
@@ -173,7 +171,7 @@ for m=1:length(MeasFileList)
                 count_SD=1;
                 SD_value_collect=[];
                 for counter=1:(size(ReadSD,2)/2)
-                    value_ReadSD=str2num(cell2mat(ReadSD(count_SD+1)));
+                    value_ReadSD=str2double(cell2mat(ReadSD(count_SD+1)));
                     SD_value_collect=[SD_value_collect value_ReadSD];
                     count_SD=count_SD+2;
                 end
@@ -197,11 +195,7 @@ for m=1:length(MeasFileList)
         for jj=2:length(OtherIn(:,2))   %%%% modif Philippe OtherIn(:,1)
             Input_index_coll=[];
             for j=1:length(OtherIn(1,:))
-                %                 if ~isnan(cell2mat(OtherIn(jj,j)))
                 Input_index_coll=[Input_index_coll,find(ismember(estim.state_names,OtherIn(1,j)))];
-                %                 else
-                %                     Input_index_coll=[Input_index_coll,NaN]
-                %                 end
             end
             Input_index=[Input_index;Input_index_coll];
         end
@@ -211,11 +205,7 @@ for m=1:length(MeasFileList)
         for jj=2:length(OtherOut(:,1))
             Output_index_coll=[];
             for j=1:length(OtherOut(1,:))
-                %                 if ~isnan(cell2mat(OtherOut(jj,j)))
                 Output_index_coll=[Output_index_coll,find(ismember(estim.state_names,OtherOut(1,j)))];
-                %                 else
-                %                     Output_index_coll=[Output_index_coll,NaN];
-                %                 end
             end
             Output_index=[Output_index;Output_index_coll];
         end
@@ -240,7 +230,6 @@ for m=1:length(MeasFileList)
     InputsSheet(:,:,m)=InputValues;
     OutputsSheet(:,:,m)=Output_vector;
     SDSheet(:,:,m)=SD_vector;
-    
     
 end
 
@@ -274,10 +263,8 @@ varargout{2}=tempfile;
 
 Page1nan=[zeros(1,size(Page1,2));cell2mat(cellfun(@isnan,Page1(2:end,:),'UniformOutput',0))];
 Page1(Page1nan>0) ={'NaN'};
-
 Page2nan=[zeros(1,size(Page2,2));cell2mat(cellfun(@isnan,Page2(2:end,:),'UniformOutput',0))];
 Page2(Page2nan>0) ={'NaN'};
-
 Page3nan=[zeros(1,size(Page3,2));cell2mat(cellfun(@isnan,Page3(2:end,:),'UniformOutput',0))];
 Page3(Page3nan>0) ={'NaN'};
 
@@ -285,41 +272,25 @@ Page3(Page3nan>0) ={'NaN'};
 useexcel = isExcelPresent();
 
 if useexcel
-%     xlswrite(tempfile,Page1,1)
-%     xlswrite(tempfile,Page2,2)
-%     xlswrite(tempfile,Page3,3)
+
     try
         xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
         xlswrite(tempfile, Page1 , 1, 'B1');
-    %     xlswrite(tempfile, estim.Input, 1, 'B2');
         xlswrite(tempfile, Page2, 2, 'A1');
-    %     xlswrite(tempfile, estim.Output, 2, 'A2');
         xlswrite(tempfile, Page3, 3, 'A1');
-    %     xlswrite(tempfile, estim.SD, 3, 'A2');
     catch
         xlswrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
         xlswrite(tempfile, Page1 , 1, 'B1');
-    %     xlswrite(tempfile, estim.Input, 1, 'B2');
         xlswrite(tempfile, Page2, 2, 'A1');
-    %     xlswrite(tempfile, estim.Output, 2, 'A2');
         xlswrite(tempfile, Page3, 3, 'A1');
-    %     xlswrite(tempfile, estim.SD, 3, 'A2');    
     end
 else
     setupxlwrite();
-%     xlswrite(tempfile,Page1,1)
-%     xlswrite(tempfile,Page2,2)
-%     xlswrite(tempfile,Page3,3)
     xlwrite(tempfile, ['Annotation'; Annotation] , 1, 'A1');
     xlwrite(tempfile, Page1 , 1, 'B1');
-%     xlswrite(tempfile, estim.Input, 1, 'B2');
     xlwrite(tempfile, Page2, 2, 'A1');
-%     xlswrite(tempfile, estim.Output, 2, 'A2');
     xlwrite(tempfile, Page3, 3, 'A1');
-%     xlswrite(tempfile, estim.SD, 3, 'A2');
 end
-
-
 
 clearvars estim
 

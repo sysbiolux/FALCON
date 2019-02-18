@@ -45,19 +45,17 @@ end
 %% Plot simulated state value mapped on experimental data
 if isfield(estim.Results,'Optimisation')
     Diffs= estim.Results.Optimisation.Diffs;
-    StdStateValueAll = estim.Results.Optimisation.StdStateValueAll;
     FittingCost = estim.Results.Optimisation.FittingCost;
     
     % show plotting evolution (needed to show that the model really ended up in a global optimum)
-    h11=  figure;
+    figure;
     plot(sort(FittingCost), 'o-');
     xlabel('number of fits');
     ylabel('goodnes s of fits');
     title('Fitting cost');
     
-    
     % if graphs_opt(1)
-    h1=figure; hold on
+    figure; hold on
     for counter=1:num_plots
         subplot(NLines,NCols,counter), hold on,
 
@@ -89,7 +87,7 @@ if isfield(estim.Results,'Optimisation')
     % Plot molecular profiles
     % if graphs_opt(2)
    for counter=1:length(state_names)
-        h1=figure; hold on
+        figure; hold on
 
         % Plot experimental data first (in green)
         for counter_plot=1:size(Output_index(1,:),2)
@@ -116,13 +114,11 @@ if isfield(estim.Results,'Optimisation')
         set(y,'fontsize',15)
         set(t,'fontsize',15)
         hold off
-            end
-    % end
+    end
     
     % PlotHeatmapCost: heatmaps of optimal costs for each output for each experimental condition
-    % if graphs_opt (3)
     figure;
-    hm=imagesc(Diffs);
+    imagesc(Diffs);
     colorbar
     X_axis_name=estim.state_names(estim.Output_idx(1,:));
     
@@ -131,11 +127,9 @@ if isfield(estim.Results,'Optimisation')
     colormap('hot')
     title('Cross-error Analysis: Heatmap')
     ylabel('Experiments')
-    % end
     
     % PlotStateSummary: graph of state values at steady-state (all-in-1)
-    % if graphs_opt(5)
-    h4=figure; hold on
+    figure; hold on
     NrExps=length(estim.Output(:,1));
     for i=1:NrExps %for each exp
         subplot(NrExps,1,i)
@@ -162,8 +156,7 @@ if isfield(estim.Results,'Optimisation')
     end
     
     % PlotStateEvolution: graph of state values over the course of the simulation (two graphs: all-in-1 and individual)
-    % if graphs_opt (6)
-     T=0;
+    T=0;
     for exp=1:size(Measurements,1)
         for sim=2:size(estim.AllofTheXs,2)
             if (sum(abs(estim.AllofTheXs(exp,sim,:)-estim.AllofTheXs(exp,sim-1,:))))<0.01
@@ -174,7 +167,7 @@ if isfield(estim.Results,'Optimisation')
     end
 
 
-    h51=figure; hold on,
+    figure; hold on,
     for p=1:size(Output_index,1)
         subplot(size(Output_index,1),1,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,Output_index(p,:))))
@@ -184,7 +177,7 @@ if isfield(estim.Results,'Optimisation')
         hold off
     end
    
-    h52=figure; hold on,
+    figure; hold on,
     for p=1:size(Output_index,1)
         subplot(size(Output_index,1),1,p)
         plot(squeeze(estim.AllofTheXs(p,1:T,:)))
@@ -208,7 +201,7 @@ if isfield(estim.Results,'Resampling')
     Ks = estim.Results.Resampling.OptimisedParameter;
     % if graphs_Resampling(1)
     disp(['Cost for perturbated measurements: ', num2str(mean(Costs)), ' +- ', num2str(std(Costs))])
-    h1= figure; hold on;
+    figure; hold on;
     errorbar(mean(Ks),std(Ks),'.b','LineWidth',2); hold on;
     ylim([0 1])
     plot(bestx,'*r','MarkerSize',12);
@@ -226,7 +219,6 @@ if isfield(estim.Results,'LPSA')
     Param_original=estim.param_vector;
     cost_SA= estim.Results.LPSA.cost_SA;
     p_increment= estim.Results.LPSA.p_increment;
-    % if graphs_LPSA (1)
     figure,
     for counter = 1:length(estim.param_vector)
         subplot(NLines_params, NCols_params, counter),
@@ -250,16 +242,17 @@ if isfield(estim.Results,'KnockOut')
     AIC_merge = estim.Results.KnockOut.AIC_values;
     
     figure; hold on;
-    for counter = 1: length(AIC_merge);
+    for counter = 1: length(AIC_merge)
         h=bar(counter, AIC_merge(counter));
-        if AIC_merge(counter) < AIC_merge(1);
+        if AIC_merge(counter) < AIC_merge(1)
             set(h,'FaceColor','g');
-        elseif AIC_merge(counter) == AIC_merge(1);
+        elseif AIC_merge(counter) == AIC_merge(1)
             set(h,'FaceColor','b');            
-        else AIC_merge(counter);
+        else
             set(h,'FaceColor','k');
         end
     end
+    
     hold off
     hline=refline([0 AIC_merge(1)]);
     hline.Color = 'r';
@@ -278,33 +271,29 @@ if isfield(estim.Results,'KnockOutNodes')
     AIC_KD = estim.Results.KnockOutNodes.AIC_KD;
     AIC_merge=[AIC_complete,AIC_KD];
     Parameters = estim.Results.KnockOutNodes.Parameters;
-    Nodes=estim.state_names;
     thisfig = figure;
     set(0,'CurrentFigure',thisfig);
-    figko=thisfig; hold on;
+    hold on;
     
-    h=bar(1,AIC_complete); hold on
+    bar(1,AIC_complete); hold on
     for counter = 2: length(AIC_merge)
         h=bar(counter,AIC_merge(counter)); hold on
         if AIC_merge(counter) <= AIC_complete
             set(h,'FaceColor','g');
-        else%if AIC_merge(counter2) > AIC_complete
+        else
             set(h,'FaceColor','k');
         end
     end
     hline=refline([0 AIC_complete]);
     hline.Color = 'r';
-    set(gca,'XTick',[1:length(Parameters)+1]);
-    Xtitles=[Parameters'];
+    set(gca,'XTick',1:length(Parameters)+1);
+    Xtitles=Parameters';
     set(gca, 'XTicklabel', Xtitles);
     title('Nodes Knock-out');
     xlabel('');
     set(gca, 'XTickLabelRotation', 45)
     ylabel('Akaike Information Criterion (AIC)');
     hold off
-    Min=min(AIC_merge(1:counter)); Max=max(AIC_merge(1:counter));
-%     if counter>1
-%         axis([0.5 counter+1.5 Min-0.1*abs(Max-Min) Max+0.1*abs(Max-Min)])
-%     end
+
 end
 end
