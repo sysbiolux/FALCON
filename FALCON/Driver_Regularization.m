@@ -6,9 +6,9 @@
 clc, clear all % clear screen and workspace
 
 % Select Regularization
-no_reg = 0;
+no_reg = 1;
 L1_2 = 0;
-L1Groups = 1;
+L1Groups = 0;
 Ldrug = 0;
 
 % fix Lambda values
@@ -19,7 +19,7 @@ ListLambda12=[0,2.^PowerLambda12];
 ListLambda1group=[0,2.^PowerLambda1group];
 
 
-% Define optmisation options
+% Define optimisation options
 optRound=1; % Number of optimisation round
 MaxFunEvals=8000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=8000; % Number of maximal iteration being evaluated (3000 = default)
@@ -60,6 +60,7 @@ for f=1:length(ContextsList)
     MeasFileList=[MeasFileList,[ExampleFolder filesep 'ToyDiff_meas_' char(ContextsList(f)) '.xlsx']];
 end
 Max=10;
+
 GlobalEdgesList=[ExampleFolder filesep 'ToyDiff_fixed.xlsx'];
 
 
@@ -248,7 +249,6 @@ if L1Groups
     save('LGroups')
     
 end
-
 
 
 %% Ldrug regularizaiton

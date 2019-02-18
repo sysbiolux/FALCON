@@ -23,9 +23,9 @@ tic
 k=optParams;
 MeanStateValueAll=[];
 StdStateValueAll=[];
-MeanCostAll=[];
-StdCostAll=[];
-Diffs=[];
+% MeanCostAll=[];
+% StdCostAll=[];
+% Diffs=[];
 Max=10000;
 Input_index=estim.Input_idx;
 Output_index=estim.Output_idx;
@@ -152,7 +152,7 @@ diff=(sum(sum((xsim-xmeas).^2)))/N;
 AIC = N.*log(diff) + 2*np;
 fprintf('MSE= %d \t SSE= %d \t AIC= %d \n', diff, diff*N, AIC);
 
-diff_ALL=diff;
+% diff_ALL=diff;
 
 MeanAllState=xsim;
 StdAllState=zeros(size(xsim));
@@ -247,8 +247,9 @@ end
 
 if graphs(3) && sum(std(estim.Output_idx))==0
     % Plot optimal cost for each experiment
-    hm=HeatMap(Diffs, 'RowLabels',cellstr(estim.Annotation),'ColumnLabels',estim.state_names(estim.Output_idx(1,:)),'Colormap',hot, 'Symmetric', false);
+    hm=HeatMap(Diffs, 'RowLabels',cellstr(estim.Annotation),'ColumnLabels',estim.state_names(estim.Output_idx(1,:)),'Colorbar', 'off', 'Colormap',hot, 'Symmetric', false);
     addTitle(hm, 'Cross-error Analysis: Heatmap');
+    
     if ToSave
         fighm=plot(hm);
         saveas(fighm,[Folder, '\CrossErrorHeatMap'],'tif');
@@ -335,7 +336,7 @@ NCols=ceil(num_plots/NLines);
         saveas(h52,[Folder, '\ConvergenceAllNodes'],'tif')
     end
 end
-estim.MeanStateValueSim = MeanStateValueAll;
+estim.MeanStateValueAll = MeanStateValueAll;
 MeanStateValueAll = x';
 estim.Results.Optimisation.StdStateValueAll =  StdStateValueAll;
 estim.Results.Optimisation.Diffs = Diffs;

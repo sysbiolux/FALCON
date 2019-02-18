@@ -76,6 +76,7 @@ end
 
 %%% Pick index and evaluate
 cost_SA = NaN(size(p_SA));
+cost_Error_SA = NaN(size(p_SA));
 params_SA = NaN([size(p_SA),length(p)]);
 
 %% Resimulation with perturbed parameter values
@@ -111,39 +112,32 @@ for counter =  1:size(p_SA,2) %for each parameter
             estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',5000,'MaxIter',5000); % Default
             estim.SSthresh=SSthresh;
             
-            toc_all=[];
             x_all=[];
             fval_all=[];
             
             if Parallelisation == 1
                 
                 parfor Round=1:optRound_LPSA %'parfor' will run the parallel computing toolbox
-                    tic
                     k=FalconIC(estim,'normal'); %initial conditions
                     [xval,fval]=FalconObjFun(estim,k); %objective function
-                    Fitting_Time=toc;
                     %collecting the run's outcome
-                    toc_all=[toc_all; Fitting_Time];
                     x_all=[x_all; xval];
                     fval_all=[fval_all; fval];
                 end
                 
             else
                 for Round=1:optRound_LPSA %'parfor' will run the parallel computing toolbox
-                    tic
                     k=FalconIC(estim,'normal'); %initial conditions
                     [xval,fval]=FalconObjFun(estim,k); %objective function
-                    Fitting_Time=toc;
                     %collecting the run's outcome
-                    toc_all=[toc_all; Fitting_Time];
                     x_all=[x_all; xval];
                     fval_all=[fval_all; fval];
                 end
             end
             
-            fxt_all=[fval_all x_all toc_all];
             cost_SA(counter2,counter)=min(fval_all);
-            params_SA(counter2,counter,find(ismember(Param_original,estim.param_vector)))=x_all(min(find(ismember(fval_all,min(fval_all)))),:)
+            cost_Error_SA(counter2,counter)=std(fval_all);
+            params_SA(counter2,counter,find(ismember(Param_original,estim.param_vector)))=x_all(min(find(ismember(fval_all,min(fval_all)))),:);
             if strcmp(IsFast,'fast')
                 if min(fval_all)>CutOff
                     OK=0;
@@ -165,11 +159,10 @@ for counter =  1:size(p_SA,2) %for each parameter
             end
             FalconInt2File(Interactions,'LPSA_TempFile.txt');
             estim=FalconMakeModel('LPSA_TempFile.txt',MeasFile,HLbound);
-            estim.Interactions
+            estim.Interactions;
             estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',5000,'MaxIter',5000); % Default
             estim.SSthresh=SSthresh;
             
-            toc_all=[];
             x_all=[];
             fval_all=[];
             
@@ -177,32 +170,24 @@ for counter =  1:size(p_SA,2) %for each parameter
             if Parallelisation == 1
                 
                 parfor Round=1:optRound_LPSA %'parfor' will run the parallel computing toolbox
-                    tic
                     k=FalconIC(estim,'normal'); %initial conditions
                     [xval,fval]=FalconObjFun(estim,k); %objective function
-                    Fitting_Time=toc;
                     %collecting the run's outcome
-                    toc_all=[toc_all; Fitting_Time];
                     x_all=[x_all; xval];
                     fval_all=[fval_all; fval];
                 end
                 
             else
                 for Round=1:optRound_LPSA %'parfor' will run the parallel computing toolbox
-                    tic
                     k=FalconIC(estim,'normal'); %initial conditions
                     [xval,fval]=FalconObjFun(estim,k); %objective function
-                    Fitting_Time=toc;
                     %collecting the run's outcome
-                    toc_all=[toc_all; Fitting_Time];
                     x_all=[x_all; xval];
-                    fval_all=[fval_all; fval];
                 end
             end
-            
-            fxt_all=[fval_all x_all toc_all];
-            
+                        
             cost_SA(counter2,counter)=min(fval_all);
+            cost_Error_SA(counter2,counter)=std(fval_all);
             params_SA(counter2,counter,find(ismember(Param_original,estim.param_vector)))=x_all(min(find(ismember(fval_all,min(fval_all)))),:);
             
             if strcmp(IsFast,'fast')
@@ -234,10 +219,11 @@ for counter =  1:size(p_SA,2) %for each parameter
         % plot the results
         set(0,'CurrentFigure',thisfig), hold on,
         subplot(NLines,NCols,counter), hold on
-        plot(p_SA(:,counter),cost_SA(:,counter), '-o','MarkerSize',5)
-        hold on, plot(p_SA(LPSA_Increments+1,counter),cost_SA(LPSA_Increments+1,counter),'b*','MarkerSize',15)
-        xlabel('Parameter range')
-        ylabel('SSE')
+        plot(p_SA(:,counter),cost_SA(:,counter), '-.','MarkerSize',5), hold on, 
+        
+        errorbar(p_SA(:,counter),cost_SA(:,counter),cost_Error_SA(:,counter),'Color', 'k', 'LineWidth', 1), hold on, 
+        plot(p_SA(LPSA_Increments+1,counter),cost_SA(LPSA_Increments+1,counter),'b*','MarkerSize',5)
+        ylabel('MSE')
         title(Param_original(counter))
         hline=refline([0 CutOff]);
         hline.Color = 'r';
@@ -275,10 +261,10 @@ AllCorrelations=ScatterMatrix(cost_SA,Param_original,ones(size(cost_SA,1),1),{},
 suptitle('Covariance');
 
 if ToSave
-    saveas(thisfig2,[Folder, filesep, 'Covariance'],'tif')
-    saveas(thisfig2,[Folder, filesep, 'Covariance'],'fig')
-    saveas(thisfig2,[Folder, filesep, 'Covariance'],'jpg')
-    saveas(thisfig2,[Folder, filesep, 'Covariance'],'svg')
+    saveas(gca,[Folder, filesep, 'Covariance'],'tif')
+    saveas(gca,[Folder, filesep, 'Covariance'],'fig')
+    saveas(gca,[Folder, filesep, 'Covariance'],'jpg')
+    saveas(gca,[Folder, filesep, 'Covariance'],'svg')
 
 end
 
@@ -315,9 +301,6 @@ if length(varargin)>8
     end
 end
 
-
-
 delete('LPSA_TempFile.txt')
 delete('TempFile.txt')
-% estim.Results.LPSA.p_increment = LPSA_Increments;
 end

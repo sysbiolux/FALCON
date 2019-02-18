@@ -10,7 +10,7 @@ AllCorrelations=nan(mn,mn,max(Category));
 colors=distinguishable_colors(max(Category));
 leg=1;
 if Plot
-    figure,
+%     figure,
 end
 
 for c=1:mn

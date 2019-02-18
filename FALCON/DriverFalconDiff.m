@@ -9,7 +9,7 @@ clc, clear all % clear screen and workspace
 optRound=2; % Number of optimisation round
 MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
 MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
-Parallelisation=0; % Use multiple cores for optimisation? (0=no, 1=yes)
+Parallelisation=1; % Use multiple cores for optimisation? (0=no, 1=yes)
 HLbound=0.5; % Qualitative threshold between high and low inputs
 InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal)
 
@@ -39,7 +39,7 @@ KO_Nodes_Analysis   = 1; % Node knock-out analysis
 % |||||||||||||||||||||||||||||||||||||||||||||||||||
 % ===================================================
 
-%% Please modify the following part of the script for manual tuning
+%%% Please modify the following part of the script for manual tuning
 
 % Read model and measurement files 
 FALCONFolder = fileparts(which('DriverFalconDiff'));
@@ -53,7 +53,7 @@ FixedEdgesList=[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff' filesep
 MeasFileList={};
 ContextsList={'1','2','3','4'};
 for f=1:length(ContextsList)
-    MeasFileList=[MeasFileList,[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff' filesep 'ToyDiff_meas_CL' char(ContextsList(f)) 'a.xlsx']];
+    MeasFileList=[MeasFileList,[FALCONFolder filesep 'ExampleDatasets' filesep 'ToyDiff' filesep 'ToyDiff_meas_CL' char(ContextsList(f)) 'd.xlsx']];
 end
 
 % Create a save folder
@@ -115,7 +115,7 @@ fxt_all=[fval_all x_all toc_all];
 beep; pause(0.5); beep;
 
 %Retrieving the results
-[bestx,meanx,stdx]=FalconResults(fxt_all,estim.param_vector,FinalFolderName);
+[bestx,meanx,stdx]=FalconResults(estim,fxt_all,estim.param_vector,FinalFolderName);
 
 estim.MaxTime = mean(fxt_all(:,end))*3;
 estim.Results.Optimisation.FittingCost = fxt_all(:,1);
@@ -129,7 +129,7 @@ if PlotFitEvolution == 1
   estim=FalconFitEvol(estim,IC_Dist,FinalFolderName);
 end
 
-%% Re-simulate results based on the best optimised parameter set
+%%% Re-simulate results based on the best optimised parameter set
 [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(estim,bestx,[PlotFitSummary PlotFitIndividual PlotHeatmapCost PlotStateSummary PlotStateEvolution],FinalFolderName);
 estim.MeanStateValueAll=MeanStateValueAll; estim.bestx=bestx;
 

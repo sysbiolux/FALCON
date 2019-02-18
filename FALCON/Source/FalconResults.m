@@ -1,4 +1,4 @@
-function [bestx, meanx, stdx] = FalconResults(varargin)
+function [bestx, meanx, stdx, estim] = FalconResults(varargin)
 % FalconResults summarises the optimisation outputs and displays the their best and average values.
 % [bestx,meanx,stdx]=FalconResults(fxt_all,param_vector,FinalFolderName)
 %
@@ -131,6 +131,13 @@ fclose(fid)
 
 disp('==============================================')
 disp(' ')
+
+estim.MaxTime = mean(fxt_all(:,end))*3;
+estim.Results.Optimisation.FittingCost = fxt_all(:,1);
+estim.Results.Optimisation.FittingTime = fxt_all(:,end);
+estim.Results.Optimisation.ParamNames = estim.param_vector;
+estim.Results.Optimisation.BestParams = bestx;
+estim.Results.Optimisation.StateNames = estim.state_names;
 
 
 end

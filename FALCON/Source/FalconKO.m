@@ -17,11 +17,11 @@ function [estim] = FalconKO(varargin)
 % :: Contact ::
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %fetching values from arguments
 estim=varargin{1};
 
-bestx=varargin{2};
 fxt_all=varargin{3};
 MeasFile=varargin{4};
 HLbound=varargin{5};
@@ -39,22 +39,24 @@ Interactions_original=estim.Interactions;
 num_params=estim.param_vector;
 bestcost = min(fxt_all(:,1)); %lowest cost from base model
 
-%% AIC calculation
+%% BIC calculation
 N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
 MSE= bestcost;
 p= numel(Param_original);
 
-AIC_complete = N*log(MSE) + 2*p; %AIC for base model
+BIC_complete = N*log(MSE) + (log(N))*p; %BIC for base model
 
 p_KD = zeros(1,p);
-param_vector=estim.param_vector;
+% param_vector=estim.param_vector;
+PreviousOptions=estim.options;
 SSthresh=estim.SSthresh;
 
 cost_KD = zeros(1,p);
+cost_error = zeros(1,p);
 
 %%% parameter perturbation and refitting
 thisfig=figure; hold on
-suptitle('Knock-out analysis (interactions)');
+suptitle('Virtual Interaction KO');
 
 wb = waitbar(0,'Please wait...');
 for counter =  1:size(p_KD,2)
@@ -67,80 +69,83 @@ for counter =  1:size(p_KD,2)
     for counter2=1:length(replace_idx) %for each one
         Interactions{replace_idx(counter2),5}='0'; %replace weight by '0'
     end
-    
     FalconInt2File(Interactions,'KD_TempFile.txt') %write this as a temp file
     estim=FalconMakeModel('KD_TempFile.txt',MeasFile,HLbound); %make model variant
-    estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',3000,'MaxIter',3000); % Default
-    estim.SSthresh=1e-3;
+    estim.options = PreviousOptions; %optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',3000,'MaxIter',3000); % Default
+    estim.SSthresh=SSthresh;
     fval_all=[];
     
-    for counterround=1:optRound_KO %computation ofr modified model
+    for counterround=1:optRound_KO %computation for modified model
         k=FalconIC(estim); %initial conditions
         [xval,fval]=FalconObjFun(estim,k); %objective function
         fval_all=[fval_all; fval];
     end
     
-    cost_KD(1,counter)=min(fval_all); %fetch the best cost from optimizations
+    cost_KD(counter) = min(fval_all); %fetch the best cost from optimizations
+    cost_error(counter) = std(fval_all);
     
     %% reduced model (-1 parameter)
     
     N_r = numel(estim.Output)-sum(sum(isnan(estim.Output))); %number of datapoints
     p_r= (numel(estim.param_vector)); %number of parameters
     
-    AIC_KD(counter) = N_r*log(cost_KD(counter)) + 2*p_r;
+    BIC_KD(counter) = N_r*log(cost_KD(counter)) + (log(N_r))*p_r;
+    BIC_alt1=N_r*log(cost_KD(counter)+cost_error(counter)) + (log(N_r))*p_r;
+    BIC_alt2=N_r*log(cost_KD(counter)-cost_error(counter)) + (log(N_r))*p_r;
+    BIC_error(counter) = max(abs(BIC_KD(counter)-BIC_alt1),abs(BIC_KD(counter)-BIC_alt2));
+    %%Plot BIC values
     
-    %%Plot AIC values
-    
-    AIC_merge=[AIC_complete,AIC_KD];
+    BIC_merge=[BIC_complete,BIC_KD];
+    BIC_Error_merge=[0,BIC_error];
     figko = thisfig;
     set(0,'CurrentFigure',thisfig); hold on;
     
-    h=bar(1,AIC_complete); hold on
+    bar(BIC_complete, 'FaceColor', [0.95 0.95 0.95]); hold on
+    
     for counter2 = 2:counter+1
-        h=bar(counter2,AIC_merge(counter2)); hold on
-        if AIC_merge(counter2) <= AIC_complete
+        h=bar(counter2,BIC_merge(counter2)); hold on
+        if BIC_merge(counter2) <= BIC_complete
             set(h,'FaceColor','g');
-        else%if AIC_merge(counter2) > AIC_complete
-            set(h,'FaceColor','k');
+        else 
+            set(h,'FaceColor','r');
         end
+        errorbar(counter2,BIC_merge(counter2), BIC_Error_merge(counter2),'Color', 'k', 'LineWidth', 1); hold on
     end
     
-    hline=refline([0 AIC_complete]);
-    hline.Color = 'r';
+    plot([0 size(BIC_merge,2)+1],[BIC_complete BIC_complete],'-r'), hold on
     
-    set(gca,'XTick',[1:length(num_params)+1])
-    Xtitles=['Ctrl';Param_original];
+    set(gca,'XTick',1:(length(num_params)+1))
+    Xtitles=['Full';Param_original];
     set(gca, 'XTicklabel', Xtitles);
-    %     title('AIC');
+
     xlabel('');
     set(gca, 'XTickLabelRotation', 45)
-    ylabel('Akaike Information Criterion (AIC)');
+    ylabel('Bayesian Information Criterion (BIC)');
     hold off
-    Min=min(AIC_merge(1:counter)); Max=max(AIC_merge(1:counter));
+    Min=min(BIC_merge(1:counter)-BIC_Error_merge(1:counter)); Max=max(BIC_merge(1:counter)+BIC_Error_merge(1:counter));
     axis([0.5 counter+1.5 Min-0.1*abs(Min) Max+0.1*abs(Max)])
     drawnow;
     if ToSave
-        saveas(figko,[Folder,filesep,'Knock-Outs'],'fig')
+        saveas(figko,[Folder,filesep,'KO_interactions'],'fig')
     end
     
 end
 close(wb);
 
 if ToSave
-    saveas(figko,[Folder,filesep,'Knock-Outs'],'tif')
-    saveas(figko,[Folder,filesep,'Knock-Outs'],'fig')
-    saveas(figko,[Folder,filesep,'Knock-Outs'],'jpg')
-    saveas(figko,[Folder,filesep,'Knock-Outs'],'svg')
+    saveas(figko,[Folder,filesep,'KO_interactions'],'tif')
+    saveas(figko,[Folder,filesep,'KO_interactions'],'fig')
+    saveas(figko,[Folder,filesep,'KO_interactions'],'jpg')
+    saveas(figko,[Folder,filesep,'KO_interactions'],'svg')
 end
-
 
 toc
 
 estim = estim_orig;
 
 estim.Results.KnockOut.Parameters=Xtitles';
-estim.Results.KnockOut.AIC_values=AIC_merge;
-estim.Results.KnockOut.KO_effect=AIC_merge>=AIC_merge(1);
+estim.Results.KnockOut.BIC_values=BIC_merge;
+estim.Results.KnockOut.KO_effect=BIC_merge>=BIC_merge(1);
 estim.Results.KnockOut.Interpretation={'0 = no KO effect','1 = KO effect'};
 
 delete('KD_TempFile.txt')

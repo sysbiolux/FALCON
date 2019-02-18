@@ -81,6 +81,15 @@ if nargin>4
         
     end
     
+    sinaplot(Ks);
+     if ToSave
+        saveas(h1,[Folder, filesep, 'ResamplingSinaplot'],'tif');
+        saveas(h1,[Folder, filesep, 'ResamplingSinaplot'],'fig');
+        saveas(h1,[Folder, filesep, 'ResamplingSinaplot'],'jpg');
+        saveas(h1,[Folder, filesep, 'ResamplingSinaplot'],'svg');
+        
+    end
+    
     estim.Results.Resampling.Parameters=estim.param_vector';
     estim.Results.Resampling.OptimisedParameter=Ks;
     estim.Results.Resampling.OptimisedSD=std(Ks);
