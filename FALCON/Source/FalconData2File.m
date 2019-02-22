@@ -10,16 +10,16 @@ function [MeasFile] = FalconData2File(estim)
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
 
 
-NamesIn=estim.state_names(estim.Input_idx);
+NamesIn = estim.state_names(estim.Input_idx);
 
-NamesOut=estim.state_names(estim.Output_idx);
+NamesOut = estim.state_names(estim.Output_idx);
 %Test for presence of excel to select the I/O method
 useexcel = isExcelPresent();
 
 delete 'tempMeasFile.xls'; %delete previous instance of the file
 if useexcel
     xlswrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A1');
-    xlswrite('tempMeasFile.xls', NamesIn , 1, 'B1');
+    xlswrite('tempMeasFile.xls', NamesIn, 1, 'B1');
     xlswrite('tempMeasFile.xls', estim.Input, 1, 'B2');
     xlswrite('tempMeasFile.xls', NamesOut, 2, 'A1');
     xlswrite('tempMeasFile.xls', estim.Output, 2, 'A2');
@@ -28,7 +28,7 @@ if useexcel
 else
     setupxlwrite();
     xlswrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A1');
-    xlwrite('tempMeasFile.xls', NamesIn , 1, 'B1');
+    xlwrite('tempMeasFile.xls', NamesIn, 1, 'B1');
     xlwrite('tempMeasFile.xls', estim.Input, 1, 'B2');
     xlwrite('tempMeasFile.xls', NamesOut, 2, 'A1');
     xlwrite('tempMeasFile.xls', estim.Output, 2, 'A2');
@@ -36,6 +36,6 @@ else
     xlwrite('tempMeasFile.xls', estim.SD, 3, 'A2');
 end
 
-MeasFile='tempMeasFile.xls';
+MeasFile = 'tempMeasFile.xls';
 
 end

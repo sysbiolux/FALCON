@@ -1,13 +1,6 @@
 function varargout = FalconGUI(varargin)
 % Run FALCON from the Graphical User Interface
 %
-% :: To be set ::
-% Load Network      select the network to be optimized
-% Load Data         select the experimental data for your network
-%                   1) if you select one experimental file, only this file will considered
-%                   2) if you select multiple experimental files,
-%                      you have to add in a second pop-up window the fixed edges list
-% Save in           select a folder to save the optimization results
 %
 % :: Contact ::
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
@@ -35,7 +28,7 @@ function varargout = FalconGUI(varargin)
 %
 
 
-% Last Modified by GUIDE v2.5 07-Feb-2017 09:43:15
+% Last Modified by Sebastien De Landtsheer  07-Feb-2017 09:43:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -159,6 +152,10 @@ function optRoundUI_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+function axes2_CreateFcn(eventdata, handles)
+% axes(hObject)
+imshow('SplashGrey.jpg')
 
 
 function HLboundUI_Callback(hObject, eventdata, handles)

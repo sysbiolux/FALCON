@@ -23,21 +23,21 @@ function [estim] = FalconKONodes_eff(varargin)
 
 
 %fetching values from arguments
-estim=varargin{1};
+estim = varargin{1};
 %%% TODO: remove argument 2 (bc redundant)
-fxt_all=varargin{3};
-efficiency_range=varargin{4};
-HLbound=varargin{5};
-optRound_KO=varargin{6};
-ToSave=0;
-if nargin>6
-    Folder=varargin{7};
-    ToSave=1;
+fxt_all = varargin{3};
+efficiency_range = varargin{4};
+HLbound = varargin{5};
+optRound_KO = varargin{6};
+ToSave = 0;
+if nargin > 6
+    Folder = varargin{7};
+    ToSave = 1;
 end
 
 estim_orig = estim;
-Param_original=estim.param_vector;
-Interactions_original=estim.Interactions;
+Param_original = estim.param_vector;
+Interactions_original = estim.Interactions;
 MSE = min(fxt_all(:,1));
 
 big_matrix = [];
@@ -45,57 +45,57 @@ big_matrix = [];
 for j= 1:length(efficiency_range)
     
 	thisefficiency = num2str(efficiency_range(j));
-    estim=estim_orig;
+    estim = estim_orig;
     %% BIC calculation
     N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
-    Nodes=estim.state_names;
-    Nodes(estim.Input_idx(1,:))=[];
-    pn=length(Nodes);
-    p= numel(Param_original);
+    Nodes = estim.state_names;
+    Nodes(estim.Input_idx(1,:)) = [];
+    pn = length(Nodes);
+    p = numel(Param_original);
 
-    BIC_complete = N*log(MSE) + (log(N))*p; %BIC for base model
+    BIC_complete = N*log(MSE) + (log(N)) * p; %BIC for base model
 
     p_KD = zeros(1,pn);
-    PreviousOptions=estim.options;
-    SSthresh=estim.SSthresh;
+    PreviousOptions = estim.options;
+    SSthresh = estim.SSthresh;
 
     cost_KD = zeros(1,pn);
     cost_error = zeros(1,p);
 
     %%% parameter perturbation and refitting
-    thisfig=figure; hold on
+    thisfig = figure; hold on
     set(gca,'TickLabelInterpreter','none')
     suptitle(['Virtual node partial silencing for ', num2str(efficiency_range(j)), ' silencing']);
 
     wb = waitbar(0,'Please wait...');
-    StateValue_screen=[];
+    StateValue_screen = [];
     
-    for counter =  1:size(p_KD,2)
-        waitbar(counter/pn,wb,sprintf('Running Nodes Knock-out Round %d out of %d ...',counter,pn))
+    for counter =  1:size(p_KD, 2)
+        waitbar(counter/pn, wb, sprintf('Running Nodes Knock-out Round %d out of %d ...', counter, pn))
 
-        Interactions=Interactions_original;
-        estim=estim_orig;
-        thisNode=Nodes(counter);
+        Interactions = Interactions_original;
+        estim = estim_orig;
+        thisNode = Nodes(counter);
 
-        Interactions=[Interactions; ['ix', 'X_INHIB_X', '-|', thisNode, thisefficiency, 'N', 'D']];
-        estim.state_names=[estim.state_names, 'X_INHIB_X'];
+        Interactions = [Interactions; ['ix', 'X_INHIB_X', '-|', thisNode, thisefficiency, 'N', 'D']];
+        estim.state_names = [estim.state_names, 'X_INHIB_X'];
 
-        estim.Input_idx=[estim.Input_idx,ones(size(estim.Input_idx,1),1).*length(estim.state_names)];
-        estim.Input=[estim.Input,ones(size(estim.Input,1),1)];
+        estim.Input_idx = [estim.Input_idx, ones(size(estim.Input_idx,1),1) .* length(estim.state_names)];
+        estim.Input = [estim.Input,ones(size(estim.Input, 1), 1)];
 
-        MeasFile=FalconData2File(estim);
-        FalconInt2File(Interactions,'KDN_TempFile.txt')
+        MeasFile = FalconData2File(estim);
+        FalconInt2File(Interactions, 'KDN_TempFile.txt')
 
-        estim=FalconMakeModel('KDN_TempFile.txt',MeasFile,HLbound);
+        estim = FalconMakeModel('KDN_TempFile.txt', MeasFile, HLbound);
         estim.options = PreviousOptions;
         estim.SSthresh = SSthresh;
-        fval_all=[];
-        x_all=[];
+        fval_all = [];
+        x_all = [];
 
-        for counterround=1:optRound_KO %computation for modified model
-            k=FalconIC(estim); %initial conditions
-            [xval,fval]=FalconObjFun(estim,k); %objective function
-            fval_all=[fval_all; fval]; x_all=[x_all; xval];
+        for counterround = 1:optRound_KO %computation for modified model
+            k = FalconIC(estim); %initial conditions
+            [xval,fval] = FalconObjFun(estim, k); %objective function
+            fval_all = [fval_all; fval]; x_all = [x_all; xval];
         end
         
         min_fval = fval_all == min(fval_all);
@@ -106,54 +106,55 @@ for j= 1:length(efficiency_range)
 
         %% reduced model (- parameter)
 
-        N_r = numel(estim.Output)-sum(sum(isnan(estim.Output))); %number of datapoints
-        p_r= numel(estim.param_vector); %number of parameters
+        N_r = numel(estim.Output) - sum(sum(isnan(estim.Output))); %number of datapoints
+        p_r = numel(estim.param_vector); %number of parameters
         %remove parameters related to the knocked-out node
-        Is=Interactions_original(strcmp(Interactions_original(:,2),thisNode),5); %fetch outgoing parameters
-        Is=[Is;Interactions_original(strcmp(Interactions_original(:,4),thisNode),5)]; %fetch incoming parameters
-        for cc=length(Is):-1:1 %remove numbers
-            if str2double(char(Is(cc)))>=0
-                Is(cc)=[];
+        Is = Interactions_original(strcmp(Interactions_original(:, 2), thisNode), 5); %fetch outgoing parameters
+        Is = [Is; Interactions_original(strcmp(Interactions_original(:, 4), thisNode), 5)]; %fetch incoming parameters
+        for cc = length(Is):-1:1 %remove numbers
+            if str2double(char(Is(cc))) >= 0
+                Is(cc) = [];
             end
         end
 
 
-        BIC_KD(counter) = N_r*log(cost_KD(counter)) + (log(N_r))*(p_r-numel(unique(Is)));
-        BIC_alt1=N_r*log(cost_KD(counter)+cost_error(counter)) + (log(N_r))*p_r;
-        BIC_alt2=N_r*log(cost_KD(counter)-cost_error(counter)) + (log(N_r))*p_r;
-        BIC_error(counter) = max(abs(BIC_KD(counter)-BIC_alt1),abs(BIC_KD(counter)-BIC_alt2));
+        BIC_KD(counter) = N_r * log(cost_KD(counter)) + (log(N_r)) * (p_r-numel(unique(Is)));
+        BIC_alt1 = N_r * log(cost_KD(counter) + cost_error(counter)) + (log(N_r)) * p_r;
+        BIC_alt2 = N_r * log(cost_KD(counter) - cost_error(counter)) + (log(N_r)) * p_r;
+        BIC_error(counter) = max(abs(BIC_KD(counter)-BIC_alt1), abs(BIC_KD(counter) - BIC_alt2));
         %%Plot BIC values
 
-        BIC_merge=[BIC_complete,BIC_KD];
-        BIC_Error_merge=[0,BIC_error];
-        set(0,'CurrentFigure',thisfig);
-        figko=thisfig; hold on;
+        BIC_merge = [BIC_complete,BIC_KD];
+        BIC_Error_merge = [0,BIC_error];
+        set(0, 'CurrentFigure', thisfig);
+        figko = thisfig; hold on;
 
         bar(BIC_complete, 'FaceColor', [0.95 0.95 0.95]); hold on
         for counter2 = 2:counter+1
-            h=bar(counter2,BIC_merge(counter2)); hold on
+            h = bar(counter2, BIC_merge(counter2)); hold on
             if BIC_merge(counter2) <= BIC_complete
-                set(h,'FaceColor','g');
+                set(h, 'FaceColor', 'g');
             else 
-                set(h,'FaceColor','r');
+                set(h, 'FaceColor', 'r');
             end
-            errorbar(counter2,BIC_merge(counter2), BIC_Error_merge(counter2),'Color', 'k', 'LineWidth', 1); hold on
+            errorbar(counter2, BIC_merge(counter2), BIC_Error_merge(counter2), 'Color', 'k', 'LineWidth', 1); hold on
         end
 
-        plot([0 size(BIC_merge,2)+1],[BIC_complete BIC_complete],'-r'), hold on
+        plot([0 size(BIC_merge, 2)+1], [BIC_complete BIC_complete], '-r'), hold on
 
-        set(gca,'XTick',[1:length(Nodes)+1])
-        Xtitles=['Full';Nodes'];
+        set(gca,'XTick', 1:length(Nodes)+1)
+        Xtitles = ['Full'; Nodes'];
         set(gca, 'XTicklabel', Xtitles);
         xlabel('');
         set(gca, 'XTickLabelRotation', 45)
         ylabel('Bayesian Information Criterion (BIC)');
         hold off
-        Min=min(BIC_merge(1:counter)-BIC_Error_merge(1:counter)); Max=max(BIC_merge(1:counter)+BIC_Error_merge(1:counter));
+        Min = min(BIC_merge(1:counter) - BIC_Error_merge(1:counter)); 
+        Max = max(BIC_merge(1:counter) + BIC_Error_merge(1:counter));
         axis([0.5 counter+1.5 Min-0.1*abs(Min) Max+0.1*abs(Max)])
         drawnow;
         if ToSave
-            saveas(gca,[Folder,filesep,'KO_Nodes_eff_', strrep(num2str(thisefficiency),'.','p')],'fig')        
+            saveas(gca, [Folder,filesep, 'KO_Nodes_eff_', strrep(num2str(thisefficiency), '.', 'p')], 'fig')        
         end
         
         [MeanStateValueAll, ~, ~, ~, estim] = FalconSimul(estim,bestx,[0 0 0 0 0]);
@@ -162,24 +163,24 @@ for j= 1:length(efficiency_range)
     end
     close(wb);
     
-    big_matrix(:,:,j)= StateValue_screen;  
+    big_matrix(:, :, j)= StateValue_screen;  
     
 end
 
-Nodes=estim_orig.state_names;
-ToRemove=estim_orig.Input_idx(1,:);
-Nodes(ToRemove)=[];
-big_matrix(:,ToRemove,:)=[];
+Nodes = estim_orig.state_names;
+ToRemove = estim_orig.Input_idx(1,:);
+Nodes(ToRemove) = [];
+big_matrix(:, ToRemove, :) = [];
 
 for counter1 = 1: length(Nodes)
     var = ((counter1 - 1) * size(estim_orig.Input,1)) + 1;
     figure;
-    h= suptitle(['Activities upon ', char(Nodes(counter1)), ' partial KO']);
-    set(h,'FontSize',16,'FontWeight','bold')
+    h = suptitle(['Activities upon ', char(Nodes(counter1)), ' partial KO']);
+    set(h, 'FontSize', 16, 'FontWeight', 'bold')
     for counter = 1: length(Nodes)
 
         subplot(ceil(length(Nodes)/6), 6, counter)
-        matrix = squeeze(big_matrix(var : var + size(estim_orig.Input,1)-1,counter,:));
+        matrix = squeeze(big_matrix(var : var + size(estim_orig.Input, 1)-1, counter,:));
         imagesc(matrix, [0 1])
         title(Nodes(counter))
         set(gca, 'XTick', 1:numel(efficiency_range))

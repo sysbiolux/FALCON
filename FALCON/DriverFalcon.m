@@ -8,6 +8,9 @@
 %     | )      | )   ( || (____/\| (____/\| (___) || )  \  |   %
 %     |/       |/     \|(_______/(_______/(_______)|/    )_)   %
 %                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   Current version: v1.2                      %
+%                      (February 2019)                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%                                              
 %    CONTEXTUALIZATION OF DBN MODELS OF BIOLOGICAL NETWORKS    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,12 +29,12 @@ clc, clear all % clear screen and workspace
 % ===========================
 % Define optimization options
 % ===========================
-optRound=4; % Number of optimisation round
-MaxFunEvals=3000; % Number of maximal function being evaluated (3000 = default)
-MaxIter=3000; % Number of maximal iteration being evaluated (3000 = default)
-Parallelisation=1; % Use multiple cores for optimisation? (0=no, 1=yes)
-HLbound=0.5; % Qualitative threshold between high and low inputs
-InitIC=2; % Initialise parameters' distribution (1=uniform, 2=normal, 3=zeros)
+optRound = 4; % Number of optimisation round
+MaxFunEvals = 3000; % Number of maximal function being evaluated (3000 = default)
+MaxIter = 3000; % Number of maximal iteration being evaluated (3000 = default)
+Parallelisation = 1; % Use multiple cores for optimisation? (0=no, 1=yes)
+HLbound = 0.5; % Qualitative threshold between high and low inputs
+InitIC = 2; % Initialise parameters' distribution (1=uniform, 2=normal, 3=zeros)
 
 % Define plotting and saving (0=no, 1=yes)
 PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
@@ -50,7 +53,7 @@ NDatasets           = 50;% Number of artificial datasets from which to resample.
 LPSA_Analysis       = 1; % Local parameter sensitivity analysis
 Fast_Option         = 0; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
 optRound_LPSA       = 5; % Number of optimizations for each perturbed datapoint
-LPSA_Increments     = 5; % Number of increments for LPSA. Increase for finer resolution
+LPSA_Increments     = 3; % Number of increments for LPSA. Increase for finer resolution
 
 KO_Analysis         = 1; % Parameter knock-out analysis
 KO_Nodes_Analysis   = 1; % Node knock-out analysis
@@ -59,10 +62,10 @@ optRound_KO         = 5; % Number of optimizations for each KO datapoint.
 KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
 efficiency_range = 0:0.1:1; % indicate the different KO efficencies you want to test (vector from 0 to 1)
 
-% Model and measurement files 
-InputFile='PDGF_model.xlsx'; %for xls
+% Model and measurement files
+InputFile = 'PDGF_model.xlsx'; %for xls
 % InputFile='PDGF_model.sif'; %for sif
-MeasFile='PDGF_meas.xlsx'; %for xls
+MeasFile = 'PDGF_meas.xlsx'; %for xls
 % MeasFile={'PDGF_meas_in.csv';'PDGF_meas_out.csv';'PDGF_meas_err.csv'}; %for csv
 
 
@@ -71,52 +74,52 @@ MeasFile='PDGF_meas.xlsx'; %for xls
 
 
 % Creates a save folder
-SaveFolderName=['Results_' datestr(now)]; FinalFolderName=strrep(SaveFolderName, ':', '.'); 
+SaveFolderName = ['Results_' datestr(now)]; FinalFolderName=strrep(SaveFolderName, ':', '.'); 
 mkdir(FinalFolderName) % Automatically generate a folder for saving
 
 % Builds a FALCON model for optimisation
-estim=FalconMakeModel(InputFile,MeasFile,HLbound); %make the model
+estim = FalconMakeModel(InputFile, MeasFile, HLbound); %make the model
 
 % Defines optimisation options
-estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEvals,'MaxIter',MaxIter); % Default setting
+estim.options = optimoptions('fmincon', 'TolCon', 1e-6, 'TolFun', 1e-6, 'TolX', 1e-10, 'MaxFunEvals', MaxFunEvals, 'MaxIter', MaxIter); % Default setting
 estim.SSthresh=eps;
-if InitIC == 1, IC_Dist ='uniform'; elseif InitIC == 2, IC_Dist ='normal'; elseif InitIC == 3, IC_Dist ='scratch'; else,    error('Please choose the initial parameter distribution'), end
+if InitIC == 1, IC_Dist = 'uniform'; elseif InitIC == 2, IC_Dist = 'normal'; elseif InitIC == 3, IC_Dist = 'scratch'; else,    error('Please choose the initial parameter distribution'), end
 
 % Optimization
-toc_all=[]; x_all=[]; fval_all=[];
+toc_all = []; x_all = []; fval_all = [];
 
 if Parallelisation
-    parfor counter=1:optRound %'parfor' will run the parallel computing toolbox
-        tic, k=FalconIC(estim,IC_Dist); %initial conditions
-        [xval,fval]=FalconObjFun(estim,k); %objective function
-        toc_all=[toc_all; toc]; x_all=[x_all; xval]; fval_all=[fval_all; fval];
+    parfor counter = 1:optRound %'parfor' will run the parallel computing toolbox
+        tic, k = FalconIC(estim, IC_Dist); %initial conditions
+        [xval, fval] = FalconObjFun(estim, k); %objective function
+        toc_all = [toc_all; toc]; x_all = [x_all; xval]; fval_all = [fval_all; fval];
     end
 
 else
-    for counter=1:optRound %'parfor' will run the parallel computing toolbox
-        tic, k=FalconIC(estim,IC_Dist); %initial conditions
-        [xval,fval]=FalconObjFun(estim,k); %objective function
-        toc_all=[toc_all; toc]; x_all=[x_all; xval]; fval_all=[fval_all; fval];
+    for counter = 1:optRound %'parfor' will run the parallel computing toolbox
+        tic, k = FalconIC(estim, IC_Dist); %initial conditions
+        [xval, fval] = FalconObjFun(estim, k); %objective function
+        toc_all = [toc_all; toc]; x_all = [x_all; xval]; fval_all = [fval_all; fval];
     end
     close(h);
 end
 
-fxt_all=[fval_all x_all toc_all];
+fxt_all = [fval_all x_all toc_all];
 beep; pause(0.5); beep;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Retrieving the results
 
-[bestx,meanx,stdx,estim]=FalconResults(estim,fxt_all,estim.param_vector,FinalFolderName);
+[bestx, meanx, stdx, estim] = FalconResults(estim, fxt_all, estim.param_vector, FinalFolderName);
 
 %%% Re-simulate results based on the best optimised parameter set
-[MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(estim,bestx,[PlotFitSummary PlotFitIndividual PlotHeatmapCost PlotStateSummary PlotStateEvolution],FinalFolderName);
+[MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(estim, bestx, [PlotFitSummary PlotFitIndividual PlotHeatmapCost PlotStateSummary PlotStateEvolution], FinalFolderName);
 
 save([FinalFolderName filesep 'OptimizedModel'])
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Analyzing the evolution of fitting cost
 if PlotFitEvolution
-  estim=FalconFitEvol(estim,IC_Dist,FinalFolderName);
+  estim = FalconFitEvol(estim, IC_Dist, FinalFolderName);
 end
 
 %%% Displayed optimised network with weights
@@ -126,36 +129,36 @@ end
 
 %%% Obtaining robust estimates for the parameters by resampling
 if Resampling_Analysis
-    optRound_Sampling=optRound;
+    optRound_Sampling = optRound;
     CV_cutoff = 10; % Percent cut-off for large coefficient of variation
-    [~,~,estim]=FalconResample(estim, bestx, NDatasets, 1, CV_cutoff, FinalFolderName);
+    [~,~,estim] = FalconResample(estim, bestx, NDatasets, 1, CV_cutoff, FinalFolderName);
 end
 
 %%% Sensitivity analysis
 if LPSA_Analysis 
-    if Fast_Option, IsFast='fast'; else, IsFast='slow'; end
-    Estimated_Time_LPSA=mean(fxt_all(:,end))*optRound_LPSA*LPSA_Increments*3*length(estim.param_vector);
+    if Fast_Option, IsFast = 'fast'; else, IsFast = 'slow'; end
+    Estimated_Time_LPSA = mean(fxt_all(:, end)) * optRound_LPSA * LPSA_Increments * 3 * length(estim.param_vector);
     disp(['Estimated Time for LPSA analysis (fast): ' num2str(Estimated_Time_LPSA) ' seconds']); beep; pause(3); beep; 
-    [~, estim]=FalconLPSA(estim, bestx, MeasFile, HLbound, optRound_LPSA, LPSA_Increments, IsFast, Parallelisation, FinalFolderName);
+    [~, estim] = FalconLPSA(estim, bestx, MeasFile, HLbound, optRound_LPSA, LPSA_Increments, IsFast, Parallelisation, FinalFolderName);
 end
 
 %%% Knock-out analysis
 if KO_Analysis
-    Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*length(estim.param_vector);
+    Estimated_Time_KO = mean(fxt_all(:, end)) * optRound_KO * length(estim.param_vector);
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
-    estim=FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
+    estim = FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
 
 %%% Nodes Knock-out analysis
 if KO_Nodes_Analysis
-    Estimated_Time_KO=mean(fxt_all(:,end))*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
+    Estimated_Time_KO = mean(fxt_all(:, end)) * optRound_KO * (length(estim.state_names) - length(estim.Input_idx(1,:)));
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
-    estim=FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
+    estim = FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
 end
 
 %%% Nodes Knock-out efficency analysis
 if KO_Nodes_Analysis_eff
-    Estimated_Time_KO=mean(fxt_all(:,end))*numel(efficiency_range)*optRound_KO*(length(estim.state_names)-length(estim.Input_idx(1,:)));
+    Estimated_Time_KO = mean(fxt_all(:,end)) * numel(efficiency_range) * optRound_KO * (length(estim.state_names)-length(estim.Input_idx(1,:)));
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep;
     estim=FalconKONodes_eff(estim, bestx, fxt_all, efficiency_range, HLbound, optRound_KO, FinalFolderName);    
 

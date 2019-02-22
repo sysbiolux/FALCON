@@ -13,17 +13,17 @@ function [U]=unif(X)
 %%% thomas.sauter@uni.lu
 
 
-[T,S]=size(X);
-X=sort(X,1,'ascend');
-Xrange=max(X)-min(X);
-Xprime=X';
-U=zeros(S,1);
-for c=1:T-1
-   for cc=c+1:T
-        d=((Xprime(:,cc)-Xprime(:,c))-((cc-c).*Xrange')./T);
-        U=U+abs(d);
+[T,S] = size(X);
+X = sort(X, 1, 'ascend');
+Xrange = max(X)-min(X);
+Xprime = X';
+U = zeros(S,1);
+for c = 1:T-1
+   for cc = c+1:T
+        d=((Xprime(:, cc) - Xprime(:, c)) - ((cc-c) .* Xrange') ./ T);
+        U = U + abs(d);
    end
 end
-U=T./U;
+U = T ./ U;
 
 end
