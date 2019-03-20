@@ -26,114 +26,114 @@ function [estim2]=FalconPreProcess(estim, varargin)
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
 % FALCON July 2017
 
-Norm=0;
-BS_row=0;
-BS_col=0;
-Rand=0;
-Subs=0;
-Noise=0;
+Norm = 0;
+BS_row = 0;
+BS_col = 0;
+Rand = 0;
+Subs = 0;
+Noise = 0;
 
-estim2=estim;
+estim2 = estim;
 
-for c=1:numel(varargin)
-    Option=varargin{c};
+for c = 1:numel(varargin)
+    Option = varargin{c};
     
     if strcmp('normalize',Option)
-        Norm=1; Range=varargin{c+1};
-        t_min=min(Range); t_max=max(Range);
+        Norm = 1; Range = varargin{c+1};
+        t_min = min(Range); t_max = max(Range);
 
-    elseif strcmp('bootstrap',Option)
-        if strcmp(varargin{c+1},'rows')
-            BS_row=1;
+    elseif strcmp('bootstrap', Option)
+        if strcmp(varargin{c+1}, 'rows')
+            BS_row = 1;
         elseif strcmp(varargin{c+1}, 'columns')
-            BS_col=1;
+            BS_col = 1;
         elseif strcmp(varargin{c+1}, 'both')
-            BS_row=1; BS_col=1;
+            BS_row = 1; BS_col = 1;
         end
 
     elseif strcmp('randomize', Option)
-        Rand=1;
-        FractR=varargin{c+1};
+        Rand = 1;
+        FractR = varargin{c+1};
 
     elseif strcmp('subsample', Option)
-        Subs=1;
-        FractS=varargin{c+1};
+        Subs = 1;
+        FractS = varargin{c+1};
     elseif strcmp('noise', Option)
-        Noise=1;
-        FractN=varargin{c+1};
+        Noise = 1;
+        FractN = varargin{c+1};
     end
 
 end
 
-X=estim.Input;
-Y=estim.Output;
-
+X = estim.Input;
+Y = estim.Output;
+ 
 if Norm
     disp('normalizing...')
-    Idx=(std(X,0,1))~=0;
-    X(:,Idx)=(X(:,Idx)-min(X(:,Idx)))./(max(X(:,Idx))-min(X(:,Idx)));
-    X=(X.*(t_max-t_min))+t_min;
-    Y=(Y-min(Y))./(max(Y)-min(Y));
-    Y=(Y.*(t_max-t_min))+t_min;
-    estim2.Input=X;
-    estim2.Output=Y;
-    %still need to normalize SD
+    Idx = (std(X, 0, 1)) ~= 0;
+    X(:, Idx) = (X(:, Idx) - min(X(:, Idx))) ./ (max(X(:, Idx)) - min(X(:, Idx)));
+    X = (X .* (t_max - t_min)) + t_min;
+    Y = (Y - min(Y)) ./ (max(Y) - min(Y));
+    Y = (Y .* (t_max - t_min)) + t_min;
+    estim2.Input = X;
+    estim2.Output = Y;
+    %%% TODO: still need to normalize SD
 end
 
-[nRows,nColsX]=size(X);
-[~     ,nColsY]=size(Y);
+[nRows,nColsX] = size(X);
+[~    ,nColsY] = size(Y);
 
 if BS_row
     disp('bootstrapping rows...')
-    Chosen=ceil(rand(1,nRows).*nRows);
-    estim2.Output=Y(Chosen,:);
-    estim2.SD=estim.SD(Chosen,:);
+    Chosen = ceil(rand(1, nRows) .* nRows);
+    estim2.Output = Y(Chosen, :);
+    estim2.SD = estim.SD(Chosen, :);
 end
 
 if BS_col
     disp('bootstrapping columns...')
-    Chosen=ceil(rand(1,nColsY).*nColsY);
-    estim2.Output=Y(:,Chosen);
-    estim2.SD=estim.SD(Chosen,:);
+    Chosen = ceil(rand(1, nColsY) .* nColsY);
+    estim2.Output = Y(:, Chosen);
+    estim2.SD = estim.SD(Chosen, :);
 end
 
 if Rand
     disp('randomizing...')
-    Perm_Rows=randperm(nRows);
-    Perm_ColsY=randperm(nColsY);
+    Perm_Rows = randperm(nRows);
+    Perm_ColsY = randperm(nColsY);
     
-    Y2=Y(Perm_Rows, Perm_ColsY);
-    SD2=estim.SD(Perm_Rows, Perm_ColsY);
+    Y2 = Y(Perm_Rows, Perm_ColsY);
+    SD2 = estim.SD(Perm_Rows, Perm_ColsY);
     
-    My=rand(nRows,nColsY)<FractR;
+    My = rand(nRows, nColsY) < FractR;
     
-    Y(My)=Y2(My);
-    estim2.SD(My)=SD2(My);
-    estim2.Output=Y;
+    Y(My) = Y2(My);
+    estim2.SD(My) = SD2(My);
+    estim2.Output = Y;
 end
 
 if Subs
     disp('subsampling...')
-    Chosen=randperm(nRows);
-    Chosen=repmat(Chosen,1,ceil(FractS));
-    Chosen=Chosen(1:ceil(FractS*nRows));
-    X=X(Chosen,:);
-    Y=Y(Chosen,:);
-    estim2.Input=X;
-    estim2.Output=Y;
-    estim2.Input_idx=estim.Input_idx(Chosen,:);
-    estim2.Output_idx=estim.Output_idx(Chosen,:);
-    estim2.SD=estim.SD(Chosen,:);
-    estim2.Annotation=estim.Annotation(Chosen,:);
+    Chosen = randperm(nRows);
+    Chosen = repmat(Chosen, 1,ceil(FractS));
+    Chosen = Chosen(1:ceil(FractS * nRows));
+    X = X(Chosen, :);
+    Y = Y(Chosen, :);
+    estim2.Input = X;
+    estim2.Output = Y;
+    estim2.Input_idx = estim.Input_idx(Chosen, :);
+    estim2.Output_idx = estim.Output_idx(Chosen, :);
+    estim2.SD = estim.SD(Chosen, :);
+    estim2.Annotation = estim.Annotation(Chosen, :);
 end
 
 if Noise
     disp('...adding noise...')
-    Y=estim.Output;
-    SD=estim2.SD;
-    Y2=randn(size(Y)).*SD.*FractN;
-    Y=max(min((Y+Y2),1),0);
-    estim2.Output=Y;
+    Y = estim.Output;
+    SD = estim2.SD;
+    Y2 = randn(size(Y)) .* SD .* FractN;
+    Y = max(min((Y + Y2), 1), 0);
+    estim2.Output = Y;
 end
 
 
