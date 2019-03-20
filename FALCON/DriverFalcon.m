@@ -58,6 +58,7 @@ LPSA_Increments     = 3; % Number of increments for LPSA. Increase for finer res
 KO_Analysis         = 1; % Parameter knock-out analysis
 KO_Nodes_Analysis   = 1; % Node knock-out analysis
 optRound_KO         = 5; % Number of optimizations for each KO datapoint. 
+KO_Nodes_fast       = 1; % 
 
 KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
 efficiency_range = 0:0.1:1; % indicate the different KO efficencies you want to test (vector from 0 to 1)
@@ -163,5 +164,11 @@ if KO_Nodes_Analysis_eff
     estim=FalconKONodes_eff(estim, bestx, fxt_all, efficiency_range, HLbound, optRound_KO, FinalFolderName);    
 
 end
+
+%%% Fast KO 
+if KO_Nodes_fast
+    estim = FalconKONodes_fast(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);  
+end
+
 
 % === End of the script === %

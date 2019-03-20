@@ -5,14 +5,13 @@ function [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] =
 % Arguments: 1) estim (from FalconMakeModel)
 % 2) the vector of optimal parameters
 % 3) 5-values logical vector:
-% graph of state values at ss versus measurements (all in 1)
-% graph of state values at ss versus measurements (individual)
-% heatmaps of optimal costs for each output for each condition absolute cost
-% graph of state values at ss (all in 1)
-% graph of state values over the course of the simulation (two graphs)
-% Modified Sebastien De Landtsheer July 2016,
-% sebastien.delandtsheer@uni.lu
-% Panuwat Trairatphisan, University of Luxembourg, 10/2014, panuwat.trairatphisan@uni.lu
+%   graph of state values at ss versus measurements (all in 1)
+%   graph of state values at ss versus measurements (individual)
+%   heatmaps of optimal costs for each output for each condition absolute cost
+%   graph of state values at ss (all in 1)
+%   graph of state values over the course of the simulation (two graphs)
+% Modified Sebastien De Landtsheer February 2019, sebastien.delandtsheer@uni.lu
+% Prof. Thomas Sauter, thomas.sauter@uni.lu
 
 estim = varargin{1}; optParams = varargin{2}; graphs = varargin{3};
 ToSave = 0;

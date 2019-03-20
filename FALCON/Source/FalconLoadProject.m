@@ -1,10 +1,11 @@
 function FalconLoadProject(Name)
 
 Point = find(ismember(Name,'.'), 1, 'last');
-NewName = [Name(1:Point-1), '.mat'];
+PartName = Name(1:Point-1);
+NewName = [PartName, '.mat'];
 copyfile(Name, NewName);
-
-load(NewName)
+evalin('base',['load ', NewName]);
 delete(NewName)
+
 end
 

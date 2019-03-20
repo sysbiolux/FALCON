@@ -62,8 +62,10 @@ function FalconGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for FalconGUI
 handles.output = hObject;
 
+
 % Update handles structure
 guidata(hObject, handles);
+
 
 % UIWAIT makes FalconGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -82,7 +84,6 @@ SH = SS.height; SW = SS.width;
 % get the actual splashImage size
 IH = icon.getIconHeight; IW = icon.getIconWidth;
 win.setLocation((SW-IW)/2,(SH-IH)/2);
-
 win.show; tic;
 while toc < 3, end; win.dispose();
 
@@ -93,9 +94,14 @@ function varargout = FalconGUI_OutputFcn(hObject, eventdata, handles)
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Get default command line output from handles structure
 varargout{1} = handles.output;
+
+
+% --- Executes when figure1 is resized.
+function figure1_SizeChangedFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
 
 % --- Executes on button press in Loadbutton1.
@@ -106,6 +112,7 @@ function Loadbutton1_Callback(hObject, eventdata, handles)
 [handles.InputFile, handles.InputPath] = uigetfile({'*.*';'*.txt';'*.xls';'*.xlsx';'*.sif';'*.csv'},'Select your network file');
 set(handles.NetworkFileDisplay,'String',[handles.InputPath, handles.InputFile])
 guidata(hObject,handles);
+
 
 % --- Executes on button press in Loadbutton2.
 function Loadbutton2_Callback(hObject, eventdata, handles)
@@ -128,6 +135,7 @@ if iscell(handles.MeasFile)
 end
 guidata(hObject,handles)
 
+
 % --- Executes on button press in SaveUI.
 function SaveUI_Callback(hObject, eventdata, handles)
 % hObject    handle to SaveUI (see GCBO)
@@ -137,27 +145,80 @@ handles.SaveFolderName = uigetdir;
 set(handles.SaveAsDisplay, 'String', handles.SaveFolderName)
 guidata(hObject, handles)
 
-% --- Executes on button press in pushbutton7.
-function pushbutton7_Callback(hObject, eventdata, handles)
+
+% --- Executes on button press in LoadProjectButton.
+function LoadProjectButton_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%%% TODO
+handles.Project = uigetfile({'*.falcon'},'Select a FALCON project');
+FalconLoadProject(handles.Project);
+guidata(hObject, handles)
 
-% --- Executes on button press in pushbutton8.
-function pushbutton8_Callback(hObject, eventdata, handles)
+
+% --- Executes on button press in SaveProjectButton.
+function SaveProjectButton_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton8 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%%% TODO
+handles.SaveName = uiputfile({'*.falcon'}, 'Save current project as...');
+FalconSaveProject(handles.SaveName);
+guidata(hObject, handles)
+
+
+function RegButtonGroup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.RegButtonGroup, 'SelectionChangeFcn',  @RegButtonGroup_SelectionChangeFcn);
+RegButtongroup_SelectionChangeFcn(handles.RegButtongroup, struct('NewValue', handles.Reg_None_radio))
+guidata(hObject, handles)
+
+function RegButtonGroup_SelectionChangeFcn(hObject, eventdata)
+handles = guidata(hObject);
+switch get(eventdata.NewValue, 'Tag' )
+    case 'Reg_None_radio'
+        handles.RegValue = 'none';
+    case 'Reg_L12_radio'
+        handles.RegValue = 'L1/2';
+    case 'Reg_L1all_radio'
+        handles.RegValue = 'L1';
+    case 'Reg_L2_radio'
+        handles.RegValue = 'L2';
+    case 'Reg_L1groups_radio'
+        handles.RegValue = 'L1Groups';
+    case 'Reg_L12L1groups_radio'
+        handles.RegValue = 'Ldrug';
+    case 'Reg_Uniformity_radio'
+        handles.RegValue = 'LCluster';
+end
+guidata(hObject, handles)
+
+
+
+function ResampleRepUI_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+function LPSARepUI_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+function KORepUI_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
 
 % --- Executes on button press in ResamplingUI.
 function ResamplingUI_Callback(hObject, eventdata, handles)
 % hObject    handle to ResamplingUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of ResamplingUI
 
 
 % --- Executes on button press in LPSAUI.
@@ -166,8 +227,6 @@ function LPSAUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of LPSAUI
-
 
 % --- Executes on button press in DoKOUI.
 function DoKOUI_Callback(hObject, eventdata, handles)
@@ -175,8 +234,18 @@ function DoKOUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of DoKOUI
 
+% --- Executes on button press in DoKOUI.
+function DoKONode_Callback(hObject, eventdata, handles)
+% hObject    handle to DoKOUI (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% --- Executes on button press in DoKOUI.
+function DoKOPartial_Callback(hObject, eventdata, handles)
+% hObject    handle to DoKOUI (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
 
 function ResampleRepUI_Callback(hObject, eventdata, handles)
@@ -184,22 +253,15 @@ function ResampleRepUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of ResampleRepUI as text
-%        str2double(get(hObject,'String')) returns contents of ResampleRepUI as a double
-
 
 % --- Executes during object creation, after setting all properties.
-function ResampleRepUI_CreateFcn(hObject, eventdata, handles)
+function ResampleIncUI_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to ResampleRepUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function LPSARepUI_Callback(hObject, eventdata, handles)
@@ -207,18 +269,12 @@ function LPSARepUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of LPSARepUI as text
-%        str2double(get(hObject,'String')) returns contents of LPSARepUI as a double
-
 
 % --- Executes during object creation, after setting all properties.
-function LPSARepUI_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to LPSARepUI (see GCBO)
+function LPSAIncUI_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to LPSAIncUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -229,8 +285,6 @@ function LPSA_fast_Callback(hObject, eventdata, handles)
 % hObject    handle to LPSA_fast (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of LPSA_fast
 
 
 % --- Executes on button press in AnalyseUI.
@@ -248,8 +302,8 @@ MaxFunEval = str2double(get(handles.MaxFunEvalUI, 'String'));
 MaxIter = str2double(get(handles.MaxIterUI, 'String'));
 ResultsForm(1) = get(handles.ResultsSingleUI, 'Value');
 ResultsForm(2) = get(handles.ResultsAllUI, 'Value');
-ResultsForm(4) = get(handles.ResultsStatesUI, 'Value');
 ResultsForm(3) = get(handles.ResultsHeatmapUI, 'Value');
+ResultsForm(4) = get(handles.ResultsStatesUI, 'Value');
 ResultsForm(5) = get(handles.ResultsConvergenceUI, 'Value');
 ResultsSummary = get(handles.ResultsSummaryUI, 'Value');
 FminconConv = get(handles.ResultsfminconConvergenceUI, 'Value');
@@ -257,12 +311,16 @@ DoResample = get(handles.ResamplingUI, 'Value');
 ResampleRep = str2double(get(handles.ResampleRepUI, 'String'));
 UseNormal = get(handles.NormalUI, 'Value');
 DoLPSA = get(handles.LPSAUI, 'Value');
+LPSAInc = str2double(get(handles.LPSAIncUI, 'String'));
 LPSARep = str2double(get(handles.LPSARepUI, 'String'));
 DoKO = get(handles.DoKOUI, 'Value');
 DoKONo = get(handles.DoKONode, 'Value');
 UseFast = get(handles.LPSA_fast, 'Value');
 DoBiograph = get(handles.BiographUI, 'Value');
 AllPlots = get(handles.AllPlots, 'Value');
+Reg = get(handles.RegValue, 'String');
+KORep = get(handles.KORepUI, 'Value');
+
 
 %%% set-up
 set(handles.ProgressDisplay2,'String','Creating Model...'); drawnow
@@ -272,11 +330,12 @@ if ischar(handles.MeasFile)
 elseif iscell(handles.MeasFile)
     MeasFileList=handles.MeasFile;
     [estim, stamp] = FalconMakeGlobalModel(handles.InputFile,handles.FixedEdgesList,MeasFileList,handles.ContextsList, HLbound);
-    MeasFile = ['Results_' stamp '_.xlsx'];
+    handles.MeasFile = ['Results_' stamp '_.xlsx'];
 end
 
 estim.options = optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',MaxFunEval,'MaxIter',MaxIter); % Default
 estim.SSthresh = SSthresh;
+estim.Reg = Reg;
 if UseNormal
     UN = 'normal';
 else
@@ -304,7 +363,6 @@ if ~StopCommand
             toc_all=[toc_all; Fitting_Time];
             x_all=[x_all; xval];
             fval_all=[fval_all; fval];
-            
         end
     else
         for counter=1:optRound
@@ -317,9 +375,7 @@ if ~StopCommand
             toc_all=[toc_all; Fitting_Time];
             x_all=[x_all; xval];
             fval_all=[fval_all; fval];
-            
         end
-
     end
     fxt_all=[fval_all x_all toc_all];
     beep; pause(0.5); beep;
@@ -339,7 +395,7 @@ StopCommand=0;
 if ~StopCommand
     set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
     set(handles.ProgressDisplay2,'String','Optimization over. Computing results...'); drawnow
-    [bestx,meanx,stdx]=FalconResults(fxt_all,estim.param_vector);
+    [bestx,meanx,stdx]=FalconResults(estim, fxt_all, handles.SaveFolderName);
     estim.Results.Optimisation.BestParams = bestx;
     
     warning off
@@ -413,7 +469,6 @@ if ~StopCommand
         handles.SaveFolderName
         CV_cutoff = 10; % Percent cut-off for large coefficient of variation
         [~,~,estim]=FalconResample(estim, bestx, 3, ResampleRep, CV_cutoff, handles.SaveFolderName);
-                
     end
 else
     error('Terminated by the user')
@@ -433,8 +488,7 @@ if ~StopCommand
     if DoLPSA
         set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
         set(handles.ProgressDisplay2,'String','Computing identifiability of parameters...'); drawnow
-        [~,estim]=FalconLPSA(estim, bestx, [handles.DataPath filesep handles.MeasFile], HLbound,LPSARep,UseFast,Parallel,handles.SaveFolderName);
-        
+        [~,estim]=FalconLPSA(estim, bestx, [handles.DataPath filesep handles.MeasFile], HLbound, LPSARep, LPSAInc, UseFast, Parallel, handles.SaveFolderName);
     end
 else
     error('Terminated by the user')
@@ -448,7 +502,7 @@ if ~StopCommand
     if DoKO
         set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
         set(handles.ProgressDisplay2,'String','Computing Systematic Knock-Outs...'); drawnow
-        estim=FalconKO(estim, bestx, fxt_all,[handles.DataPath filesep handles.MeasFile],HLbound,handles.SaveFolderName);
+        estim=FalconKO(estim, bestx, fxt_all,[handles.DataPath filesep handles.MeasFile],HLbound, KORep, handles.SaveFolderName);
     end
 else
     error('Terminated by the user')
@@ -460,8 +514,8 @@ if ~StopCommand
     if DoKONo
         set(handles.ProgressDisplay,'String',get(handles.ProgressDisplay2,'String')); drawnow
         set(handles.ProgressDisplay2,'String','Computing Systematic Node Knock-Outs...'); drawnow
-        estim=FalconKONodes(estim, bestx, fxt_all,[handles.DataPath filesep handles.MeasFile],HLbound,handles.SaveFolderName);
-            end
+        estim=FalconKONodes(estim, bestx, fxt_all,[handles.DataPath filesep handles.MeasFile],HLbound, KORep, handles.SaveFolderName);
+    end
 else
     error('Terminated by the user')
 end
@@ -491,32 +545,11 @@ warning on
 disp('================================================')
 
 
-
-% --- Executes on button press in DoKONode.
-function DoKONode_Callback(hObject, eventdata, handles)
-% hObject    handle to DoKONode (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of DoKONode
-
-
-% --- Executes on button press in checkbox22.
-function checkbox22_Callback(hObject, eventdata, handles)
-% hObject    handle to checkbox22 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of checkbox22
-
-
 % --- Executes on button press in ResultsSingleUI.
 function ResultsSingleUI_Callback(hObject, eventdata, handles)
 % hObject    handle to ResultsSingleUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of ResultsSingleUI
 
 
 % --- Executes on button press in ResultsAllUI.
@@ -525,16 +558,12 @@ function ResultsAllUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of ResultsAllUI
-
 
 % --- Executes on button press in ResultsStatesUI.
 function ResultsStatesUI_Callback(hObject, eventdata, handles)
 % hObject    handle to ResultsStatesUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of ResultsStatesUI
 
 
 % --- Executes on button press in ResultsHeatmapUI.
@@ -543,16 +572,12 @@ function ResultsHeatmapUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of ResultsHeatmapUI
-
 
 % --- Executes on button press in ResultsConvergenceUI.
 function ResultsConvergenceUI_Callback(hObject, eventdata, handles)
 % hObject    handle to ResultsConvergenceUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of ResultsConvergenceUI
 
 
 % --- Executes on button press in ResultsSummaryUI.
@@ -561,16 +586,12 @@ function ResultsSummaryUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of ResultsSummaryUI
-
 
 % --- Executes on button press in ResultsfminconConvergenceUI.
 function ResultsfminconConvergenceUI_Callback(hObject, eventdata, handles)
 % hObject    handle to ResultsfminconConvergenceUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of ResultsfminconConvergenceUI
 
 
 % --- Executes on button press in BiographUI.
@@ -579,8 +600,6 @@ function BiographUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of BiographUI
-
 
 % --- Executes on button press in AllPlots.
 function AllPlots_Callback(hObject, eventdata, handles)
@@ -588,17 +607,11 @@ function AllPlots_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of AllPlots
-
-
 
 function optRoundUI_Callback(hObject, eventdata, handles)
 % hObject    handle to optRoundUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of optRoundUI as text
-%        str2double(get(hObject,'String')) returns contents of optRoundUI as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -606,9 +619,6 @@ function optRoundUI_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to optRoundUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -620,8 +630,6 @@ function ParallelUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of ParallelUI
-
 
 % --- Executes on button press in NormalUI.
 function NormalUI_Callback(hObject, eventdata, handles)
@@ -629,17 +637,11 @@ function NormalUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of NormalUI
-
-
 
 function HLboundUI_Callback(hObject, eventdata, handles)
 % hObject    handle to HLboundUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of HLboundUI as text
-%        str2double(get(hObject,'String')) returns contents of HLboundUI as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -647,22 +649,15 @@ function HLboundUI_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to HLboundUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function MaxFunEvalUI_Callback(hObject, eventdata, handles)
 % hObject    handle to MaxFunEvalUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of MaxFunEvalUI as text
-%        str2double(get(hObject,'String')) returns contents of MaxFunEvalUI as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -671,12 +666,9 @@ function MaxFunEvalUI_CreateFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function MaxIterUI_Callback(hObject, eventdata, handles)
@@ -684,20 +676,14 @@ function MaxIterUI_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of MaxIterUI as text
-%        str2double(get(hObject,'String')) returns contents of MaxIterUI as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function MaxIterUI_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to MaxIterUI (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-% Hint: place code in OpeningFcn to populate axes2
+

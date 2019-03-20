@@ -157,6 +157,7 @@ toc
 
 estim = estim_orig;
 
+estim.Results.KnockOutNodes.MSE = [MSE, cost_KD];
 estim.Results.KnockOutNodes.Parameters = Xtitles';
 estim.Results.KnockOutNodes.BIC_values = BIC_merge;
 estim.Results.KnockOutNodes.KO_effect = BIC_merge >= BIC_merge(1);

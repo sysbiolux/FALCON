@@ -1,8 +1,15 @@
 function sinaplot(X)
 
-% X is a m-by-p matrix with maximum m samples and p groups
+% sinaplot(X) produces a plot of the array X, in such a way that
+% every column in the array is represented by a different scatterplot, 
+% evidencing the distribution of the datapoints, even when the number of 
+% datapoints differs between the groups.
+% X is a M-by-P matrix with maximum M samples and P groups
 % X can contain NaNs
+% uses the excellent distinguishable_colors(P) to choose the right hues
+%
 % Sebastien  De Landtsheer November 2018
+% latest update February 2019
 % sebdelandtsheer@gmail.com
 
 if isempty(X)
@@ -16,7 +23,7 @@ end
 [m, p] = size(X);
 
 if p < 2 %are there at least two groups to plot?
-    error('There is only one distribution');
+    error('There is only one group');
 end
 
 MaxDatapoints = max(sum((~isnan(X)))); %The maximum number of non-NaN datapoints in any column
