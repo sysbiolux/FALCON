@@ -18,7 +18,8 @@ useexcel = isExcelPresent();
 
 delete 'tempMeasFile.xls'; %delete previous instance of the file
 if useexcel
-    xlswrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A1');
+    xlswrite('tempMeasFile.xls', cellstr('Annotation') , 1, 'A1');
+    xlswrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A2');
     xlswrite('tempMeasFile.xls', NamesIn, 1, 'B1');
     xlswrite('tempMeasFile.xls', estim.Input, 1, 'B2');
     xlswrite('tempMeasFile.xls', NamesOut, 2, 'A1');
@@ -27,7 +28,8 @@ if useexcel
     xlswrite('tempMeasFile.xls', estim.SD, 3, 'A2');
 else
     setupxlwrite();
-    xlswrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A1');
+    xlwrite('tempMeasFile.xls', cellstr('Annotation') , 1, 'A1');
+    xlwrite('tempMeasFile.xls', cellstr(estim.Annotation) , 1, 'A2');
     xlwrite('tempMeasFile.xls', NamesIn, 1, 'B1');
     xlwrite('tempMeasFile.xls', estim.Input, 1, 'B2');
     xlwrite('tempMeasFile.xls', NamesOut, 2, 'A1');
