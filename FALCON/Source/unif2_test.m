@@ -1,4 +1,4 @@
-function [U]=unif(X)
+function [U]=unif2_test(X)
 %%% [U]=unif(X) computes the uniformity of the M by P matrix and returns
 %%% the 1 by P vector of uniformities for each vector of M values.
 %%% Uniformity is defined as the inverse of the average absolute deviation
@@ -14,18 +14,24 @@ function [U]=unif(X)
 
 
 [T,S] = size(X);
-for c = 1:S
-    X(:,c) = sort(X(:,c), 1, 'ascend');
-    Xrange(c) = max(X(:,c))-min(X(:,c));
+U = 0;
+for c = 1:(T-1)
+    for cc = (c+1):T
+        p1 = X(c, :);
+        p2 = X(cc, :);
+        Area = prod(abs(p1-p2));
+        Inside_Idx = (X(:,2) > min(p1(2), p2(2))) & (X(:,1) > min(p1(1), p2(1))) & (X(:,1) < max(p1(1), p2(1))) & (X(:,2) < max(p1(2), p2(2)));
+        Qtty = size(X(Inside_Idx,:),1);
+        Expected = T;
+        Density = (Qtty/Area);
+        U = U + abs(Density - Expected);
+    end
 end
-Xprime = X';
-U = zeros(S,1);
-for c = 1:T-1
-   for cc = c+1:T
-        d=((Xprime(:, cc) - Xprime(:, c)) - ((cc-c) .* Xrange') ./ T);
-        U = U + abs(d);
-   end
-end
-U = T ./ U;
+
+U = T ./U;
+
+
+
+
 
 end
