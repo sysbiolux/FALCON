@@ -185,7 +185,7 @@ if L1Groups
         estim.SSthresh=0.001;
         
         estim.Lambda=L;
-        estim.RegMatrix=(reshape(1:length(estim.param_vector),length(ContextsList), length(estim.param_vector)/length(ContextsList)))';
+        estim.RegMatrix.Groups=(reshape(1:length(estim.param_vector),length(ContextsList), length(estim.param_vector)/length(ContextsList)))';
         estim.Reg='L1Groups';
         fxt_all=[];
         Costs_all=[];
