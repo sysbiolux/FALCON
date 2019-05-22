@@ -1,7 +1,7 @@
 function [estim] = FalconKONodes(varargin)
 % FalconKO creates new models for each knocked-out node by creating a dummy
 % inhibiting node. Then calculates the fitness of the model and compares
-% all KO models with AIC.
+% all KO models with BIC.
 % [estim] = FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO,FinalFolderName)
 %
 % :: Input values ::

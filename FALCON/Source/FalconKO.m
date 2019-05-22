@@ -38,7 +38,9 @@ estim_orig = estim;
 Param_original = estim.param_vector;
 Interactions_original = estim.Interactions;
 num_params = estim.param_vector;
-bestcost = min(fxt_all(:, 1)); %lowest cost from base model
+bestcost = mean(fxt_all(:, 1)); %lowest cost from base model
+stdMSE = std(fxt_all(:,1));
+fval_collect = [];
 
 %% BIC calculation
 N = numel(estim.Output) - sum(sum(isnan(estim.Output)));
@@ -46,6 +48,9 @@ MSE = bestcost;
 p= numel(Param_original);
 
 BIC_complete = N*log(MSE) + (log(N))*p; %BIC for base model
+BIC_up = N*log(MSE + stdMSE) + (log(N))*p; %BIC upper range
+BIC_dn = N*log(MSE - stdMSE) + (log(N))*p; %BIC lower range
+BIC_std = abs(BIC_up - BIC_dn)/2;
 
 p_KD = zeros(1, p);
 % param_vector=estim.param_vector;
@@ -82,8 +87,9 @@ for counter = 1:size(p_KD, 2)
         [xval,fval] = FalconObjFun(estim, k); %objective function
         fval_all = [fval_all; fval];
     end
+    fval_collect = [fval_collect, fval_all];
     
-    cost_KD(counter) = min(fval_all); %fetch the best cost from optimizations
+    cost_KD(counter) = mean(fval_all); %fetch the best cost from optimizations
     cost_error(counter) = std(fval_all);
     
     %% reduced model (-1 parameter)
@@ -94,11 +100,11 @@ for counter = 1:size(p_KD, 2)
     BIC_KD(counter) = N_r * log(cost_KD(counter)) + (log(N_r)) * p_r;
     BIC_alt1 = N_r * log(cost_KD(counter) + cost_error(counter)) + (log(N_r)) * p_r;
     BIC_alt2 = N_r * log(cost_KD(counter) - cost_error(counter)) + (log(N_r)) * p_r;
-    BIC_error(counter) = max(abs(BIC_KD(counter) - BIC_alt1), abs(BIC_KD(counter) - BIC_alt2));
+    BIC_error(counter) = abs(BIC_alt1 - BIC_alt2)/2;
     %%Plot BIC values
     
     BIC_merge = [BIC_complete, BIC_KD];
-    BIC_Error_merge = [0, BIC_error];
+    BIC_Error_merge = [BIC_std, BIC_error];
     figko = thisfig;
     set(0, 'CurrentFigure', thisfig); hold on;
     
@@ -151,7 +157,7 @@ estim.Results.KnockOut.Parameters = Xtitles';
 estim.Results.KnockOut.BIC_values = BIC_merge;
 estim.Results.KnockOut.KO_effect = BIC_merge >= BIC_merge(1);
 estim.Results.KnockOut.Interpretation = {'0 = no KO effect', '1 = KO effect'};
-
+estim.Results.KnockOut.AllEvals = fval_collect;
 delete('KD_TempFile.txt')
 
 end

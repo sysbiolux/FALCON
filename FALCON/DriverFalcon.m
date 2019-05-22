@@ -170,5 +170,12 @@ if KO_Nodes_fast
     estim = FalconKONodes_fast(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);  
 end
 
+%%% Discriminate fast effects from long-term effects
+X = estim.Results.KnockOutNodes.BIC_values;
+Y = estim.Results.KnockOutNodesFast.BIC_values;
+M1 = min(X,Y); M2 = min(X,Y);
+figure, plot(X,Y,'.k', 'MarkerSize', 15), hold on
+plot([M1, M2], [M1, M2], '-k');
+
 
 % === End of the script === %

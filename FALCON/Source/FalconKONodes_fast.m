@@ -1,7 +1,7 @@
-function [estim] = FalconKONodes(varargin)
+function [estim] = FalconKONodes_fast(varargin)
 % FalconKO creates new models for each knocked-out node by creating a dummy
 % inhibiting node. Then calculates the fitness of the model and compares
-% all KO models with AIC.
+% all KO models with BIC.
 % [estim] = FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO,FinalFolderName)
 %
 % :: Input values ::
@@ -35,7 +35,9 @@ end
 estim_orig = estim;
 Param_original = estim.param_vector;
 Interactions_original = estim.Interactions;
-MSE = min(fxt_all(:,1));
+MSE = mean(fxt_all(:,1));
+stdMSE = std(fxt_all(:,1));
+fval_collect = [];
 
 %% BIC calculation
 N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
@@ -45,6 +47,9 @@ pn = length(Nodes);
 p = numel(Param_original);
 
 BIC_complete = N*log(MSE) + (log(N))*p; %BIC for base model
+BIC_up = N*log(MSE + stdMSE) + (log(N))*p; %BIC upper range
+BIC_dn = N*log(MSE - stdMSE) + (log(N))*p; %BIC lower range
+BIC_std = abs(BIC_up - BIC_dn)/2;
 
 p_KD = zeros(1, pn);
 PreviousOptions = estim.options;
@@ -79,18 +84,14 @@ for counter = 1:size(p_KD, 2)
     estim.options = PreviousOptions;
     estim.SSthresh = SSthresh;
     fval_all = [];
+    for rep = 1:optRound_KO
+        [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, ~] = FalconSimul(estim, bestx, [0 0 0 0 0]);
+        fval_all = [fval_all; MeanCostAll];
+    end
+    fval_collect = [fval_collect, fval_all];
     
-    [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, ~] = FalconSimul(estim, bestx, [0 0 0 0 0]);
-    
-    xsim = MeanStateValueAll(:, estim.Output_idx(1, :));
-    mask = isnan(estim.Output);
-    xsim(mask) = 0; estim.Output(mask) = 0;
-
-    %calculate the sum-of-squared errors
-    N = numel(estim.Output) - sum(sum(isnan(estim.Output)));
-    
-    cost_KD(1, counter) = (sum(sum((xsim-estim.Output) .^ 2)))/N;
-    cost_error(counter) = 0;
+    cost_KD(1, counter) = mean(fval_all);
+    cost_error(counter) = std(fval_all);
     
     %% reduced model (- parameter)
     
@@ -107,13 +108,14 @@ for counter = 1:size(p_KD, 2)
     
     
     BIC_KD(counter) = N_r * log(cost_KD(counter)) + (log(N_r))*(p_r-numel(unique(Is)));
-    BIC_alt1 = N_r * log(cost_KD(counter) + cost_error(counter)) + (log(N_r)) * p_r;
-    BIC_alt2 = N_r * log(cost_KD(counter) - cost_error(counter)) + (log(N_r)) * p_r;
-    BIC_error(counter) = max(abs(BIC_KD(counter) - BIC_alt1), abs(BIC_KD(counter) - BIC_alt2));
+    BIC_alt1 = N_r * log(cost_KD(counter) + cost_error(counter)) + (log(N_r)) * (p_r-numel(unique(Is)));
+    BIC_alt2 = N_r * log(cost_KD(counter) - cost_error(counter)) + (log(N_r)) * (p_r-numel(unique(Is)));
+    BIC_error(counter) = abs(BIC_alt1 - BIC_alt2)/2;
+    
     %%Plot BIC values
     
     BIC_merge = [BIC_complete, BIC_KD];
-    BIC_Error_merge = [0, BIC_error];
+    BIC_Error_merge = [BIC_std, BIC_error];
     set(0, 'CurrentFigure', thisfig);
     figko = thisfig; hold on;
     
@@ -167,6 +169,7 @@ estim.Results.KnockOutNodesFast.KO_effect = BIC_merge >= BIC_merge(1);
 estim.Results.KnockOutNodesFast.Interpretation = {'0 = no KO effect', '1 = KO effect'};
 estim.Results.KnockOutNodesFast.BIC_complete = BIC_complete;
 estim.Results.KnockOutNodesFast.BIC_KD = BIC_KD;
+estim.Results.KnockOutNodesFast.AllEvals = fval_collect;
 delete('KDN_TempFile.txt')
 
 end
