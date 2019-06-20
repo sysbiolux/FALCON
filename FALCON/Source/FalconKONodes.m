@@ -6,11 +6,11 @@ function [estim] = FalconKONodes(varargin)
 %
 % :: Input values ::
 % estim             complete model definition
-% bestx             the vector of best optimised parameters
 % fxt_all           all fitting costs, parameter values and running time during the different optimisations
 % MeasFile          experimental data
 % HLbound           qualitative threshold between high and low range of parameter values
 % optRound_KO       number of optimization rounds
+% Parallelisation   whether parallel computing is used
 % FinalFolderName   name of the folder for saving results
 %
 % :: Output value(s) ::
@@ -22,22 +22,22 @@ function [estim] = FalconKONodes(varargin)
 
 %fetching values from arguments
 estim = varargin{1};
-%%% TODO: remove argument 2 (redundant)
-fxt_all = varargin{3};
-HLbound = varargin{5};
-optRound_KO = varargin{6};
+fxt_all = varargin{2};
+HLbound = varargin{3};
+optRound_KO = varargin{4};
+Parallelisation = varargin{5};
 ToSave = 0;
-if nargin > 6
-    Folder = varargin{7};
+if nargin > 5
+    Folder = varargin{6};
     ToSave = 1;
 end
 
 estim_orig = estim;
 Param_original = estim.param_vector;
 Interactions_original = estim.Interactions;
-MSE = mean(fxt_all(:,1));
-stdMSE = std(fxt_all(:,1));
+bestcosts = fxt_all(:,1);
 fval_collect = [];
+xval_collect = [];
 
 %% BIC calculation
 N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
@@ -46,25 +46,21 @@ Nodes(estim.Input_idx(1, :)) = [];
 pn = length(Nodes);
 p = numel(Param_original);
 
-BIC_complete = N*log(MSE) + (log(N))*p; %BIC for base model
-BIC_up = N*log(MSE + stdMSE) + (log(N))*p; %BIC upper range
-BIC_dn = N*log(MSE - stdMSE) + (log(N))*p; %BIC lower range
-BIC_std = abs(BIC_up - BIC_dn)/2;
+BIC_complete = N*log(bestcosts) + (log(N))*p; %BIC for base model
 
-p_KD = zeros(1, pn);
 PreviousOptions = estim.options;
 SSthresh = estim.SSthresh;
-
-cost_KD = zeros(1, pn);
-cost_error = zeros(1, p);
 
 %%% parameter perturbation and refitting
 thisfig = figure; hold on
 set(gca, 'TickLabelInterpreter', 'none')
 suptitle('Virtual Node KO');
-
+BICs = BIC_complete;
+if size(BICs,1) < optRound_KO
+    BICs = [BICs ; NaN((optRound_KO - size(BICs,1)), 1)];
+end
 wb = waitbar(0,'Please wait...');
-for counter = 1:size(p_KD, 2)
+for counter = 1:pn
     waitbar(counter/pn, wb, sprintf('Running Nodes Knock-out Round %d out of %d ...', counter, pn))
     
     Interactions = Interactions_original;
@@ -84,15 +80,25 @@ for counter = 1:size(p_KD, 2)
     estim.options = PreviousOptions;
     estim.SSthresh = SSthresh;
     fval_all = [];
-    for counterround = 1:optRound_KO %computation for modified model
-        k = FalconIC(estim); %initial conditions
-        [xval,fval] = FalconObjFun(estim, k); %objective function
-        fval_all = [fval_all; fval];
+    xval_all = [];
+    
+    if Parallelisation
+        parfor counterround = 1:optRound_KO %computation for modified model
+            k = FalconIC(estim); %initial conditions
+            [~,fval] = FalconObjFun(estim, k); %objective function
+            fval_all = [fval_all; fval];
+            xval_all = [xval_all; xval];
+        end
+    else
+        for counterround = 1:optRound_KO %computation for modified model
+            k = FalconIC(estim); %initial conditions
+            [~,fval] = FalconObjFun(estim, k); %objective function
+            fval_all = [fval_all; fval];
+            xval_all = [xval_all; xval];
+        end
     end
     fval_collect = [fval_collect, fval_all];
-
-    cost_KD(1, counter) = mean(fval_all);
-    cost_error(counter) = std(fval_all);
+    xval_collect(:,:,counter) = xval_all;
     
     %% reduced model (- parameter)
     
@@ -107,32 +113,15 @@ for counter = 1:size(p_KD, 2)
         end
     end
     
-    
-    BIC_KD(counter) = N_r * log(cost_KD(counter)) + (log(N_r))*(p_r-numel(unique(Is)));
-    BIC_alt1 = N_r * log(cost_KD(counter) + cost_error(counter)) + (log(N_r)) * (p_r-numel(unique(Is)));
-    BIC_alt2 = N_r * log(cost_KD(counter) - cost_error(counter)) + (log(N_r)) * (p_r-numel(unique(Is)));
-    BIC_error(counter) = abs(BIC_alt1 - BIC_alt2)/2;
-    
+    BICs = [BICs, N_r .* log(fval_all) + (log(N_r)) .* p_r];    
     %%Plot BIC values
     
-    BIC_merge = [BIC_complete, BIC_KD];
-    BIC_Error_merge = [BIC_std, BIC_error];
     set(0, 'CurrentFigure', thisfig);
     figko = thisfig; hold on;
     
-    bar(BIC_complete, 'FaceColor', [0.95 0.95 0.95]); hold on
-    for counter2 = 2:counter+1
-        h = bar(counter2, BIC_merge(counter2)); hold on
-        if BIC_merge(counter2) <= BIC_complete
-            set(h, 'FaceColor', 'g');
-        else 
-            set(h, 'FaceColor', 'r');
-        end
-        errorbar(counter2, BIC_merge(counter2), BIC_Error_merge(counter2), 'Color', 'k', 'LineWidth', 1); hold on
-    end    
-    
-    plot([0 size(BIC_merge,2)+1],[BIC_complete BIC_complete], '-r'), hold on
-    
+    boxplot(BICs), hold on
+    sinaplot(BICs)
+        
     set(gca, 'XTick', 1:length(Nodes)+1)
     Xtitles = ['Full'; Nodes'];
     set(gca, 'XTicklabel', Xtitles);
@@ -140,8 +129,8 @@ for counter = 1:size(p_KD, 2)
     set(gca, 'XTickLabelRotation', 45)
     ylabel('Bayesian Information Criterion (BIC)');
     hold off
-    Min = min(BIC_merge(1:counter) - BIC_Error_merge(1:counter)); 
-    Max = max(BIC_merge(1:counter) + BIC_Error_merge(1:counter));
+    Min = min(BICs(:)); 
+    Max = max(BICs(:));
     axis([0.5 counter+1.5 Min-0.1*abs(Min) Max+0.1*abs(Max)])
     drawnow;
     if ToSave
@@ -159,18 +148,12 @@ if ToSave
     saveas(figko, [Folder,filesep, 'KO_Nodes'], 'pdf')
 end
 
-toc
-
 estim = estim_orig;
 
-estim.Results.KnockOutNodes.MSE = [MSE, cost_KD];
 estim.Results.KnockOutNodes.Parameters = Xtitles';
-estim.Results.KnockOutNodes.BIC_values = BIC_merge;
-estim.Results.KnockOutNodes.KO_effect = BIC_merge >= BIC_merge(1);
-estim.Results.KnockOutNodes.Interpretation = {'0 = no KO effect', '1 = KO effect'};
-estim.Results.KnockOutNodes.BIC_complete = BIC_complete;
-estim.Results.KnockOutNodes.BIC_KD = BIC_KD;
+estim.Results.KnockOutNodes.BIC_values = BICs;
 estim.Results.KnockOutNodes.AllEvals = fval_collect;
+estim.Results.KnockOut.AllValues = xval_collect;
 delete('KDN_TempFile.txt')
 
 end

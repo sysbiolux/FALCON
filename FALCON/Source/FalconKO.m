@@ -4,11 +4,11 @@ function [estim] = FalconKO(varargin)
 %
 % :: Input values ::
 % estim             complete model definition
-% bestx             the vector of best optimised parameters
 % fxt_all           all fitting costs, parameter values and running time during the different optimisations
 % MeasFile          experimental data
 % HLbound           qualitative threshold between high and low range of parameter values
 % optRound_KO       number of optimization rounds
+% Parallelisation   whether parallel computing is used
 % FinalFolderName   name of the folder for saving results
 %
 % :: Output value(s) ::
@@ -20,53 +20,45 @@ function [estim] = FalconKO(varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %fetching values from arguments
-%%% TODO: remove argument 2 (redundant).
 estim = varargin{1};
-
-fxt_all = varargin{3};
-MeasFile = varargin{4};
-HLbound = varargin{5};
-optRound_KO = varargin{6};
+fxt_all = varargin{2};
+HLbound = varargin{3};
+optRound_KO = varargin{4};
+Parallelisation = varargin{5};
 ToSave = 0;
-if nargin > 6
-    Folder = varargin{7};
+if nargin > 5
+    FinalFolderName = varargin{6};
     ToSave = 1;
 end
 
 estim_orig = estim;
-
+MeasFile = FalconData2File(estim);
 Param_original = estim.param_vector;
 Interactions_original = estim.Interactions;
 num_params = estim.param_vector;
-bestcost = mean(fxt_all(:, 1)); %lowest cost from base model
-stdMSE = std(fxt_all(:,1));
+bestcosts = fxt_all(:, 1);
 fval_collect = [];
+xval_collect = [];
 
 %% BIC calculation
 N = numel(estim.Output) - sum(sum(isnan(estim.Output)));
-MSE = bestcost;
 p= numel(Param_original);
 
-BIC_complete = N*log(MSE) + (log(N))*p; %BIC for base model
-BIC_up = N*log(MSE + stdMSE) + (log(N))*p; %BIC upper range
-BIC_dn = N*log(MSE - stdMSE) + (log(N))*p; %BIC lower range
-BIC_std = abs(BIC_up - BIC_dn)/2;
+BIC_complete = N*log(bestcosts) + (log(N))*p; %BIC for base model
 
-p_KD = zeros(1, p);
-% param_vector=estim.param_vector;
 PreviousOptions = estim.options;
 SSthresh = estim.SSthresh;
-
-cost_KD = zeros(1, p);
-cost_error = zeros(1, p);
 
 %%% parameter perturbation and refitting
 thisfig = figure; hold on
 set(gca, 'TickLabelInterpreter', 'none')
 suptitle('Virtual Interaction KO');
-
+BICs = BIC_complete;
+if size(BICs,1) < optRound_KO
+    BICs = [BICs ; NaN((optRound_KO - size(BICs,1)), 1)];
+end
 wb = waitbar(0, 'Please wait...');
-for counter = 1:size(p_KD, 2)
+for counter = 1:p
     waitbar(counter/p, wb, sprintf('Running Knock-out Round %d out of %d ...', counter, p))
     
     Interactions = Interactions_original;
@@ -81,47 +73,41 @@ for counter = 1:size(p_KD, 2)
     estim.options = PreviousOptions; %optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',3000,'MaxIter',3000); % Default
     estim.SSthresh = SSthresh;
     fval_all = [];
+    xval_all = [];
     
-    for counterround = 1:optRound_KO %computation for modified model
-        k = FalconIC(estim); %initial conditions
-        [xval,fval] = FalconObjFun(estim, k); %objective function
-        fval_all = [fval_all; fval];
+    if Parallelisation
+        parfor counterround = 1:optRound_KO %computation for modified model
+            k = FalconIC(estim); %initial conditions
+            [xval,fval] = FalconObjFun(estim, k); %objective function
+            fval_all = [fval_all; fval];
+            xval_all = [xval_all; xval];
+        end
+    else
+        for counterround = 1:optRound_KO %computation for modified model
+            k = FalconIC(estim); %initial conditions
+            [xval,fval] = FalconObjFun(estim, k); %objective function
+            fval_all = [fval_all; fval];
+            xval_all = [xval_all; xval];
+        end
     end
     fval_collect = [fval_collect, fval_all];
-    
-    cost_KD(counter) = mean(fval_all); %fetch the best cost from optimizations
-    cost_error(counter) = std(fval_all);
+    xval_collect(:,:,counter) = xval_all;
     
     %% reduced model (-1 parameter)
     
     N_r = numel(estim.Output) - sum(sum(isnan(estim.Output))); %number of datapoints
     p_r = (numel(estim.param_vector)); %number of parameters
     
-    BIC_KD(counter) = N_r * log(cost_KD(counter)) + (log(N_r)) * p_r;
-    BIC_alt1 = N_r * log(cost_KD(counter) + cost_error(counter)) + (log(N_r)) * p_r;
-    BIC_alt2 = N_r * log(cost_KD(counter) - cost_error(counter)) + (log(N_r)) * p_r;
-    BIC_error(counter) = abs(BIC_alt1 - BIC_alt2)/2;
+    BICs = [BICs, N_r .* log(fval_all) + (log(N_r)) .* p_r];
+    
     %%Plot BIC values
     
-    BIC_merge = [BIC_complete, BIC_KD];
-    BIC_Error_merge = [BIC_std, BIC_error];
     figko = thisfig;
-    set(0, 'CurrentFigure', thisfig); hold on;
+    set(0, 'CurrentFigure', thisfig); %hold on;
     
-    bar(BIC_complete, 'FaceColor', [0.95 0.95 0.95]); hold on
-    
-    for counter2 = 2:counter+1
-        h = bar(counter2, BIC_merge(counter2)); hold on
-        if BIC_merge(counter2) <= BIC_complete
-            set(h, 'FaceColor', 'g');
-        else 
-            set(h, 'FaceColor', 'r');
-        end
-        errorbar(counter2, BIC_merge(counter2), BIC_Error_merge(counter2), 'Color', 'k', 'LineWidth', 1); hold on
-    end
-    
-    plot([0 size(BIC_merge,2)+1], [BIC_complete BIC_complete], '-r'), hold on
-    
+    boxplot(BICs), hold on
+    sinaplot(BICs)
+        
     set(gca, 'XTick', 1:(length(num_params)+1))
     Xtitles = ['Full'; Param_original];
     set(gca, 'XTicklabel', Xtitles);
@@ -130,34 +116,31 @@ for counter = 1:size(p_KD, 2)
     set(gca, 'XTickLabelRotation', 45)
     ylabel('Bayesian Information Criterion (BIC)');
     hold off
-    Min = min(BIC_merge(1:counter) - BIC_Error_merge(1:counter));
-    Max = max(BIC_merge(1:counter) + BIC_Error_merge(1:counter));
+    Min = min(BICs(:));
+    Max = max(BICs(:));
     axis([0.5 counter+1.5 Min-0.1*abs(Min) Max+0.1*abs(Max)])
     drawnow;
     if ToSave
-        saveas(figko, [Folder,filesep, 'KO_interactions'], 'fig')
+        saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'fig')
     end
     
 end
 close(wb);
 
 if ToSave
-    saveas(figko, [Folder,filesep, 'KO_interactions'], 'tif')
-    saveas(figko, [Folder,filesep, 'KO_interactions'], 'fig')
-    saveas(figko, [Folder,filesep, 'KO_interactions'], 'jpg')
-    saveas(figko, [Folder,filesep, 'KO_interactions'], 'svg')
-    saveas(figko, [Folder,filesep, 'KO_interactions'], 'pdf')
+    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'tif')
+    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'fig')
+    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'jpg')
+    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'svg')
+    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'pdf')
 end
-
-toc
 
 estim = estim_orig;
 
 estim.Results.KnockOut.Parameters = Xtitles';
-estim.Results.KnockOut.BIC_values = BIC_merge;
-estim.Results.KnockOut.KO_effect = BIC_merge >= BIC_merge(1);
-estim.Results.KnockOut.Interpretation = {'0 = no KO effect', '1 = KO effect'};
+estim.Results.KnockOut.BIC_values = BICs;
 estim.Results.KnockOut.AllEvals = fval_collect;
+estim.Results.KnockOut.AllValues = xval_collect;
 delete('KD_TempFile.txt')
 
 end

@@ -147,27 +147,27 @@ end
 if KO_Analysis
     Estimated_Time_KO = mean(fxt_all(:, end)) * optRound_KO * length(estim.param_vector);
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
-    estim = FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
+    estim = FalconKO(estim, fxt_all, HLbound, optRound_KO, Parallelisation, FinalFolderName);
 end
 
 %%% Nodes Knock-out analysis
 if KO_Nodes_Analysis
     Estimated_Time_KO = mean(fxt_all(:, end)) * optRound_KO * (length(estim.state_names) - length(estim.Input_idx(1,:)));
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
-    estim = FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);
+    estim = FalconKONodes(estim, fxt_all, HLbound, optRound_KO, Parallelisation, FinalFolderName);
 end
 
 %%% Nodes Knock-out efficency analysis
 if KO_Nodes_Analysis_eff
     Estimated_Time_KO = mean(fxt_all(:,end)) * numel(efficiency_range) * optRound_KO * (length(estim.state_names)-length(estim.Input_idx(1,:)));
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep;
-    estim=FalconKONodes_eff(estim, bestx, fxt_all, efficiency_range, HLbound, optRound_KO, FinalFolderName);    
+    estim=FalconKONodes_eff(estim, fxt_all, efficiency_range, HLbound, optRound_KO, FinalFolderName);    
 
 end
 
-%%% Fast KO 
+%%% Fast KO
 if KO_Nodes_fast
-    estim = FalconKONodes_fast(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO, FinalFolderName);  
+    estim = FalconKONodes_fast(estim, fxt_all, HLbound, optRound_KO, Parallelisation, FinalFolderName);  
 end
 
 %%% Discriminate fast effects from long-term effects

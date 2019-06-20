@@ -52,9 +52,10 @@ Dens = Dens ./ max(Dens(:)); %normalizing density
 xval = xdef + (jit .* Dens); %new X-axis values
 Colors = distinguishable_colors(p);
 for Group=1:p
-    plot(xval(:, Group), X(:, Group), '.', 'Color', Colors(Group, :)), hold on,
-    plot([Group-0.3, Group+0.3],[nanmean(X(:, Group)), nanmean(X(:, Group))], '-k', 'Linewidth', 3)
+    plot(xval(:, Group), X(:, Group), '.k'), hold on,
+    plot([Group-0.3, Group+0.3],[nanmean(X(:, Group)), nanmean(X(:, Group))], '-k', 'Linewidth', 1)
 end
+set(gca, 'XGrid', 'on')
 set(gca, 'XTick', 1:p),
 
 
