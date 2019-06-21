@@ -25,32 +25,84 @@ h = waitbar(0,'Please wait...');
 global Costs
 Costs = [];
 k = FalconIC(estim, IC_Dist);
-waitbar(1/3, h, 'Running Fitting Evolution Round 1/3 ...')
+waitbar(1/10, h, 'Running Fitting Evolution Round 1/10 ...')
 [~,~] = FalconObjFunPlus(estim, k);
 Cost1 = Costs;
 
 Costs = [];
 k = FalconIC(estim, IC_Dist);
-waitbar(2/3, h, 'Running Fitting Evolution Round 2/3 ...')
+waitbar(2/10, h, 'Running Fitting Evolution Round 2/10 ...')
 [~,~] = FalconObjFunPlus(estim, k);
 Cost2 = Costs;
 
 Costs = [];
 k = FalconIC(estim, IC_Dist);
-waitbar(3/3, h, 'Running Fitting Evolution Round 3/3 ...')
+waitbar(3/10, h, 'Running Fitting Evolution Round 3/10 ...')
 [~,~] = FalconObjFunPlus(estim, k);
 Cost3 = Costs;
+
+Costs = [];
+k = FalconIC(estim, IC_Dist);
+waitbar(4/10, h, 'Running Fitting Evolution Round 4/10 ...')
+[~,~] = FalconObjFunPlus(estim, k);
+Cost4 = Costs;
+
+Costs = [];
+k = FalconIC(estim, IC_Dist);
+waitbar(5/10, h, 'Running Fitting Evolution Round 5/10 ...')
+[~,~] = FalconObjFunPlus(estim, k);
+Cost5 = Costs;
+
+Costs = [];
+k = FalconIC(estim, IC_Dist);
+waitbar(6/10, h, 'Running Fitting Evolution Round 6/10 ...')
+[~,~] = FalconObjFunPlus(estim, k);
+Cost6 = Costs;
+
+Costs = [];
+k = FalconIC(estim, IC_Dist);
+waitbar(7/10, h, 'Running Fitting Evolution Round 7/10 ...')
+[~,~] = FalconObjFunPlus(estim, k);
+Cost7 = Costs;
+
+Costs = [];
+k = FalconIC(estim, IC_Dist);
+waitbar(8/10, h, 'Running Fitting Evolution Round 8/10 ...')
+[~,~] = FalconObjFunPlus(estim, k);
+Cost8 = Costs;
+
+Costs = [];
+k = FalconIC(estim, IC_Dist);
+waitbar(9/10, h, 'Running Fitting Evolution Round 9/10 ...')
+[~,~] = FalconObjFunPlus(estim, k);
+Cost9 = Costs;
+
+Costs = [];
+k = FalconIC(estim, IC_Dist);
+waitbar(10/10, h, 'Running Fitting Evolution Round 10/10 ...')
+[~,~] = FalconObjFunPlus(estim, k);
+Cost10 = Costs;
+
 close(h);
 
 % Arrange the fitting costs as a matrix and plot
-PlotCosts = NaN(3, max([length(Cost1), length(Cost2), length(Cost3)]));
+PlotCosts = NaN(10, max([length(Cost1), length(Cost2), length(Cost3),length(Cost4), length(Cost5), length(Cost6)...
+    length(Cost7), length(Cost8), length(Cost9), length(Cost10)]));
 PlotCosts(1, 1:length(Cost1)) = Cost1;
 PlotCosts(2, 1:length(Cost2)) = Cost2;
 PlotCosts(3, 1:length(Cost3)) = Cost3;
+PlotCosts(4, 1:length(Cost4)) = Cost4;
+PlotCosts(5, 1:length(Cost5)) = Cost5;
+PlotCosts(6, 1:length(Cost6)) = Cost6;
+PlotCosts(7, 1:length(Cost7)) = Cost7;
+PlotCosts(8, 1:length(Cost8)) = Cost8;
+PlotCosts(9, 1:length(Cost9)) = Cost9;
+PlotCosts(10, 1:length(Cost10)) = Cost10;
 
 hconv = figure;
-plot(1:max([length(Cost1), length(Cost2), length(Cost3)]), PlotCosts)
-title('MSE convergence during optimization')
+plot(1:max([length(Cost1), length(Cost2), length(Cost3),length(Cost4), length(Cost5), length(Cost6)...
+    length(Cost7), length(Cost8), length(Cost9), length(Cost10)]), PlotCosts)
+title('Convergence during optimization')
 xlabel('iteration'); ylabel('MSE');
 saveas(hconv, [FinalFolderName, filesep, 'OptimiserConvergence'],'tif')
 saveas(hconv, [FinalFolderName, filesep, 'OptimiserConvergence'],'fig')
@@ -58,8 +110,5 @@ saveas(hconv, [FinalFolderName, filesep, 'OptimiserConvergence'],'jpg')
 saveas(hconv, [FinalFolderName, filesep, 'OptimiserConvergence'],'svg')
 
 estim.Results.FitEvol.PlotCosts = PlotCosts;
-estim.Results.FitEvol.Cost1 = Cost1;
-estim.Results.FitEvol.Cost2 = Cost2;
-estim.Results.FitEvol.Cost3 = Cost3;
 
 end

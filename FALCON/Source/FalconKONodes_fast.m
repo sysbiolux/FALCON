@@ -37,6 +37,8 @@ Param_original = estim.param_vector;
 Interactions_original = estim.Interactions;
 bestcosts = fxt_all(:,1);
 fval_collect = [];
+nodeval_collect = [];
+
 minf = find(fxt_all(:,1)==min(fxt_all(:,1)));
 minf = minf(1);
 bestx = fxt_all(minf, 2:end-1);
@@ -62,7 +64,7 @@ if size(BICs,1) < optRound_KO
 end
 wb = waitbar(0,'Please wait...');
 for counter = 1:pn
-    waitbar(counter/pn, wb, sprintf('Running Nodes Knock-out Round %d out of %d ...', counter, pn))
+    waitbar(counter/pn, wb, sprintf('Running Fast Nodes Knock-out Round %d out of %d ...', counter, pn))
     
     Interactions = Interactions_original;
     estim = estim_orig;
@@ -81,20 +83,23 @@ for counter = 1:pn
     estim.options = PreviousOptions;
     estim.SSthresh = SSthresh;
     fval_all = [];
+    nodeval_all = [];
+    
     if Parallelisation
         parfor rep = 1:optRound_KO
-            rep
-            [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, ~] = FalconSimul(estim, bestx, [0 0 0 0 0]);
+            [nodevals, StdStateValueAll, MeanCostAll, StdCostAll, ~] = FalconSimul(estim, bestx, [0 0 0 0 0]);
             fval_all = [fval_all; MeanCostAll];
+            nodeval_all = [nodeval_all; nodevals];
         end
     else
         for rep = 1:optRound_KO
-            rep
-            [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, ~] = FalconSimul(estim, bestx, [0 0 0 0 0]);
+            [nodevals, StdStateValueAll, MeanCostAll, StdCostAll, ~] = FalconSimul(estim, bestx, [0 0 0 0 0]);
             fval_all = [fval_all; MeanCostAll];
+            nodeval_all = [nodeval_all; nodevals];
         end
     end
     fval_collect = [fval_collect, fval_all];
+    nodeval_collect = [nodeval_collect; nodeval_all];
     
     %% reduced model (- parameter)
     
@@ -150,6 +155,7 @@ estim = estim_orig;
 estim.Results.KnockOutNodesFast.Parameters = Xtitles';
 estim.Results.KnockOutNodesFast.BIC_values = BICs;
 estim.Results.KnockOutNodesFast.AllEvals = fval_collect;
+estim.Results.KnockOutNodesFast.AllValues = nodeval_collect;
 delete('KDN_TempFile.txt')
 
 end

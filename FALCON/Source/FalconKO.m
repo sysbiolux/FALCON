@@ -38,7 +38,7 @@ Interactions_original = estim.Interactions;
 num_params = estim.param_vector;
 bestcosts = fxt_all(:, 1);
 fval_collect = [];
-xval_collect = [];
+nodeval_collect = [];
 
 %% BIC calculation
 N = numel(estim.Output) - sum(sum(isnan(estim.Output)));
@@ -73,25 +73,27 @@ for counter = 1:p
     estim.options = PreviousOptions; %optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',3000,'MaxIter',3000); % Default
     estim.SSthresh = SSthresh;
     fval_all = [];
-    xval_all = [];
+    nodeval_all = [];
     
     if Parallelisation
         parfor counterround = 1:optRound_KO %computation for modified model
             k = FalconIC(estim); %initial conditions
             [xval,fval] = FalconObjFun(estim, k); %objective function
             fval_all = [fval_all; fval];
-            xval_all = [xval_all; xval];
+            [nodevals, ~, ~, ~, ~] = FalconSimul(estim, xval, [0 0 0 0 0]);
+            nodeval_all = [nodeval_all; nodevals];
         end
     else
         for counterround = 1:optRound_KO %computation for modified model
             k = FalconIC(estim); %initial conditions
             [xval,fval] = FalconObjFun(estim, k); %objective function
             fval_all = [fval_all; fval];
-            xval_all = [xval_all; xval];
+            [nodevals, ~, ~, ~, ~] = FalconSimul(estim, xval, [0 0 0 0 0]);
+            nodeval_all = [nodeval_all; nodevals];
         end
     end
     fval_collect = [fval_collect, fval_all];
-    xval_collect(:,:,counter) = xval_all;
+    nodeval_collect = [nodeval_collect; nodeval_all];
     
     %% reduced model (-1 parameter)
     
@@ -140,7 +142,7 @@ estim = estim_orig;
 estim.Results.KnockOut.Parameters = Xtitles';
 estim.Results.KnockOut.BIC_values = BICs;
 estim.Results.KnockOut.AllEvals = fval_collect;
-estim.Results.KnockOut.AllValues = xval_collect;
+estim.Results.KnockOut.AllValues = nodeval_collect;
 delete('KD_TempFile.txt')
 
 end
