@@ -159,6 +159,7 @@
     Output_index = estim.Output_idx;
     Inputs = estim.Input;
     Measurements = estim.Output;
+    Variances = (estim.SD).^2;
 
     % Evaluation
     TimeSoFar = tic;
@@ -212,9 +213,24 @@
     xsim = x(Output_index(1, :), :)';
     mask = isnan(xmeas);
     xsim(mask) = 0; xmeas(mask) = 0;
-
+    
     %calculate the sum-of-squared errors
-    MSE = (sum(sum((xsim-xmeas).^2)))/N;
+    Fun = 1;
+    if isfield(estim, 'ObjFunction')
+        
+        if strcmp(estim.ObjFunction, 'weighted')
+            Fun = 2;
+        elseif strcmp(estim.ObjFunction, 'unweighted')
+            Fun = 1;
+        end
+    end
+    
+    if Fun == 2
+        MSE = (sum(nansum(((xsim-xmeas).^2)./Variances)))/N;
+    else
+        MSE = (sum(sum((xsim-xmeas).^2)))/N;
+    end
+    
     Diff = MSE + sum(l.*Var);    
     
     Nparams = (sum(k > 0.01));

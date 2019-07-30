@@ -10,7 +10,7 @@
 %                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Current version: v1.2                      %
-%                      (February 2019)                         %
+%                      (July 2019)                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%                                              
 %    CONTEXTUALIZATION OF DBN MODELS OF BIOLOGICAL NETWORKS    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,6 +35,7 @@ MaxIter = 3000; % Number of maximal iteration being evaluated (3000 = default)
 Parallelisation = 1; % Use multiple cores for optimisation? (0=no, 1=yes)
 HLbound = 0.5; % Qualitative threshold between high and low inputs
 InitIC = 2; % Initialise parameters' distribution (1=uniform, 2=normal, 3=zeros)
+ObjFunction = 'weighted'; % Either 'unweighted' or 'weighted'
 
 % Define plotting and saving (0=no, 1=yes)
 PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
@@ -83,7 +84,7 @@ estim = FalconMakeModel(InputFile, MeasFile, HLbound); %make the model
 
 % Defines optimisation options
 estim.options = optimoptions('fmincon', 'TolCon', 1e-6, 'TolFun', 1e-6, 'TolX', 1e-10, 'MaxFunEvals', MaxFunEvals, 'MaxIter', MaxIter); % Default setting
-estim.SSthresh=eps;
+estim.SSthresh = eps*100 ; estim.ObjFunction = ObjFunction;
 if InitIC == 1, IC_Dist = 'uniform'; elseif InitIC == 2, IC_Dist = 'normal'; elseif InitIC == 3, IC_Dist = 'scratch'; else,    error('Please choose the initial parameter distribution'), end
 
 % Optimization
@@ -132,7 +133,7 @@ end
 if Resampling_Analysis
     optRound_Sampling = optRound;
     CV_cutoff = 10; % Percent cut-off for large coefficient of variation
-    [~,~,estim] = FalconResample(estim, bestx, NDatasets, 1, CV_cutoff, FinalFolderName);
+    [~,~,estim] = FalconResample(estim, bestx, NDatasets, 3, CV_cutoff, FinalFolderName);
 end
 
 %%% Sensitivity analysis

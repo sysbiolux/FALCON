@@ -46,7 +46,7 @@ Nodes(estim.Input_idx(1, :)) = [];
 pn = length(Nodes);
 p = numel(Param_original);
 
-BIC_complete = N*log(bestcosts) + (log(N))*p; %BIC for base model
+BIC_complete = N.*log(fxt_all(:,1)) + (log(N)).*p; %BIC for base model
 
 PreviousOptions = estim.options;
 SSthresh = estim.SSthresh;
@@ -78,7 +78,7 @@ for counter = 1:pn
     
     estim = FalconMakeModel('KDN_TempFile.txt', MeasFile, HLbound);
     estim.options = PreviousOptions;
-    estim.SSthresh = SSthresh;
+    estim.SSthresh = SSthresh; estim.ObjFunction = estim_orig.ObjFunction;
     fval_all = [];
     nodeval_all = [];
     
@@ -118,10 +118,18 @@ for counter = 1:pn
     BICs = [BICs, N_r .* log(fval_all) + (log(N_r)) .* p_r];    
     %%Plot BIC values
     
-    set(0, 'CurrentFigure', thisfig);
-    figko = thisfig; hold on;
+    figko = thisfig;
+    set(0, 'CurrentFigure', thisfig); %hold on;
+    isGreen = min(BICs)<min(BICs(:,1));
     
-    boxplot(BICs), hold on
+    b = bar(min(BICs), 'r'); hold on
+    b.FaceColor = 'flat';
+    b.CData(1,:) = [0.5 0.5 0.5];
+    IdxGreen = find(isGreen);
+    for Green = 1:length(IdxGreen)
+        b.CData(IdxGreen(Green),:) = [0 1 0];
+    end
+    hold on,
     sinaplot(BICs)
         
     set(gca, 'XTick', 1:length(Nodes)+1)
