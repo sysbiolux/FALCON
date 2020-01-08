@@ -24,14 +24,13 @@ function [estim] = FalconKONodes_eff(varargin)
 
 %fetching values from arguments
 estim = varargin{1};
-%%% TODO: remove argument 2 (bc redundant)
-fxt_all = varargin{3};
-efficiency_range = varargin{4};
-HLbound = varargin{5};
-optRound_KO = varargin{6};
+fxt_all = varargin{2};
+efficiency_range = varargin{3};
+HLbound = varargin{4};
+optRound_KO = varargin{5};
 ToSave = 0;
-if nargin > 6
-    Folder = varargin{7};
+if nargin > 5
+    Folder = varargin{6};
     ToSave = 1;
 end
 
@@ -88,7 +87,7 @@ for j= 1:length(efficiency_range)
 
         estim = FalconMakeModel('KDN_TempFile.txt', MeasFile, HLbound);
         estim.options = PreviousOptions;
-        estim.SSthresh = SSthresh;
+        estim.SSthresh = SSthresh; estim.ObjFunction = estim_orig.ObjFunction;
         fval_all = [];
         x_all = [];
 

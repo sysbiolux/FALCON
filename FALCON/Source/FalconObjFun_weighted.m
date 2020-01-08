@@ -214,24 +214,11 @@
     mask = isnan(xmeas);
     xsim(mask) = 0; xmeas(mask) = 0;
     
+
     %calculate the sum-of-squared errors
-    Fun = 1;
-    if isfield(estim, 'ObjFunction')
-        
-        if strcmp(estim.ObjFunction, 'weighted')
-            Fun = 2;
-        elseif strcmp(estim.ObjFunction, 'unweighted')
-            Fun = 1;
-        end
-    end
+    MSE_c = (sum(nansum(((xsim-xmeas).^2)./Variances)))/N;
     
-    if Fun == 2
-        MSE = (sum(nansum(((xsim-xmeas).^2)./Variances)))/N;
-    else
-        MSE = (sum(sum((xsim-xmeas).^2)))/N;
-    end
-    
-    Diff = MSE + sum(l.*Var);    
+    Diff = MSE_c + sum(l.*Var);    
     
     Nparams = (sum(k > 0.01));
 
@@ -291,15 +278,15 @@
         end
     end
     
-    AIC = N .* log(MSE) + 2 .* Nparams;
-    BIC = N .* log(MSE) + Nparams * log(N);
+    AIC = N .* log(MSE_c) + 2 .* Nparams;
+    BIC = N .* log(MSE_c) + Nparams * log(N);
     
-    fprintf('MSE= %d \t reg cost= %d \t total= %d \t BIC= %d \n', MSE, sum(l.*Var), Diff, BIC);
+    fprintf('MSE_c= %d \t reg cost= %d \t total= %d \t BIC= %d \n', MSE_c, sum(l.*Var), Diff, BIC);
 
     end
 
     varargout{1} = AIC;
-    varargout{2} = MSE;
+    varargout{2} = MSE_c;
     varargout{3} = BIC;
     varargout{4} = Nparams;
 end

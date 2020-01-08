@@ -256,10 +256,12 @@ end
 
 %%% Parameter covariance
 
-thisfig2 = figure;
 disp('generating correlation plot matrix...')
-AllCorrelations = ScatterMatrix(cost_SA, Param_original, ones(size(cost_SA, 1), 1),{}, 1)
+AllCorrelations = ScatterMatrix(cost_SA, Param_original, ones(size(cost_SA, 1), 1),{}, 0)
+thisfig2 = figure;
 suptitle('Covariance');
+imagesc(AllCorrelations)
+
 
 if ToSave
     saveas(gca, [Folder, filesep, 'Covariance'], 'tif')
@@ -278,7 +280,7 @@ estim.Results.LPSA.p_SA = p_SA;
 estim.Results.LPSA.cost_SA = cost_SA;
 estim.Results.LPSA.CutOff = CutOff;
 estim.Results.LPSA.Interpretation = {'1=Identifiable', '2=Partially identifiable', '3=Non-identifiable'};
-
+estim.Results.LPSA.Correlations = AllCorrelations;
 
 Heading = cell(1,2);
 Heading(1,1) = {'parameters'};

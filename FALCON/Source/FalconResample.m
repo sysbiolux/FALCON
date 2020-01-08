@@ -65,12 +65,13 @@ if nargin > 4
     
     disp(['Cost for perturbated measurements: ', num2str(mean(Costs)), ' +- ', num2str(std(Costs))])
     h1 = figure; hold on;
-    errorbar(mean(Ks), std(Ks), '.b', 'LineWidth', 2); hold on;
+    errorbar(mean(Ks), std(Ks), '.k', 'LineWidth', 1); hold on;
     ylim([0 1])
     plot(bestx, '*r', 'MarkerSize', 12);
     title('Distribution of optimised parameters after resampling')
     hold on;
     set(gca, 'Xtick', 1:length(mean(Ks)), 'XTickLabel', estim.param_vector, 'XGrid', 'on');
+    set(gca, 'Xticklabelrotation', 90)
     legend('RangeResampling', 'BestParam')
     
     if ToSave
@@ -81,8 +82,14 @@ if nargin > 4
         
     end
     
+    h1 = figure,
+    title('Distribution of optimised parameters after resampling')
+    hold on;
+    set(gca, 'Xtick', 1:length(mean(Ks)), 'XTickLabel', estim.param_vector, 'XGrid', 'on'); hold on
+    set(gca, 'Xticklabelrotation', 90), hold on
     sinaplot(Ks);
-     if ToSave
+    
+    if ToSave
         saveas(h1, [Folder, filesep, 'ResamplingSinaplot'], 'tif');
         saveas(h1, [Folder, filesep, 'ResamplingSinaplot'], 'fig');
         saveas(h1, [Folder, filesep, 'ResamplingSinaplot'], 'jpg');
