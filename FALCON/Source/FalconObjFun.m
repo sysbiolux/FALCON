@@ -17,6 +17,7 @@
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
 
 [xval,fval] = fmincon(@nestedfun,k,estim.A,estim.b,estim.Aeq,estim.beq,estim.LB,estim.UB,[],estim.options);
+MSE = []; AIC = []; Nparams = []; BIC = [];
 
     function [ Diff ] = nestedfun(k)
         
@@ -293,7 +294,7 @@
     
     AIC = N .* log(MSE) + 2 .* Nparams;
     BIC = N .* log(MSE) + Nparams * log(N);
-    
+
     fprintf('MSE= %d \t reg cost= %d \t total= %d \t BIC= %d \n', MSE, sum(l.*Var), Diff, BIC);
 
     end
