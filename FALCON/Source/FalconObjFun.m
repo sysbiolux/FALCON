@@ -16,8 +16,11 @@
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
 
-[xval,fval] = fmincon(@nestedfun,k,estim.A,estim.b,estim.Aeq,estim.beq,estim.LB,estim.UB,[],estim.options);
 MSE = []; AIC = []; Nparams = []; BIC = [];
+
+[xval,fval] = fmincon(@nestedfun,k,estim.A,estim.b,estim.Aeq,estim.beq,estim.LB,estim.UB,[],estim.options);
+% global MSE; global AIC; global Nparams; global BIC;
+
 
     function [ Diff ] = nestedfun(k)
         
