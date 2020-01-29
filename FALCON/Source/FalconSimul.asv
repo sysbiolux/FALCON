@@ -234,22 +234,19 @@ end
 if graphs(3) && sum(std(estim.Output_idx)) == 0
     % Plot optimal cost for each experiment
     MapDiffs = [Diffs; mean(Diffs, 1)]; MapDiffs = [MapDiffs, mean(MapDiffs, 2)];
-%     hm = HeatMap(MapDiffs, 'RowLabels', cellstr([estim.Annotation; 'mean']), 'ColumnLabels', [estim.state_names(estim.Output_idx(1, :)), 'mean'], 'Colorbar', 'on', 'Colormap', hot, 'Symmetric', false);
-%     addTitle(hm, 'Cross-error Analysis: Heatmap');
+    hm = HeatMap(MapDiffs, 'RowLabels', cellstr([estim.Annotation; 'mean']), 'ColumnLabels', [estim.state_names(estim.Output_idx(1, :)), 'mean'], 'Colorbar', 'on', 'Colormap', hot, 'Symmetric', false);
+    addTitle(hm, 'Cross-error Analysis: Heatmap');
     figure, hold on
     imagesc(MapDiffs), colorbar,
+    axis([0.5, size(MapDiffs, 2)+0.5, 0.5, size(MapDiffs, 1)+0.5])
     set(gca, 'xtick', 1:size(MapDiffs, 2))
     set(gca, 'xticklabel', [estim.state_names(estim.Output_idx(1, :)), 'mean'])
     set(gca, 'xticklabelrotation', 90)
     set(gca, 'ytick', 1:size(MapDiffs, 1))
     set(gca, 'yticklabel', cellstr([estim.Annotation; 'mean']))
-    axis([0.5, size(MapDiffs, 2)+0.5, 0.5, size(MapDiffs, 1)+0.5])
-    colormap('hot')
-    title('Cross-error Analysis: Heatmap')
     if ToSave
-%         fighm = plot(hm);
-        saveas(gcf,[Folder, '\CrossErrorHeatMap'], 'tif');
-        saveas(gcf,[Folder, '\CrossErrorHeatMap'], 'pdf');
+        fighm = plot(hm);
+        saveas(fighm,[Folder, '\CrossErrorHeatMap'], 'tif');
         close(gcf)
     end
     ploty = x'; ploty = ploty(:, estim.Output_idx(1, :)); ploty = ploty(:);
