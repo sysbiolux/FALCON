@@ -322,7 +322,6 @@ for i = 1:length(UniqueOutputList)%for each unique output
 end
 
 % derive additional High/Low constraints with bounds
-estim.HLbound = 0.5; % Qualitative threshold between high and low inputs
 
 LB = zeros(1, length(UniqueParamNames)); %create lower boundaries with default=0
 UB = ones(1, length(UniqueParamNames)); %create upper boundaries with default=1
@@ -333,10 +332,10 @@ if size(Interactions,2) == 7 %if interaction file contains H/L specifications
         UL = unique(Interactions(idxp, 7)); %get the bounds for that parameter (should be only one)
         
         if strcmp(UL, 'L') %if there are low parameters
-            UB(p) = estim.HLbound; %set upper boundaries as HLbound
+            UB(p) = HLbound; %set upper boundaries as HLbound
         end
         if strcmp(UL, 'H') %if there are high parameters
-            LB(p) = estim.HLbound; %set lower boundaries as HLbounds
+            LB(p) = HLbound; %set lower boundaries as HLbounds
         end
     end
 end
@@ -577,7 +576,7 @@ estim.MaxFunEvals = 3000; % Number of maximal function being evaluated (3000 = d
 estim.MaxIter = 3000; % Number of maximal iteration being evaluated (3000 = default)
 estim.Parallelisation = 1; % Use multiple cores for optimisation? (0=no, 1=yes)
 estim.HLbound = 0.5; % Qualitative threshold between high and low inputs
-estim.IC_Dist = 'normal';
+estim.InitIC = 2; % Initialise parameters' distribution (1=uniform, 2=normal, 3=zeros)
 estim.ObjFunction = 'weighted'; % Either 'unweighted' or 'weighted'
 
 % Define plotting and saving (0=no, 1=yes)
@@ -607,8 +606,8 @@ estim.KO_Nodes_fast       = 1; %
 estim.KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
 estim.Efficiency_range = 0:0.1:1; % indicate the different KO efficencies you want to test (vector from 0 to 1)
 
-estim.options = optimoptions('fmincon', 'TolCon', 1e-6, 'TolFun', 1e-6, 'TolX', 1e-10, 'MaxFunEvals', estim.MaxFunEvals, 'MaxIter', estim.MaxIter); % Default setting
-estim.SSthresh = eps*100 ;
+estim.options = optimoptions('fmincon', 'TolCon', 1e-6, 'TolFun', 1e-6, 'TolX', 1e-10, 'MaxFunEvals', MaxFunEvals, 'MaxIter', MaxIter); % Default setting
+estim.SSthresh = eps*100 ; estim.ObjFunction = ObjFunction;
 
 % Creates a save folder
 SaveFolderName = ['Results_' datestr(now)]; 

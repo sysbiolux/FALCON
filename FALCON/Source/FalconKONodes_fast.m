@@ -2,7 +2,7 @@ function [estim] = FalconKONodes_fast(varargin)
 % FalconKO creates new models for each knocked-out node by creating a dummy
 % inhibiting node. Then calculates the fitness of the model and compares
 % all KO models with BIC.
-% [estim] = FalconKONodes(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO,FinalFolderName)
+% [estim] = FalconKONodes(estim, fxt_all, HLbound, FinalFolderName)
 %
 % :: Input values ::
 % estim             complete model definition
@@ -24,24 +24,24 @@ function [estim] = FalconKONodes_fast(varargin)
 estim = varargin{1};
 fxt_all = varargin{2};
 HLbound = varargin{3};
-optRound_KO = varargin{4};
-Parallelisation = varargin{5};
+% optRound_KO = varargin{4};
 ToSave = 0;
-if nargin > 5
-    Folder = varargin{6};
+if nargin > 3
+    Folder = varargin{4};
     ToSave = 1;
 end
-
-estim_orig = estim;
-Param_original = estim.param_vector;
-Interactions_original = estim.Interactions;
-bestcosts = fxt_all(:,1);
-fval_collect = [];
-nodeval_collect = [];
 
 minf = find(fxt_all(:,1)==min(fxt_all(:,1)));
 minf = minf(1);
 bestx = fxt_all(minf, 2:end-1);
+
+[MeanStateValueAll, ~, ~, ~, estim] = FalconSimul(estim,bestx,[0 0 0 0 0]);
+estim_orig = estim;
+Param_original = estim.param_vector;
+Interactions_original = estim.Interactions;
+fval_collect = [];
+nodeval_collect = [];
+Diffs_collect = [];
 %% BIC calculation
 N = numel(estim.Output)-sum(sum(isnan(estim.Output)));
 Nodes = estim.state_names;
@@ -49,28 +49,25 @@ Nodes(estim.Input_idx(1, :)) = [];
 pn = length(Nodes);
 p = numel(Param_original);
 
-BIC_complete = N.*log(fxt_all(:,1)) + (log(N)).*p; %BIC for base model
-
-PreviousOptions = estim.options;
-SSthresh = estim.SSthresh;
+BIC_complete = N.*log(fxt_all(minf,1)) + (log(N)).*p; %BIC for base model
+Diff_complete = mean(abs(MeanStateValueAll(:, estim.Output_idx(1,:)) - estim.Output));
 
 %%% parameter perturbation and refitting
-thisfig = figure; hold on
+figko = figure; hold on
 set(gca, 'TickLabelInterpreter', 'none')
 suptitle('Fast Virtual Node KO');
 BICs = BIC_complete;
-if size(BICs,1) < optRound_KO
-    BICs = [BICs ; NaN((optRound_KO - size(BICs,1)), 1)];
-end
-wb = waitbar(0,'Please wait...');
+SplitBICs = N.*log(Diff_complete) + (log(N)).*p;
+% if size(BICs,1) < optRound_KO
+%     BICs = [BICs ; NaN((optRound_KO - size(BICs,1)), 1)];
+% end
 for counter = 1:pn
-    waitbar(counter/pn, wb, sprintf('Running Fast Nodes Knock-out Round %d out of %d ...', counter, pn))
     
     Interactions = Interactions_original;
     estim = estim_orig;
     thisNode = Nodes(counter);
     
-    Interactions = [Interactions; ['ix', 'X_INHIB_X', '-|', thisNode, '1', 'N', 'D']];
+    Interactions = [Interactions; ['ix', 'X_INHIB_X', '-|', thisNode, '0.99999', 'N', 'D']];
     estim.state_names = [estim.state_names, 'X_INHIB_X'];
     
     estim.Input_idx = [estim.Input_idx, ones(size(estim.Input_idx, 1), 1) .* length(estim.state_names)];
@@ -80,26 +77,15 @@ for counter = 1:pn
     FalconInt2File(Interactions, 'KDN_TempFile.txt')
     
     estim = FalconMakeModel('KDN_TempFile.txt', MeasFile, HLbound);
-    estim.options = PreviousOptions;
-    estim.SSthresh = SSthresh; estim.ObjFunction = estim_orig.ObjFunction;
-    fval_all = [];
-    nodeval_all = [];
-    
-    if Parallelisation
-        parfor rep = 1:optRound_KO
-            [nodevals, StdStateValueAll, MeanCostAll, StdCostAll, ~] = FalconSimul(estim, bestx, [0 0 0 0 0]);
-            fval_all = [fval_all; MeanCostAll];
-            nodeval_all = [nodeval_all; nodevals];
-        end
-    else
-        for rep = 1:optRound_KO
-            [nodevals, StdStateValueAll, MeanCostAll, StdCostAll, ~] = FalconSimul(estim, bestx, [0 0 0 0 0]);
-            fval_all = [fval_all; MeanCostAll];
-            nodeval_all = [nodeval_all; nodevals];
-        end
-    end
-    fval_collect = [fval_collect, fval_all];
-    nodeval_collect = [nodeval_collect; nodeval_all];
+    estim.options = estim_orig.options; estim.SSthresh = estim_orig.SSthresh; estim.ObjFunction = estim_orig.ObjFunction;
+
+    [nodevals, ~, fval, ~, ~] = FalconSimul(estim, bestx, [0 0 0 0 0]);
+
+    fval_collect = [fval_collect, fval];
+    nodeval_collect = [nodeval_collect; nodevals];
+    InNodes = nodevals(:, estim.Output_idx(1,:));
+    Diffs = mean(abs(InNodes - estim.Output));
+    Diffs_collect = [Diffs_collect; Diffs];
     
     %% reduced model (- parameter)
     
@@ -114,15 +100,15 @@ for counter = 1:pn
         end
     end
     
-    BICs = [BICs, N_r .* log(fval_all) + (log(N_r)) .* p_r];
+    BICs = [BICs, N_r .* log(fval) + (log(N_r)) .* p_r];
+    SplitBICs = [SplitBICs; N_r .* log(Diffs) + (log(N_r)) .* p_r];
     
     %%Plot BIC values
 
-    figko = thisfig;
-    set(0, 'CurrentFigure', thisfig); %hold on;
-    isGreen = min(BICs)<min(BICs(:,1));
-    
-    b = bar(min(BICs), 'r'); hold on
+    figure(figko)
+    isGreen = min(BICs, [], 1)<min(BICs(:,1), [], 1);
+    subplot(2,1,1)
+    b = bar(min(BICs, [], 1), 'r'); hold on
     b.FaceColor = 'flat';
     b.CData(1,:) = [0.5 0.5 0.5];
     IdxGreen = find(isGreen);
@@ -130,8 +116,6 @@ for counter = 1:pn
         b.CData(IdxGreen(Green),:) = [0 1 0];
     end
     hold on,
-    sinaplot(BICs)
-    
     set(gca, 'XTick', 1:length(Nodes)+1)
     Xtitles = ['Full'; Nodes'];
     set(gca, 'XTicklabel', Xtitles);
@@ -143,12 +127,21 @@ for counter = 1:pn
     Max = max(BICs(:));
     axis([0.5 counter+1.5 Min-0.1*abs(Min) Max+0.1*abs(Max)])
     drawnow;
+    subplot(2,1,2)
+    imagesc(SplitBICs');
+    set(gca, 'ytick', 1:size(SplitBICs,2))
+    set(gca, 'xtick', 1:(pn+1))
+    set(gca, 'yticklabel',estim.state_names(estim.Output_idx(1, :)))
+    set(gca, 'xticklabel',['Full', Nodes])
+    set(gca, 'XTickLabelRotation', 45)
+
+    colorbar, drawnow;
+    
     if ToSave
         saveas(figko, [Folder,filesep, 'KO_Nodes_Fast'], 'fig')        
     end
     
 end
-close(wb);
 
 if ToSave
     saveas(figko, [Folder,filesep, 'KO_Nodes_Fast'], 'tif')
@@ -164,6 +157,8 @@ estim.Results.KnockOutNodesFast.Parameters = Xtitles';
 estim.Results.KnockOutNodesFast.BIC_values = BICs;
 estim.Results.KnockOutNodesFast.AllEvals = fval_collect;
 estim.Results.KnockOutNodesFast.AllValues = nodeval_collect;
+estim.Results.KnockOutNodesFast.AllDiffs = Diffs_collect;
+estim.Results.KnockOutNodesFast.SplitBICs = SplitBICs;
 delete('KDN_TempFile.txt')
 
 end

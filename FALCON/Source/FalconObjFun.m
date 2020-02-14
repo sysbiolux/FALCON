@@ -25,7 +25,13 @@ MSE = []; AIC = []; Nparams = []; BIC = [];
     function [ Diff ] = nestedfun(k)
         
     n = estim.NrStates;
-    N = numel(estim.Output) - sum(sum(isnan(estim.Output)));    
+    N = numel(estim.Output) - sum(sum(isnan(estim.Output)));
+    
+    if isfield(estim, 'Weights')
+        w = estim.Weights;
+    else
+        w = ones(1, numel(estim.Output(1,:)));
+    end
     
     if isfield(estim, 'Lambda')
         l = estim.Lambda;
@@ -219,20 +225,16 @@ MSE = []; AIC = []; Nparams = []; BIC = [];
     xsim(mask) = 0; xmeas(mask) = 0;
     
     %calculate the sum-of-squared errors
-    Fun = 1;
+    Res = (xsim-xmeas).^2 ;
     if isfield(estim, 'ObjFunction')
-        
         if strcmp(estim.ObjFunction, 'weighted')
-            Fun = 2;
+            MSE = (sum(nansum(Res ./ Variances .* w))) / N;
         elseif strcmp(estim.ObjFunction, 'unweighted')
-            Fun = 1;
+            MSE = (sum(nansum(Res .* w))) / N;
         end
-    end
-    
-    if Fun == 2
-        MSE = (sum(nansum(((xsim-xmeas).^2)./Variances)))/N;
     else
-        MSE = (sum(sum((xsim-xmeas).^2)))/N;
+        MSE = (sum(nansum(Res .* w)))/N;
+       
     end
     
     Diff = MSE + sum(l.*Var);    

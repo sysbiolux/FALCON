@@ -25,81 +25,32 @@
 
 clc, clear all % clear screen and workspace 
 
-
-% ===========================
-% Define optimization options
-% ===========================
-optRound = 4; % Number of optimisation round
-MaxFunEvals = 3000; % Number of maximal function being evaluated (3000 = default)
-MaxIter = 3000; % Number of maximal iteration being evaluated (3000 = default)
-Parallelisation = 1; % Use multiple cores for optimisation? (0=no, 1=yes)
-HLbound = 0.5; % Qualitative threshold between high and low inputs
-InitIC = 2; % Initialise parameters' distribution (1=uniform, 2=normal, 3=zeros)
-ObjFunction = 'weighted'; % Either 'unweighted' or 'weighted'
-
-% Define plotting and saving (0=no, 1=yes)
-PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
-PlotFitSummary      = 1; % Graph of state values at steady-state versus measurements (all in 1)
-PlotFitIndividual   = 0; % Graph of state values at steady-state versus measurements (individual)
-PlotHeatmapCost     = 1; % Heatmaps of optimal costs for each output for each condition absolute cost
-PlotStateSummary    = 1; % Graph of only state values at steady-sate (all in 1)
-PlotStateEvolution  = 1; % Graph of state values evolution over the course of the simulation (two graphs)
-PlotBiograph        = 0; % Graph of network topology, nodes activities, and optimised parameters
-PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biographs above
-
-% Additional analyses after the optimisation with the default setting (0=no, 1=yes)
-Resampling_Analysis = 1; % Resampling of experimental data and re-optimise
-NDatasets           = 50;% Number of artificial datasets from which to resample.
-
-LPSA_Analysis       = 1; % Local parameter sensitivity analysis
-Fast_Option         = 0; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
-optRound_LPSA       = 5; % Number of optimizations for each perturbed datapoint
-LPSA_Increments     = 3; % Number of increments for LPSA. Increase for finer resolution
-
-KO_Analysis         = 1; % Parameter knock-out analysis
-KO_Nodes_Analysis   = 1; % Node knock-out analysis
-optRound_KO         = 5; % Number of optimizations for each KO datapoint. 
-KO_Nodes_fast       = 1; % 
-
-KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
-efficiency_range = 0:0.1:1; % indicate the different KO efficencies you want to test (vector from 0 to 1)
-
 % Model and measurement files
 InputFile = 'PDGF_model.xlsx'; %for xls
 % InputFile='PDGF_model.sif'; %for sif
 MeasFile = 'PDGF_meas.xlsx'; %for xls
 % MeasFile={'PDGF_meas_in.csv';'PDGF_meas_out.csv';'PDGF_meas_err.csv'}; %for csv
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% Creates a save folder
-SaveFolderName = ['Results_' datestr(now)]; FinalFolderName=strrep(SaveFolderName, ':', '.'); 
-mkdir(FinalFolderName) % Automatically generate a folder for saving
-
 % Builds a FALCON model for optimisation
-estim = FalconMakeModel(InputFile, MeasFile, HLbound); %make the model
+estim = FalconMakeModel(InputFile, MeasFile); %make the model
 
-% Defines optimisation options
-estim.options = optimoptions('fmincon', 'TolCon', 1e-6, 'TolFun', 1e-6, 'TolX', 1e-10, 'MaxFunEvals', MaxFunEvals, 'MaxIter', MaxIter); % Default setting
-estim.SSthresh = eps*100 ; estim.ObjFunction = ObjFunction;
-if InitIC == 1, IC_Dist = 'uniform'; elseif InitIC == 2, IC_Dist = 'normal'; elseif InitIC == 3, IC_Dist = 'scratch'; else,    error('Please choose the initial parameter distribution'), end
+%%%%
+% modify optimization parameters here
+%%%%
 
 % Optimization
 toc_all = []; x_all = []; fval_all = [];
 
-if Parallelisation
-    parfor counter = 1:optRound %'parfor' will run the parallel computing toolbox
-        tic, k = FalconIC(estim, IC_Dist); %initial conditions
+if estim.Parallelisation
+    parfor counter = 1:estim.optRound %'parfor' will run the parallel computing toolbox
+        tic, k = FalconIC(estim); %initial conditions
         [xval, fval] = FalconObjFun(estim, k); %objective function
         toc_all = [toc_all; toc]; x_all = [x_all; xval]; fval_all = [fval_all; fval];
     end
 
 else
-    for counter = 1:optRound %'parfor' will run the parallel computing toolbox
-        tic, k = FalconIC(estim, IC_Dist); %initial conditions
+    for counter = 1:estim.optRound %'parfor' will run the parallel computing toolbox
+        tic, k = FalconIC(estim); %initial conditions
         [xval, fval] = FalconObjFun(estim, k); %objective function
         toc_all = [toc_all; toc]; x_all = [x_all; xval]; fval_all = [fval_all; fval];
     end
@@ -111,7 +62,7 @@ beep; pause(0.5); beep;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Retrieving the results
 
-[bestx, meanx, stdx, estim] = FalconResults(estim, fxt_all, estim.param_vector, FinalFolderName);
+[bestx, meanx, stdx, estim] = FalconResults(estim, fxt_all, estim.param_vector, estim.FinalFolderName);
 
 %%% Re-simulate results based on the best optimised parameter set
 [MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(estim, bestx, [PlotFitSummary PlotFitIndividual PlotHeatmapCost PlotStateSummary PlotStateEvolution], FinalFolderName);

@@ -250,7 +250,6 @@ if graphs(3) && sum(std(estim.Output_idx)) == 0
 %         fighm = plot(hm);
         saveas(gcf,[Folder, '\CrossErrorHeatMap'], 'tif');
         saveas(gcf,[Folder, '\CrossErrorHeatMap'], 'pdf');
-        close(gcf)
     end
     ploty = x'; ploty = ploty(:, estim.Output_idx(1, :)); ploty = ploty(:);
     plotx = Measurements(:);
