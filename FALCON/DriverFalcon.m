@@ -61,34 +61,33 @@ fxt_all = [fval_all x_all toc_all];
 beep; pause(0.5); beep;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Retrieving the results
-
-[bestx, meanx, stdx, estim] = FalconResults(estim, fxt_all, estim.param_vector, estim.FinalFolderName);
+[bestx, meanx, stdx, estim] = FalconResults(estim, fxt_all);
 
 %%% Re-simulate results based on the best optimised parameter set
-[MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(estim, bestx, [PlotFitSummary PlotFitIndividual PlotHeatmapCost PlotStateSummary PlotStateEvolution], FinalFolderName);
+[MeanStateValueAll, StdStateValueAll, MeanCostAll, StdCostAll, estim] = FalconSimul(estim);
 
 save([FinalFolderName filesep 'OptimizedModel'])
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Analyzing the evolution of fitting cost
-if PlotFitEvolution
-  estim = FalconFitEvol(estim, IC_Dist, FinalFolderName);
+if estim.PlotFitEvolution
+  estim = FalconFitEvol(estim);
 end
 
 %%% Displayed optimised network with weights
-if PlotBiograph
-    FalconShowNetwork(estim, PlotAllBiographs, FinalFolderName)
+if estim.PlotBiograph
+    FalconShowNetwork(estim)
 end
 
 %%% Obtaining robust estimates for the parameters by resampling
-if Resampling_Analysis
+if estim.Resampling_Analysis
     optRound_Sampling = optRound;
     CV_cutoff = 10; % Percent cut-off for large coefficient of variation
     [~,~,estim] = FalconResample(estim, bestx, NDatasets, 3, CV_cutoff, FinalFolderName);
 end
 
 %%% Sensitivity analysis
-if LPSA_Analysis 
+if estim.LPSA_Analysis 
     if Fast_Option, IsFast = 'fast'; else, IsFast = 'slow'; end
     Estimated_Time_LPSA = mean(fxt_all(:, end)) * optRound_LPSA * LPSA_Increments * 3 * length(estim.param_vector);
     disp(['Estimated Time for LPSA analysis (fast): ' num2str(Estimated_Time_LPSA) ' seconds']); beep; pause(3); beep; 
@@ -96,21 +95,21 @@ if LPSA_Analysis
 end
 
 %%% Knock-out analysis
-if KO_Analysis
+if estim.KO_Analysis
     Estimated_Time_KO = mean(fxt_all(:, end)) * optRound_KO * length(estim.param_vector);
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
     estim = FalconKO(estim, fxt_all, HLbound, optRound_KO, Parallelisation, FinalFolderName);
 end
 
 %%% Nodes Knock-out analysis
-if KO_Nodes_Analysis
+if estim.KO_Nodes_Analysis
     Estimated_Time_KO = mean(fxt_all(:, end)) * optRound_KO * (length(estim.state_names) - length(estim.Input_idx(1,:)));
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep; 
     estim = FalconKONodes(estim, fxt_all, HLbound, optRound_KO, Parallelisation, FinalFolderName);
 end
 
 %%% Nodes Knock-out efficency analysis
-if KO_Nodes_Analysis_eff
+if estim.KO_Nodes_Analysis_eff
     Estimated_Time_KO = mean(fxt_all(:,end)) * numel(efficiency_range) * optRound_KO * (length(estim.state_names)-length(estim.Input_idx(1,:)));
     disp(['Estimated Time for KO analysis: ' num2str(Estimated_Time_KO) ' seconds']); beep; pause(3); beep;
     estim=FalconKONodes_eff(estim, fxt_all, efficiency_range, HLbound, optRound_KO, FinalFolderName);    
@@ -118,7 +117,7 @@ if KO_Nodes_Analysis_eff
 end
 
 %%% Fast KO
-if KO_Nodes_fast
+if estim.KO_Nodes_fast
     estim = FalconKONodes_fast(estim, fxt_all, HLbound, optRound_KO, Parallelisation, FinalFolderName);  
 end
 

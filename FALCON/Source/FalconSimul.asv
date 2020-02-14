@@ -254,13 +254,11 @@ if estim.PlotHeatmapCost && sum(std(estim.Output_idx)) == 0
     plotx = Measurements(:);
     
     figure, cp = plot(plotx,ploty, '.k'); xlabel('Measured'), ylabel('Simulated');
-    mdl = fitlm(plotx,ploty); hold on
+    mdl = fitlm(plotx,ploty);
     R2 = mdl.Rsquared.Adjusted; R2 = (round(R2*1000))/1000;
-    Pval = mdl.Coefficients{2,4};
-    a = mdl.Coefficients{1, 1}; b = mdl.Coefficients{2, 1};
-    plot([0 1], [a, a+b], '--k')
-    title(['Simulated versus Measurements: R^2 = ', num2str(R2),', p-value = ', num2str(Pval) ]);
-    axis([-0.05 1.05 -0.05 1.05])
+    Pval = mdl.Coefficients{2,4}; Pval = (round(Pval*1000))/1000
+    title(['Simulated versus Measurements: R^2 = ', num2str(R2)]);
+    axis([0 1.05 0 1.05])
     if ToSave
         saveas(cp, [Folder, '\CorrelationPlot'], 'tif');
         saveas(cp, [Folder, '\CorrelationPlot'], 'pdf');

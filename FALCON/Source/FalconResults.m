@@ -18,12 +18,9 @@ function [bestx, meanx, stdx, estim] = FalconResults(varargin)
 
 estim = varargin{1};
 fxt_all = varargin{2};
-param_vector = varargin{3};
-ToSave = 0;
-if length(varargin) > 3
-    FinalFolderName = varargin{4};
-    ToSave = 1;
-end
+param_vector = estim.param_vector;
+FinalFolderName = estim.FinalFolderName;
+ToSave = 1;
 
 % Extract best parameter set and calculate means & SDs
 bestx_index = find(ismember(fxt_all(:, 1),min(fxt_all(:, 1))));

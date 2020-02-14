@@ -578,7 +578,7 @@ estim.MaxIter = 3000; % Number of maximal iteration being evaluated (3000 = defa
 estim.Parallelisation = 1; % Use multiple cores for optimisation? (0=no, 1=yes)
 estim.HLbound = 0.5; % Qualitative threshold between high and low inputs
 estim.IC_Dist = 'normal';
-estim.ObjFunction = 'weighted'; % Either 'unweighted' or 'weighted'
+estim.ObjFunction = 'unweighted'; % Either 'unweighted' or 'weighted'
 
 % Define plotting and saving (0=no, 1=yes)
 estim.PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration

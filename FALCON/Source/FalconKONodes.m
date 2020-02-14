@@ -21,21 +21,14 @@ function [estim] = FalconKONodes(varargin)
 
 %fetching values from arguments
 estim = varargin{1};
-fxt_all = varargin{2};
-HLbound = varargin{3};
-optRound_KO = varargin{4};
-Parallelisation = varargin{5};
-ToSave = 0;
-if nargin > 5
-    Folder = varargin{6};
-    ToSave = 1;
-end
+optRound_KO = estim.optRound_KO;
+Parallelisation = estim.Parallelisation;
+Folder = estim.FinalFolderName;
+ToSave = 1;
 
-minf = find(fxt_all(:,1)==min(fxt_all(:,1)));
-minf = minf(1);
-bestx = fxt_all(minf, 2:end-1);
+bestx = estim.Results.Optimisation.BestParams;
 
-[MeanStateValueAll, ~, ~, ~, estim] = FalconSimul(estim,bestx,[0 0 0 0 0]);
+[MeanStateValueAll, ~, Cost, ~, estim] = FalconSimul(estim);
 estim_orig = estim;
 Param_original = estim.param_vector;
 Interactions_original = estim.Interactions;
@@ -49,7 +42,7 @@ Nodes(estim.Input_idx(1, :)) = [];
 pn = length(Nodes);
 p = numel(Param_original);
 
-BIC_complete = N.*log(fxt_all(minf,1)) + (log(N)).*p; %BIC for base model
+BIC_complete = N.*log(Cost) + (log(N)).*p; %BIC for base model
 Diff_complete = mean(abs(MeanStateValueAll(:, estim.Output_idx(1,:)) - estim.Output));
 
 %%% parameter perturbation and refitting
@@ -77,7 +70,7 @@ for counter = 1:pn
     MeasFile = FalconData2File(estim);
     FalconInt2File(Interactions, 'KDN_TempFile.txt')
     
-    estim = FalconMakeModel('KDN_TempFile.txt', MeasFile, HLbound);
+    estim = FalconMakeModel('KDN_TempFile.txt', MeasFile);
     estim.options = PreviousOptions;
     estim.SSthresh = SSthresh; estim.ObjFunction = estim_orig.ObjFunction;
     fxt_all = [];
