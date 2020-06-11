@@ -135,6 +135,7 @@ end
 
 xsim = x(Output_index(1, :), :)';
 mask = isnan(xmeas);
+AllState = xsim;
 xsim(mask) = 0; xmeas(mask) = 0;
 
 %calculate the sum-of-squared errors
@@ -142,7 +143,7 @@ diff = (sum(sum((xsim-xmeas) .^ 2)))/N;
 BIC = N .* log(diff) + (log(N)) * np;
 fprintf('MSE= %d \t SSE= %d \t BIC= %d \n', diff, diff*N, BIC);
 
-MeanAllState = xsim;
+MeanAllState = AllState;
 StdAllState = zeros(size(xsim));
 Diffs = (xsim-xmeas) .^ 2;
 
