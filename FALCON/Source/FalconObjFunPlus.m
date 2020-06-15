@@ -1,4 +1,4 @@
- function [xval,fval,varargout]=FalconObjFun(estim,k)
+ function [xval,fval,varargout]=FalconObjFunPlus(estim,k)
 % FalconObjFun serves as the objective function for the optimisation.
 % Apply the non-linear optimiser 'fmincon' with the default algorithm (interior-point)
 % Return the optimised parameters values and fitting cost calculated from the sum-of-squared error (SSE)
@@ -226,24 +226,37 @@ MSE = []; AIC = []; Nparams = []; BIC = [];
         elseif strcmp(estim.Reg,'L1Smooth')
             Smoothed=(max(k(RegSmooth),[],2)-min(k(RegSmooth),[],2))<0.1;
             RP=(mean(k(RegSmooth),2))>0.01;
-            Nparams=sum(Collapsed.*RP)+size(RegGroups,2)*sum(~Smoothed.*RP);
+            Nparams=sum(Smoothed.*RP)+size(RegGroups,2)*sum(~Smoothed.*RP);
         elseif strcmp(estim.Reg, 'Ldrug')
             Std_group=std(k(RegGroups),0,2);
             Collapsed=Std_group<0.01;
             RP=(mean(k(RegGroups),2))>0.01;
             Nparams=sum(Collapsed.*RP)+size(RegGroups,2)*sum(~Collapsed.*RP);            
         elseif strcmp(estim.Reg, 'LTriple')
-            Std_group=std(k(RegGroups),0,2);
-            Collapsed=Std_group<0.01;
-            Smoothed=(max(k(RegSmooth),[],2)-min(k(RegSmooth),[],2))<0.1;
-            RP1=(mean(k(RegGroups),2))>0.01;
-            RP2=(mean(k(RegSmooth),2))>0.01;
-            %%%%following formula is not correct
+                %%% TO DO: check with example
             
-            Nparams=sum(Collapsed.*RP1)...
-                +sum(Smoothed.*RP2)...
-                +size(RegGroups,2)*sum(~Collapsed.*RP1)...
-                +size(RegSmooth,2)*sum(~Smoothed.*RP2);
+            ParamIdentity = (abs(bsxfun(@minus, k, k')) < 0.01);
+            ParamMatters = zeros(length(k));
+            for kline = 1:size(RegCluster,1)
+                for kcol1 = 1:size(RegCluster,2) - 1
+                    for kcol2 = kcol1 + 1:size(RegCluster, 2)
+                        ParamMatters(RegCluster(kline, kcol1), RegCluster(kline, kcol2)) = 1;
+                    end
+                end
+            end
+            for kline = 1:size(RegSmooth, 1)
+                for kcol1 = 1:size(RegSmooth, 2) - 1
+                    for kcol2 = kcol1 + 1:size(RegSmooth, 2)
+                        ParamMatters(RegSmooth(kline, kcol1), RegSmooth(kline, kcol2)) = 1;
+                    end
+                end
+            end
+            ParamMatters = ParamMatters .* (~eye(length(k)));
+            ParamSignif = k' > 0.01;
+            NCollapsed = ceil(sum((sum(ParamMatters.*ParamIdentity, 2) > 0) .* ParamSignif));
+            Nparams = estim.NrParams - NCollapsed;
+                %%% TO DO: check with example
+            
         elseif strcmp(estim.Reg, 'LCluster')
             Par=(k(RegCluster));
             Par=sort(Par,2);

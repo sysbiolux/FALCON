@@ -1,4 +1,4 @@
-**Contact info**: thomas.sauter@uni.lu or sebastien.delandtsheer@uni.lu  
+**Contact info**: thomas.sauter@uni.lu or sebastien.delandtsheer@uni.lu or seb@delandtsheer.com
 **Please cite** :  
 De Landtsheer _et al._, FALCON: A Toolbox for the Fast Contextualisation of Logical Networks (2017), Bioinformatics [Link](https://academic.oup.com/bioinformatics/article/33/21/3431/3897376)  
 De Landtsheer _et al._, Using Regularization to Infer Cell Line Specificity in Logical Network Models of Signaling Pathways (2018), Front. Physiol. [Link](https://www.frontiersin.org/articles/10.3389/fphys.2018.00550/full)  
@@ -8,9 +8,19 @@ Del Mistro & Lucarelli _et al._, Systemic network analysis identifies XIAP and I
 
 # Version Info:
 
-This updated version, released in October 2017, introduces new algorithms for systems analysis of regulatory networks and provides several bug fixes and improvements. Most notably, we removed several variables from the main functions that became irrelevant, got rid of nearly-mandatory Excel, made the plots more readable and intuitive, and added various regularization schemes to our objective function. We really hope these changes will improve the usability and usefulness of the toolbox and we encourage users to contribute to the project, and/or post their positive or negative experiences on the repository page.
+This updated version, released in July 2020, refactors the functionning of the toolbox and provides several bug fixes and improvements. Most notably, we removed several variables from the main functions that became irrelevant, improved the plots to make them more readable and intuitive, and integrated the various regularization schemes. We really hope these changes will improve the usability and usefulness of the toolbox and we encourage users to contribute to the project, and/or post their positive or negative experiences on the repository page.
 
-Here is a list of the main changes:
+Here is a list of the main changes in v1.3:
+* Simplified API includes calls to the main functions with standard R = f(X, y) syntax.
+* Parallel computations becomes the default behavior.
+* The model single variable ('estim') contains the complete information for the optimization problem, as well as the results of the different analyses.
+* Most hyperparameters are now set by default and user-modified if necessary only. The steady-state threshold and the maximum number of runs are automatically determined by the size of the model.
+* Weighted optimization allows to weight the datapoints for the MSE calculation by an arbitrary value to give more importance to some datapoints. This is useful for model exploration.
+* Additional 'likelihood' option to weight the datapoints by the inverse of their variance, therefore performing a maximum-likelihood computation. When no error is reported a default value of 5% is used.
+* The 'HLBound' option is not supported anymore. Network definition files with this column are still read but all parameters are estimated on the full [0 1] range.
+* The calculation of errors and information criteria during virtual knock-outs has been changed. The measurements corresponding to a knock-out node are not accounted for in the calculation anymore, in such a way that the error due to comparing the node value (zero by definition) and the measurements is eliminated. While this calculation is technically not accurate, we believe it is more useful when comparing the effect of different knock-outs.
+
+Here is a list of the main changes in v1.2:
 * The 'Forced' variable has been removed and the related quantity fixed to 1. This makes the framework completely coherent from the mathematical point of view, as all nodes now are 'forced' to abide the rules of probability.
 * The option to set 'high' and 'low' parameters, i.e. to bias the constrains in favor of some interactions based on prior knowledge becomes optional. We hope this makes the model input format clearer.
 * Network model files and data files in the '.csv' format are now accepted. We hope this solves in an effective way issues related with the use of Excel on Mac, Linux, or older versions of Matlab. Example input files have been updated accordingly. As csv is the _de facto_ format for data science flat files, we might deprecate the '.txt' and Excel formats in later versions.
@@ -46,21 +56,16 @@ Here is a list of the main changes:
 
 # Installation and requirements
 
-In order to use the FALCON toolbox, the necessary scripts need to be included in the Matlab path. This can be done automatically by typing “FalconInstall” on the Matlab command window. The pipeline was developed under Matlab R2014b and has been successfully tested under Matlab R2015a and R2016a. It requires the build-in Matlab solver “fmincon”, which is a part of the Optimization Toolbox (http://nl.mathworks.com/products/optimization/), during the optimisation process. The parallel computing option in the FALCON pipeline which uses the “parfor” function requires the Parallel Computing Toolbox (http://nl.mathworks.com/help/distcomp/) and the plotting of network structure with optimised parameters requires the “biograph” function integrated in the Bioinformatics toolbox (http://nl.mathworks.com/help/bioinfo/) to be present.  
+In order to use the FALCON toolbox, the necessary scripts need to be included in the Matlab path. This can be done automatically by typing “FalconInstall” on the Matlab command window. The pipeline was developed under Matlab R2014b and has been successfully tested under most versions up to R2019b. It requires the build-in Matlab solver “fmincon”, which is a part of the Optimization Toolbox (http://nl.mathworks.com/products/optimization/), during the optimisation process. The parallel computing option in the FALCON pipeline which uses the “parfor” function requires the Parallel Computing Toolbox (http://nl.mathworks.com/help/distcomp/) and the plotting of network structure with optimised parameters requires the “biograph” function integrated in the Bioinformatics toolbox (http://nl.mathworks.com/help/bioinfo/) to be present.  
 
 In case you encounter any problems while running the FALCON pipeline on earlier of later versions of Matlab, please do not hesitate to contact the authors or post an issue under: https://github.com/sysbiolux/FALCON/issues.
 
 ***
 
 # Running the Falcon pipeline
+* [Running Falcon](https://github.com/sysbiolux/FALCON/wiki/Running-FALCON)
 * [Input files](https://github.com/sysbiolux/FALCON/wiki/Input-files)
 * [Falcon functions](https://github.com/sysbiolux/FALCON/wiki/The-FALCON-functions)
-* [Running Falcon](https://github.com/sysbiolux/FALCON/wiki/Running-FALCON)
-
-***
-
-# All variables
-[All variables explained](https://github.com/sysbiolux/FALCON/wiki/Variables)
 
 ***
 

@@ -8,15 +8,13 @@ function [estim]=FalconMakeModel(InputFile,MeasFile)
 % :: Input values ::
 % InputFile          model file (either txt or xls(x))
 % MeasFile           experimental data file (either txt or xls(x))
-% HLbound            qualitative threshold between high and low range of parameter values
-% Forced             this variable has been removed 
 %
 % :: Output values::
 % estim              integrated model definition
 %
 % :: Contact ::
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
-% Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
+% Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu, seb@delandtsheer.com
 
 clearvars Interactions
 
@@ -211,9 +209,6 @@ for u = length(UniqueParamNames):-1:1 %removing numeric values, starts from the 
     end
 end
 
-% At this point the "Interactions" is in its final state.
-FalconInt2File(Interactions,'Expanded.txt')
-
 for i = 1:size(Interactions,1) % for each interaction
     idxout = find(ismember(state_names, Interactions(i, 4)));
     idxin = find(ismember(state_names, Interactions(i, 2)));
@@ -233,8 +228,6 @@ for i = 1:size(Interactions,1) % for each interaction
         end
     end
 end
-
-delete('Expanded.txt')
 
 % Adding auto-activation for nodes without input
 NoInput=find(sum(ma, 2) == 0);
@@ -571,21 +564,23 @@ estim.BoolIdx = BoolIdx;
 estim.BoolOuts = BoolOuts;
 estim.FixBool = FixBool;
 estim.Annotation = Annotation;
+estim.InputFile = InputFile;
+estim.MeasFile = MeasFile;
 
 estim.optRound = 4; % Number of optimisation round
-estim.MaxFunEvals = 3000; % Number of maximal function being evaluated (3000 = default)
-estim.MaxIter = 3000; % Number of maximal iteration being evaluated (3000 = default)
+estim.MaxFunEvals = 1000 * estim.NrParams; % Maximaum number of function evaluations
+estim.MaxIter = estim.MaxFunEvals; % Maximum number of fmincon iterations
 estim.Parallelisation = 1; % Use multiple cores for optimisation? (0=no, 1=yes)
-estim.HLbound = 0.5; % Qualitative threshold between high and low inputs
+% estim.HLbound = 0.5; % Qualitative threshold between high and low inputs
 estim.IC_Dist = 'normal';
-estim.ObjFunction = 'unweighted'; % Either 'unweighted' or 'weighted'
+estim.ObjFunction = 'MSE'; % Either 'unweighted' or 'weighted'
 
 % Define plotting and saving (0=no, 1=yes)
 estim.PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
 estim.PlotFitSummary      = 1; % Graph of state values at steady-state versus measurements (all in 1)
 estim.PlotFitIndividual   = 0; % Graph of state values at steady-state versus measurements (individual)
 estim.PlotHeatmapCost     = 1; % Heatmaps of optimal costs for each output for each condition absolute cost
-estim.PlotStateSummary    = 1; % Graph of only state values at steady-sate (all in 1)
+estim.PlotStateSummary    = 0; % Graph of only state values at steady-sate (all in 1)
 estim.PlotStateEvolution  = 1; % Graph of state values evolution over the course of the simulation (two graphs)
 estim.PlotBiograph        = 0; % Graph of network topology, nodes activities, and optimised parameters
 estim.PlotAllBiographs    = 0; % (Only for machines with strong GPUs) Plot all Biographs above
@@ -596,19 +591,19 @@ estim.NDatasets           = 50;% Number of artificial datasets from which to res
 
 estim.LPSA_Analysis       = 1; % Local parameter sensitivity analysis
 estim.Fast_Option         = 0; % Performing faster LPSA by stopping if fitting costs go over a set threshold value
-estim.optRound_LPSA       = 5; % Number of optimizations for each perturbed datapoint
+estim.optRound_LPSA       = 4; % Number of optimizations for each perturbed datapoint
 estim.LPSA_Increments     = 3; % Number of increments for LPSA. Increase for finer resolution
 
 estim.KO_Analysis         = 1; % Parameter knock-out analysis
 estim.KO_Nodes_Analysis   = 1; % Node knock-out analysis
-estim.optRound_KO         = 5; % Number of optimizations for each KO datapoint. 
-estim.KO_Nodes_fast       = 1; % 
+estim.optRound_KO         = 4; % Number of optimizations for each KO datapoint. 
+estim.KO_Nodes_fast       = 1; % Knock-outs without re-optimizing
 
 estim.KO_Nodes_Analysis_eff = 1; % test different KO efficencies on each node and analyse the entire network based on this information
 estim.Efficiency_range = 0:0.1:1; % indicate the different KO efficencies you want to test (vector from 0 to 1)
 
 estim.options = optimoptions('fmincon', 'TolCon', 1e-6, 'TolFun', 1e-6, 'TolX', 1e-10, 'MaxFunEvals', estim.MaxFunEvals, 'MaxIter', estim.MaxIter); % Default setting
-estim.SSthresh = eps*100 ;
+estim.SSthresh = eps*100*(size(state_names, 2)) ;
 
 % Creates a save folder
 SaveFolderName = ['Results_' datestr(now)]; 
@@ -619,5 +614,8 @@ disp('... ... ...')
 disp(['Network loaded: ', num2str(estim.NrStates), ' nodes and ', num2str(size(estim.Interactions, 1)), ' interactions (', num2str(BoolMax), ' Boolean gates)'])
 disp(['Data loaded: ', num2str(size(Input_vector, 2)), ' inputs, ', num2str(size(Output_vector, 2)), ' outputs and ', num2str(size(Input_vector, 1)), ' experimental conditions'])
 disp(['The model has ', num2str(estim.NrParams), ' parameters for ', num2str(numel(Output_vector)), ' datapoints'])
+if estim.NrParams > numel(Output_vector)
+    disp('Careful: there might be more degrees of liberty in the model than there are datapoints')
+end
 
 end
