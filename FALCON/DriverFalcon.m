@@ -93,9 +93,19 @@ end
 %%% Discriminate fast effects from long-term effects
 X = estim.Results.KnockOutNodes.BIC_values;
 Y = estim.Results.KnockOutNodesFast.BIC_values;
-M1 = min(X,Y); M2 = min(X,Y);
 figure, plot(X,Y,'.k', 'MarkerSize', 15), hold on
+M1 = min(X,Y); M2 = min(X,Y);
 plot([M1, M2], [M1, M2], '-k');
+Nodes = estim.state_names;
+Nodes(estim.Input_idx(1, :)) = [];
+text(X(1), Y(1), 'base')
+for tx = 1:length(X)-1
+    text(X(tx+1), Y(tx+1), Nodes(tx))
+end
+xlabel('BIC for re-optimized model')
+ylabel('BIC for non-adapted model')
+
+
 
 
 % === End of the script === %

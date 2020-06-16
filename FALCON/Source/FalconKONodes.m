@@ -61,11 +61,11 @@ for counter = 1:pn
     estim.Input_idx = [estim.Input_idx, ones(size(estim.Input_idx, 1), 1) .* length(estim.state_names)];
     estim.Input = [estim.Input, ones(size(estim.Input, 1), 1)];
     
-%     for out = 1:nOut %if tested node is measured, we remove it from the measurements
-%         if strcmp(outNodes(out), thisNode)
-%             estim.Output(:,out) = nan(size(estim.Output, 2), 1);
-%         end
-%     end
+    for out = 1:nOut %if tested node is measured, we remove it from the measurements
+        if strcmp(outNodes(out), thisNode)
+            estim.Output(:,out) = nan(size(estim.Output, 2), 1);
+        end
+    end
     
     MeasFile = FalconData2File(estim);
     FalconInt2File(Interactions, 'KDN_TempFile.txt')

@@ -28,8 +28,8 @@ Seed = sum(Clock);
 
 estim = varargin{1};
 
-if nargin > 1
-    Seed = varargin{2};
+if isfield(estim, 'Seed')
+    Seed = estim.Seed;
 end
 
 rng(Seed)

@@ -222,6 +222,11 @@ if size(p_SA, 2) < 20
     disp('generating correlation plot matrix...')
     figure, hold on;
     AllCorrelations = ScatterMatrix(cost_SA, Param_original, ones(size(cost_SA, 1), 1),{}, 1);
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'tif')
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'fig')
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'jpg')
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'svg')
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'pdf')
     figure, hold on;
     suptitle('Covariance');
     imagesc(AllCorrelations)
@@ -230,11 +235,11 @@ if size(p_SA, 2) < 20
     set(gca, 'xticklabel', Param_original)
     set(gca, 'yticklabel', Param_original)
     colorbar
-    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'tif')
-    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'fig')
-    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'jpg')
-    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'svg')
-    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'pdf')
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance2'], 'tif')
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance2'], 'fig')
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance2'], 'jpg')
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance2'], 'svg')
+    saveas(gca, [estim.FinalFolderName, filesep, 'Covariance2'], 'pdf')
 end
 
 estim = estim_orig;

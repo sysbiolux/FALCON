@@ -573,7 +573,7 @@ estim.MaxIter = estim.MaxFunEvals; % Maximum number of fmincon iterations
 estim.Parallelisation = 1; % Use multiple cores for optimisation? (0=no, 1=yes)
 % estim.HLbound = 0.5; % Qualitative threshold between high and low inputs
 estim.IC_Dist = 'normal';
-estim.ObjFunction = 'MSE'; % Either 'unweighted' or 'weighted'
+estim.ObjFunction = 'MSE'; % Either 'MSE' or 'likelihood'
 
 % Define plotting and saving (0=no, 1=yes)
 estim.PlotFitEvolution    = 1; % Graph of optimise fitting cost over iteration
