@@ -66,9 +66,10 @@ estim.Reg = 'LCluster'; % spatial non-uniformity
 %%
 
 % fix Lambda values here!
-PowerLambda1 = -12:1:-2; % (L1/2 in combined schemes)
+PowerLambda1 = -12:0.5:-2; % (L1/2 in combined schemes)
 PowerLambda2 = -12:1:-2; % (L1group or LCluster in combined schemes)
 PowerLambda3 = -2:2:2; % (L1Smooth when present)
+
 
 ListLambda1 = [0,2.^PowerLambda1];
 ListLambda2 = [0,2.^PowerLambda2];
@@ -144,7 +145,13 @@ legend({'#params'})
 
 
 %% this for 2-dimensional regularization
+estim.Reg = 'PruneCluster';
+Results = [];
+PowerLambda1 = -12:1:-2; % (L1/2 in combined schemes)
+PowerLambda2 = -8:1:-2; % (L1group or LCluster in combined schemes)
 
+ListLambda1 = [0,2.^PowerLambda1];
+ListLambda2 = [0,2.^PowerLambda2];
 
 for L1 = ListLambda1
     for L2 = ListLambda2
@@ -186,7 +193,7 @@ set(gca,'xticklabels',{'base'; num2str(PowerLambda1(:))})
 set(gca,'xticklabelrotation',90)
 set(gca,'yticklabels',{'base'; num2str(PowerLambda1(:))})
 title('AIC')
-subplot(5,1,4)
+subplot(2,2,3)
 imagesc(MSEs)
 set(gca,'XTick',1:length(ListLambda2))
 set(gca,'YTick',1:length(ListLambda1))
@@ -194,7 +201,7 @@ set(gca,'xticklabels',{'base'; num2str(PowerLambda1(:))})
 set(gca,'xticklabelrotation',90)
 set(gca,'yticklabels',{'base'; num2str(PowerLambda1(:))})
 title('MSE')
-subplot(5,1,5)
+subplot(2,2,4)
 imagesc(NParams)
 set(gca,'XTick',1:length(ListLambda2))
 set(gca,'YTick',1:length(ListLambda1))
