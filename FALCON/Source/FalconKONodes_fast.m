@@ -39,7 +39,7 @@ pn = length(Nodes);
 p = numel(Param_original);
 
 BIC_complete = N.*log(min(estim.Results.Optimization.FittingCost)) + (log(N)).*p; %BIC for base model
-Diff_complete = mean(abs(estim.Results.Optimization.StateValueAll(:, estim.Output_idx(1,:)) - estim.Output));
+Diff_complete = nanmean(abs(estim.Results.Optimization.StateValueAll(:, estim.Output_idx(1,:)) - estim.Output));
 
 %%% parameter perturbation and refitting
 figko = figure; hold on;
@@ -54,15 +54,15 @@ for counter = 1:pn
     estim = estim_orig;
     thisNode = Nodes(counter);
     
-    Interactions = [Interactions; ['ix', 'Xx_INHIB_xX', '-|', thisNode, '1', 'N', 'D']];
-    estim.state_names = [estim.state_names, 'Xx_INHIB_xX'];
+    Interactions = [Interactions; ['ix', 'zz_INHIB_zz', '-|', thisNode, '0.99', 'N', 'D']];
+    estim.state_names = [estim.state_names, 'zz_INHIB_zz'];
     
     estim.Input_idx = [estim.Input_idx, ones(size(estim.Input_idx, 1), 1) .* length(estim.state_names)];
     estim.Input = [estim.Input, ones(size(estim.Input, 1), 1)];
     
     for out = 1:nOut %if tested node is measured, we remove it from the measurements
         if strcmp(outNodes(out), thisNode)
-            estim.Output(:,out) = nan(size(estim.Output, 2), 1);
+            estim.Output(:,out) = nan(size(estim.Output, 1), 1);
         end
     end
     
@@ -80,7 +80,7 @@ for counter = 1:pn
     fval_collect = [fval_collect, fval];
     nodeval_collect = [nodeval_collect; nodevals];
     InNodes = nodevals(:, estim.Output_idx(1,:));
-    Diffs = mean(abs(InNodes - estim.Output));
+    Diffs = nanmean(abs(InNodes - estim.Output));
     Diffs_collect = [Diffs_collect; Diffs];
     
     %% reduced model (- parameter)
