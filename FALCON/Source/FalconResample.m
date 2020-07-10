@@ -32,16 +32,17 @@ Costs = [];
 Data = estim.Output;
 SD = estim.SD;
 
-for n = 1:N    
+parfor n = 1:N
+    estim2 = estim;
     new = normrnd(Data,SD);
     % re-normalize
     maxnew = max(new(:));
     minnew = min(new(:));
     new = (new - minnew) ./ (maxnew - minnew);
     % new synthetic outputs
-    estim.Output = new;
+    estim2.Output = new;
     k = FalconIC(estim);
-    [xval,fval] = FalconObjFun(estim, k);
+    [xval,fval] = FalconObjFun(estim2, k);
     Ks = [Ks; xval];
     Costs = [Costs; fval];
 end
