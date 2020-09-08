@@ -1,15 +1,9 @@
 function [estim] = FalconKO(varargin)
 % FalconKO creates new models for each knock-outed parameter by setting parameter value to 0 and re-optimise
-% [estim] = FalconKO(estim, bestx, fxt_all, MeasFile, HLbound, optRound_KO,FinalFolderName)
+% [estim] = FalconKO(estim)
 %
 % :: Input values ::
 % estim             complete model definition
-% fxt_all           all fitting costs, parameter values and running time during the different optimisations
-% MeasFile          experimental data
-% HLbound           qualitative threshold between high and low range of parameter values
-% optRound_KO       number of optimization rounds
-% Parallelisation   whether parallel computing is used
-% FinalFolderName   name of the folder for saving results
 %
 % :: Output value(s) ::
 % estim             updated model definition
@@ -21,22 +15,12 @@ function [estim] = FalconKO(varargin)
 
 %fetching values from arguments
 estim = varargin{1};
-fxt_all = varargin{2};
-HLbound = varargin{3};
-optRound_KO = varargin{4};
-Parallelisation = varargin{5};
-ToSave = 0;
-if nargin > 5
-    FinalFolderName = varargin{6};
-    ToSave = 1;
-end
 
 estim_orig = estim;
 MeasFile = FalconData2File(estim);
 Param_original = estim.param_vector;
 Interactions_original = estim.Interactions;
 num_params = estim.param_vector;
-bestcosts = fxt_all(:, 1);
 fval_collect = [];
 nodeval_collect = [];
 
@@ -44,7 +28,7 @@ nodeval_collect = [];
 N = numel(estim.Output) - sum(sum(isnan(estim.Output)));
 p= numel(Param_original);
 
-BIC_complete = N.*log(fxt_all(:,1)) + (log(N)).*p; %BIC for base model
+BIC_complete = N.*log(min(estim.Results.Optimization.FittingCost)) + (log(N)).*p; %BIC for base model
 
 PreviousOptions = estim.options;
 SSthresh = estim.SSthresh;
@@ -54,13 +38,11 @@ thisfig = figure; hold on
 set(gca, 'TickLabelInterpreter', 'none')
 suptitle('Virtual Interaction KO');
 BICs = BIC_complete;
-if size(BICs,1) < optRound_KO
-    BICs = [BICs ; NaN((optRound_KO - size(BICs,1)), 1)];
+if size(BICs,1) < estim.optRound_KO
+    BICs = [BICs ; NaN((estim.optRound_KO - size(BICs,1)), 1)];
 end
-wb = waitbar(0, 'Please wait...');
+
 for counter = 1:p
-    waitbar(counter/p, wb, sprintf('Running Knock-out Round %d out of %d ...', counter, p))
-    
     Interactions = Interactions_original;
     replace_idx = find(ismember(Interactions_original(:, 5),Param_original(counter))); %index of interactions to modify
     disp('Removing interaction...')
@@ -69,26 +51,38 @@ for counter = 1:p
         Interactions{replace_idx(counter2), 5} = '0'; %replace weight by '0'
     end
     FalconInt2File(Interactions, 'KD_TempFile.txt') %write this as a temp file
-    estim = FalconMakeModel('KD_TempFile.txt', MeasFile, HLbound); %make model variant
+    estim = FalconMakeModel('KD_TempFile.txt', MeasFile); %make model variant
     estim.options = PreviousOptions; %optimoptions('fmincon','TolCon',1e-6,'TolFun',1e-6,'TolX',1e-10,'MaxFunEvals',3000,'MaxIter',3000); % Default
     estim.SSthresh = SSthresh; estim.ObjFunction = estim_orig.ObjFunction;
+    b = estim_orig.Results.Optimization.BestParams;
+    if counter == 1
+        b = b(2:end);
+    elseif counter == p
+        b = b(1:end-1);
+    else
+        b = [b(1:(counter-1)), b((counter+1):end)];
+    end
+    estim.Results.Optimization.BestParams = b;
+    if isfield(estim, 'Weights')
+        estim.Weights = estim_orig.Weights;
+    end
     fval_all = [];
     nodeval_all = [];
     
-    if Parallelisation
-        parfor counterround = 1:optRound_KO %computation for modified model
+    if estim.Parallelisation
+        parfor counterround = 1:estim.optRound_KO %computation for modified model
             k = FalconIC(estim); %initial conditions
             [xval,fval] = FalconObjFun(estim, k); %objective function
             fval_all = [fval_all; fval];
-            [nodevals, ~, ~, ~, ~] = FalconSimul(estim, xval, [0 0 0 0 0]);
+            [~, nodevals, ~] = FalconSimul(estim, 0);
             nodeval_all = [nodeval_all; nodevals];
         end
     else
-        for counterround = 1:optRound_KO %computation for modified model
+        for counterround = 1:estim.optRound_KO %computation for modified model
             k = FalconIC(estim); %initial conditions
             [xval,fval] = FalconObjFun(estim, k); %objective function
             fval_all = [fval_all; fval];
-            [nodevals, ~, ~, ~, ~] = FalconSimul(estim, xval, [0 0 0 0 0]);
+            [~, nodevals, ~] = FalconSimul(estim, 0);
             nodeval_all = [nodeval_all; nodevals];
         end
     end
@@ -124,28 +118,27 @@ for counter = 1:p
 
     xlabel('');
     set(gca, 'XTickLabelRotation', 45)
-    ylabel('Bayesian Information Criterion (BIC)');
+    ylabel('BIC');
     hold off
     Min = min(BICs(:));
     Max = max(BICs(:));
     axis([0.5 counter+1.5 Min-0.1*abs(Min) Max+0.1*abs(Max)])
     drawnow;
-    if ToSave
-        saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'fig')
-    end
-    
-end
-close(wb);
 
-if ToSave
-    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'tif')
-    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'fig')
-    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'jpg')
-    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'svg')
-    saveas(figko, [FinalFolderName,filesep, 'KO_interactions'], 'pdf')
+    saveas(figko, [estim_orig.FinalFolderName,filesep, 'KO_interactions'], 'fig') %save temporary figure in case of crash
+
+
 end
 
 estim = estim_orig;
+
+saveas(figko, [estim.FinalFolderName,filesep, 'KO_interactions'], 'tif')
+saveas(figko, [estim.FinalFolderName,filesep, 'KO_interactions'], 'fig')
+saveas(figko, [estim.FinalFolderName,filesep, 'KO_interactions'], 'jpg')
+saveas(figko, [estim.FinalFolderName,filesep, 'KO_interactions'], 'svg')
+saveas(figko, [estim.FinalFolderName,filesep, 'KO_interactions'], 'pdf')
+
+
 
 estim.Results.KnockOut.Parameters = Xtitles';
 estim.Results.KnockOut.BIC_values = BICs;

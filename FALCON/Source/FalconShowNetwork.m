@@ -1,4 +1,4 @@
-function []=FalconShowNetwork(estim, PlotAllBiographs, FinalFolderName)
+function []=FalconShowNetwork(estim)
 % FalconShowNetwork uses the 'biograph' environment to display the interaction graphs of the networks.
 % Display one graph per condition and display the edges width and the node color intensity according to the weights and node values.
 % FalconShowNetwork(estim)
@@ -96,11 +96,11 @@ if ~isempty(estim.MeanStateValueAll)
         copyobj(g.biograph.hgAxes,f);
         f = get(g.biograph.hgAxes, 'Parent');
 
-        if ~PlotAllBiographs
+        if ~estim.PlotAllBiographs
             try                
-                print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
-                print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
-                print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
+                print(f, '-dtiff', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
+                print(f, '-dsvg', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
+                print(f, '-djpeg', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
                 if MATLABVERSION < 2016
                     warning(['Please ignore the error messages above (if any), Biograph figure #' num2str(rep) ' is correctly saved'])
                 end
@@ -121,9 +121,9 @@ if ~isempty(estim.MeanStateValueAll)
                 
                 
                 try
-                    print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
-                    print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
-                    print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
+                    print(f, '-dtiff', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
+                    print(f, '-dsvg', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
+                    print(f, '-djpeg', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
 
                     warning(['Biograph figure #' num2str(rep) ' is now saved'])
                 catch
@@ -149,9 +149,9 @@ if ~isempty(estim.MeanStateValueAll)
             end
         else
             try
-                print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
-                print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
-                print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
+                print(f, '-dtiff', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
+                print(f, '-dsvg', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
+                print(f, '-djpeg', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
                 if MATLABVERSION < 2016
                     warning(['Please ignore the error messages above (if any), Biograph figure #' num2str(rep) ' is correctly saved'])
                 end                                
@@ -164,9 +164,9 @@ if ~isempty(estim.MeanStateValueAll)
                 close(child_handles(BioG))
                                 
                 try
-                    print(f, '-dtiff', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
-                    print(f, '-dsvg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
-                    print(f, '-djpeg', [FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
+                    print(f, '-dtiff', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.tif'])
+                    print(f, '-dsvg', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.svg'])
+                    print(f, '-djpeg', [estim.FinalFolderName, filesep, 'Biograph_Exp' num2str(rep) '.jpg'])
                     warning(['Biograph figure #' num2str(rep) ' is now saved'])
                 catch
                     warning(['Not enough graphical memory for saving - Biograph #' num2str(rep) ' is NOT saved'])

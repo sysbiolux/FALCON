@@ -18,10 +18,9 @@ function [bestx, meanx, stdx, estim] = FalconResults(varargin)
 
 estim = varargin{1};
 fxt_all = varargin{2};
-param_vector = varargin{3};
-if length(varargin) > 3
-    FinalFolderName = varargin{4};
-end
+param_vector = estim.param_vector;
+FinalFolderName = estim.FinalFolderName;
+ToSave = 1;
 
 % Extract best parameter set and calculate means & SDs
 bestx_index = find(ismember(fxt_all(:, 1),min(fxt_all(:, 1))));
@@ -66,67 +65,68 @@ param_name_best_mean_std = [param_string' num2cell(bestfxt(2:end-1)') num2cell(m
 disp('Summarized identified parameters:')
 disp(' ')
 disp([Heading; param_name_best_mean_std])
-
-if length(varargin)>2
-    useexcel = isExcelPresent();
-    if useexcel        
-        xlswrite([pwd filesep FinalFolderName filesep 'Summary_Optimised_Parameters.xls'], [Heading; param_name_best_mean_std])
-    else
-        tab = table(param_vector, bestx', meanx', stdx', 'VariableNames', {'Parameter', 'Best', 'Average', 'Std'});
-        writetable(tab, [FinalFolderName, filesep, 'Summary_Optimised_Parameters.csv'], 'Delimiter', ',');
+if ToSave
+    if length(varargin)>2
+        useexcel = isExcelPresent();
+        if useexcel        
+            xlswrite([pwd filesep FinalFolderName filesep 'Summary_Optimised_Parameters.xls'], [Heading; param_name_best_mean_std])
+        else
+            tab = table(param_vector, bestx', meanx', stdx', 'VariableNames', {'Parameter', 'Best', 'Average', 'Std'});
+            writetable(tab, [FinalFolderName, filesep, 'Summary_Optimised_Parameters.csv'], 'Delimiter', ',');
+        end
     end
-end
 
-%writing log file:
-if exist(FinalFolderName)
-    Start = FinalFolderName(9:end);
-else
-    Start = '?';
-end
+    %writing log file:
+    if exist(FinalFolderName)
+        Start = FinalFolderName(9:end);
+    else
+        Start = '?';
+    end
 
-Now = datestr(now);
-Now = strrep(Now, ':', '.');
-fid = fopen([FinalFolderName, filesep, 'FALCONrun.log'], 'at');
-fprintf(fid, 'FALCON log file \n');
-fprintf(fid, 'Start timestamp: %s \n', Start);
-fprintf(fid, 'Finish timestamp: %s \n', Now);
-fprintf(fid, 'Final MSE: %d \n', min(fxt_all(:, 1)));
-fprintf(fid, 'Network: \n');
-[L,~] = size(estim.Interactions);
-for c = 1:L
-    fprintf(fid, '%s %s %s %s %s %s %s \n', estim.Interactions{c, :});
-end
+    Now = datestr(now);
+    Now = strrep(Now, ':', '.');
+    fid = fopen([FinalFolderName, filesep, 'FALCONrun.log'], 'at');
+    fprintf(fid, 'FALCON log file \n');
+    fprintf(fid, 'Start timestamp: %s \n', Start);
+    fprintf(fid, 'Finish timestamp: %s \n', Now);
+    fprintf(fid, 'Final MSE: %d \n', min(fxt_all(:, 1)));
+    fprintf(fid, 'Network: \n');
+    [L,~] = size(estim.Interactions);
+    for c = 1:L
+        fprintf(fid, '%s %s %s %s %s %s %s \n', estim.Interactions{c, :});
+    end
 
-fprintf(fid, 'Dataset: \n');
-[L,C] = size(estim.Input);
-FormatIn = repmat('%d ', 1, C);
-fprintf(fid, 'Inputs: \n');
-for c = 1:L
-    fprintf(fid, [FormatIn, '\n'], estim.Input(c, :));
-end
+    fprintf(fid, 'Dataset: \n');
+    [L,C] = size(estim.Input);
+    FormatIn = repmat('%d ', 1, C);
+    fprintf(fid, 'Inputs: \n');
+    for c = 1:L
+        fprintf(fid, [FormatIn, '\n'], estim.Input(c, :));
+    end
 
-[L,C] = size(estim.Input_idx);
-FormatIn = repmat('%d ', 1, C);
-fprintf(fid, 'Inputs indices: \n');
-for c = 1:L
-    fprintf(fid, [FormatIn, '\n'], estim.Input_idx(c, :));
-end
+    [L,C] = size(estim.Input_idx);
+    FormatIn = repmat('%d ', 1, C);
+    fprintf(fid, 'Inputs indices: \n');
+    for c = 1:L
+        fprintf(fid, [FormatIn, '\n'], estim.Input_idx(c, :));
+    end
 
-[L,C] = size(estim.Output);
-FormatIn = repmat('%d ', 1, C);
-fprintf(fid, 'Outputs: \n');
-for c = 1:L
-    fprintf(fid, [FormatIn, '\n'], estim.Output(c,:));
-end
+    [L,C] = size(estim.Output);
+    FormatIn = repmat('%d ', 1, C);
+    fprintf(fid, 'Outputs: \n');
+    for c = 1:L
+        fprintf(fid, [FormatIn, '\n'], estim.Output(c,:));
+    end
 
-[L,C] = size(estim.Output_idx);
-FormatIn = repmat('%d ', 1, C);
-fprintf(fid, 'Outputs indices: \n');
-for c = 1:L
-    fprintf(fid, [FormatIn, '\n'], estim.Output_idx(c,:));
-end
+    [L,C] = size(estim.Output_idx);
+    FormatIn = repmat('%d ', 1, C);
+    fprintf(fid, 'Outputs indices: \n');
+    for c = 1:L
+        fprintf(fid, [FormatIn, '\n'], estim.Output_idx(c,:));
+    end
 
-fclose(fid);
+    fclose(fid);
+end
 
 disp('==============================================')
 disp(' ')

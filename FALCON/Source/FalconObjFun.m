@@ -25,7 +25,13 @@ MSE = []; AIC = []; Nparams = []; BIC = [];
     function [ Diff ] = nestedfun(k)
         
     n = estim.NrStates;
-    N = numel(estim.Output) - sum(sum(isnan(estim.Output)));    
+    N = numel(estim.Output) - sum(sum(isnan(estim.Output)));
+    
+    if isfield(estim, 'Weights')
+        w = estim.Weights;
+    else
+        w = ones(size(estim.Output));
+    end
     
     if isfield(estim, 'Lambda')
         l = estim.Lambda;
@@ -163,7 +169,10 @@ MSE = []; AIC = []; Nparams = []; BIC = [];
     Output_index = estim.Output_idx;
     Inputs = estim.Input;
     Measurements = estim.Output;
-    Variances = (estim.SD).^2;
+    sds = estim.SD;
+    sds(sds==0) = 0.05;
+    sds(isnan(sds))=0.05;
+    Variances = (sds).^2;
 
     % Evaluation
     TimeSoFar = tic;
@@ -219,20 +228,16 @@ MSE = []; AIC = []; Nparams = []; BIC = [];
     xsim(mask) = 0; xmeas(mask) = 0;
     
     %calculate the sum-of-squared errors
-    Fun = 1;
+    Res = (xsim-xmeas).^2 ;
     if isfield(estim, 'ObjFunction')
-        
-        if strcmp(estim.ObjFunction, 'weighted')
-            Fun = 2;
-        elseif strcmp(estim.ObjFunction, 'unweighted')
-            Fun = 1;
+        if strcmp(estim.ObjFunction, 'likelihood')
+            MSE = (sum(nansum(Res ./ Variances .* w))) / N;
+        elseif strcmp(estim.ObjFunction, 'MSE')
+            MSE = (sum(nansum(Res .* w))) / N;
         end
-    end
-    
-    if Fun == 2
-        MSE = (sum(nansum(((xsim-xmeas).^2)./Variances)))/N;
     else
-        MSE = (sum(sum((xsim-xmeas).^2)))/N;
+        MSE = (sum(nansum(Res .* w)))/N;
+       
     end
     
     Diff = MSE + sum(l.*Var);    
@@ -247,7 +252,7 @@ MSE = []; AIC = []; Nparams = []; BIC = [];
         elseif strcmp(estim.Reg, 'L1Smooth')
             Smoothed = (max(k(RegSmooth), [], 2) - min(k(RegSmooth), [], 2)) < 0.1;
             RP =(mean(k(RegSmooth), 2)) > 0.01;
-            Nparams = sum(Collapsed .* RP) + size(RegGroups, 2) * sum(~Smoothed .* RP);
+            Nparams = sum(Smoothed .* RP) + size(RegGroups, 2) * sum(~Smoothed .* RP);
         elseif strcmp(estim.Reg, 'Ldrug')
             Std_group = std(k(RegGroups), 0, 2);
             Collapsed = Std_group < 0.01;

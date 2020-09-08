@@ -1,4 +1,4 @@
-function [k] = FalconIC(estim, varargin)
+function [k] = FalconIC(varargin)
 % FalconIC automatically assigns initial parameter values which are drawn from a uniform or normal distribution. 
 % Initial conditions are subsequently scaled according to the equality and inequality constrains.
 % k=FalconIC(estim,IC_Dist,Std)
@@ -22,33 +22,24 @@ function [k] = FalconIC(estim, varargin)
 % Prof. Thomas Sauter, University of Luxembourg, thomas.sauter@uni.lu
 % Sebastien De Landtsheer, University of Luxembourg, sebastien.delandtsheer@uni.lu
 
-DefaultMode = 'uniform';
-DefaultStd = 0.167;
 % to obtain different random starts on fresh Matlab sessions
 Clock = clock(); Clock(6) = Clock(6)*1000;
-DefaultSeed = sum(Clock);
+Seed = sum(Clock);
 
-ExpectedModes = {'uniform', 'normal', 'scratch'};
-ValidStd = @(x) isnumeric(x) && isscalar(x) && (x > 0);
-% parsing inputs
-p = inputParser;
-addRequired(p, 'estim');
-addOptional(p, 'Mode', DefaultMode,...
-        @(x) any(validatestring(x, ExpectedModes)));
-addOptional(p, 'Std', DefaultStd, ValidStd);
-addOptional(p, 'Seed', DefaultSeed, ValidStd);
-parse(p, estim, varargin{:});
+estim = varargin{1};
 
-Mode = p.Results.Mode;
-Std = p.Results.Std;
-Seed = p.Results.Seed;
+if isfield(estim, 'Seed')
+    Seed = estim.Seed;
+end
 
 rng(Seed)
+
+Mode = estim.IC_Dist;
 
 if strcmp(Mode, 'uniform') 
     k = rand(1, size(estim.param_vector, 1));
 elseif strcmp(Mode, 'normal')
-    k = min(max((Std.*randn(1, size(estim.param_vector, 1)) + 0.5), 0), 1);
+    k = min(max((0.167.*randn(1, size(estim.param_vector, 1)) + 0.5), 0), 1);
 elseif strcmp(Mode, 'scratch')
     k = zeros(1, size(estim.param_vector, 1))+(rand(1, size(estim.param_vector, 1))./1000000);
 end
