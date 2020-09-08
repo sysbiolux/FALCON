@@ -238,6 +238,7 @@ end
 xsim = x(Output_index(1, :), :)';
 StateValueAll = xsim;
 mask = isnan(xmeas);
+AllState = xsim;
 xsim(mask) = 0; xmeas(mask) = 0;
 
 %calculate the sum-of-squared errors
@@ -247,6 +248,7 @@ if isfield(estim, 'ObjFunction')
         MSE = (sum(nansum(SSE ./ Variances .* w))) / N;
     elseif strcmp(estim.ObjFunction, 'MSE')
         MSE = (sum(nansum(SSE .* w))) / N;
+
     end
 else
     MSE = (sum(nansum(SSE .* w)))/N;
