@@ -265,7 +265,7 @@ if isfield(estim, 'Reg')
     elseif strcmp(estim.Reg, 'L1Smooth')
         Smoothed = (max(k(RegSmooth), [], 2) - min(k(RegSmooth), [], 2)) < 0.1;
         RP =(mean(k(RegSmooth), 2)) > 0.01;
-        Nparams = sum(Smoothed .* RP) + size(RegGroups, 2) * sum(~Smoothed .* RP);
+        Nparams = sum(Smoothed .* RP) + size(RegSmooth, 2) * sum(~Smoothed .* RP);
     elseif strcmp(estim.Reg, 'Ldrug')
         Std_group = std(k(RegGroups), 0, 2);
         Collapsed = Std_group < 0.01;

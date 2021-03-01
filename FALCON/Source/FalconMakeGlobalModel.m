@@ -236,12 +236,13 @@ for m = 1:length(MeasFileList)
     
 end
 
-Page1 = {};
-Page1 = [Page1; InNamesSheet(:, :, 1)];
-Page1 = [Page1; num2cell(InputsSheet(:, :, 1))];
-
-Page2 = {};
-Page3 = {};
+for m = 1:length(MeasFileList)
+    Page1 = {};
+    Page1 = [Page1; InNamesSheet(:, :, m)];
+    Page1 = [Page1; num2cell(InputsSheet(:, :, m))];
+    Page2 = {};
+    Page3 = {};
+end
 for m = 1:length(MeasFileList)
     temp = OutNamesSheet(:, :, m);
     temp = [temp; num2cell(OutputsSheet(:, :, m))];
