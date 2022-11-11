@@ -484,7 +484,7 @@ if Plots
         NCols = ceil(num_plots/NLines);
 
         h51 = figure; hold on,
-         suptitle('Dynamics through the simulation (outputs)');
+        sgtitle('Dynamics through the simulation (outputs)');
         for p = 1:size(Output_index, 1)
             subplot(NLines, NCols, p)
             plot(squeeze(estim.AllofTheXs(p, 1:T, Output_index(p, :))))
@@ -500,7 +500,7 @@ if Plots
 
         h52 = figure; hold on,
 
-        suptitle('Dynamics through the simulation (all nodes)')
+        sgtitle('Dynamics through the simulation (all nodes)')
         for p = 1:size(Output_index, 1)
             subplot(NLines, NCols, p)
             plot(squeeze(estim.AllofTheXs(p, 1:T, :)))

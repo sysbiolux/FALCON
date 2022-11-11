@@ -228,7 +228,7 @@ if size(p_SA, 2) < 20
     saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'svg')
     saveas(gca, [estim.FinalFolderName, filesep, 'Covariance'], 'pdf')
     figure, hold on;
-    suptitle('Covariance');
+    sgtitle('Covariance');
     imagesc(AllCorrelations)
     set(gca, 'xtick', 1:length(Param_original))
     set(gca, 'ytick', 1:length(Param_original))

@@ -45,7 +45,7 @@ Diff_complete = mean(abs(estim.Results.Optimization.StateValueAll(:, estim.Outpu
 %%% parameter perturbation and refitting
 figko = figure; hold on;
 set(gca, 'TickLabelInterpreter', 'none')
-suptitle('Virtual Node KO');
+sgtitle('Virtual Node KO');
 BICs = BIC_complete;
 SplitBICs = N.*log(Diff_complete) + (log(N)).*p;
 
