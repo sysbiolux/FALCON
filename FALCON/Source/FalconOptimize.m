@@ -29,7 +29,6 @@ else
         toc_all = [toc_all; toc]; x_all = [x_all; xval]; fval_all = [fval_all; fval];
         AICs = [AICs; AIC]; MSEs = [MSEs; MSE]; BICs = [BICs; BIC]; NparamsL = [NparamsL; Nparams];  
     end
-    close(h);
 end
 
 beep; pause(0.5); beep;
