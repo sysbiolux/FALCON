@@ -150,9 +150,9 @@ if isfield(estim.Results,'Optimisation')
     end
     hold off
     if NrExps > 5
-        suptitle('Compared Simulated values and Measurement (all states)')
+        sgtitle('Compared Simulated values and Measurement (all states)')
     else
-        suptitle('Examples of compared Simulated values and Measurement (all states)')
+        sgtitle('Examples of compared Simulated values and Measurement (all states)')
     end
     
     % PlotStateEvolution: graph of state values over the course of the simulation (two graphs: all-in-1 and individual)
@@ -187,9 +187,9 @@ if isfield(estim.Results,'Optimisation')
         hold off
     end
     if NrExps > 5
-        suptitle('Dynamics through the simulation (all nodes)')
+        sgtitle('Dynamics through the simulation (all nodes)')
     else
-        suptitle('Examples of dynamics through the simulation (all nodes)')
+        sgtitle('Examples of dynamics through the simulation (all nodes)')
     end
     
 end
@@ -234,7 +234,7 @@ if isfield(estim.Results,'LPSA')
         hline=refline([0 CutOff]);
         hline.Color = 'r';
     end
-    suptitle('Local parameter sensitivity analysis');
+    sgtitle('Local parameter sensitivity analysis');
 end
 %% KO Parameters
 if isfield(estim.Results,'KnockOut')

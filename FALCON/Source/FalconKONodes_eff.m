@@ -64,7 +64,7 @@ for j= 1:length(efficiency_range)
     %%% parameter perturbation and refitting
     thisfig = figure; hold on
     set(gca,'TickLabelInterpreter','none')
-    suptitle(['Virtual node partial silencing for ', num2str(efficiency_range(j)), ' silencing']);
+    sgtitle(['Virtual node partial silencing for ', num2str(efficiency_range(j)), ' silencing']);
 
     wb = waitbar(0,'Please wait...');
     StateValue_screen = [];
@@ -174,7 +174,7 @@ big_matrix(:, ToRemove, :) = [];
 for counter1 = 1: length(Nodes)
     var = ((counter1 - 1) * size(estim_orig.Input,1)) + 1;
     figure;
-    h = suptitle(['Activities upon ', char(Nodes(counter1)), ' partial KO']);
+    h = sgtitle(['Activities upon ', char(Nodes(counter1)), ' partial KO']);
     set(h, 'FontSize', 16, 'FontWeight', 'bold')
     for counter = 1: length(Nodes)
 

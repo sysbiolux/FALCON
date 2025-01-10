@@ -44,7 +44,7 @@ Diff_complete = nanmean(abs(estim.Results.Optimization.StateValueAll(:, estim.Ou
 %%% parameter perturbation and refitting
 figko = figure; hold on;
 set(gca, 'TickLabelInterpreter', 'none')
-suptitle('Fast Virtual Node KO');
+sgtitle('Fast Virtual Node KO');
 BICs = BIC_complete;
 SplitBICs = N.*log(Diff_complete) + (log(N)).*p;
 

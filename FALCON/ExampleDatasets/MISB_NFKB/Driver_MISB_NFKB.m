@@ -181,7 +181,7 @@ if KO_Nodes_Analysis_eff
 %         matrix_split = squeeze(big_matrix(:,counter,:))
         var = ((counter1 - 1) * size(estim.Input,1)) + 1
          figure;
-         h= suptitle(['Effect of ', char(Nodes(counter1)), ' Knock-out on:'])
+         h= sgtitle(['Effect of ', char(Nodes(counter1)), ' Knock-out on:'])
          set(h,'FontSize',20,'FontWeight','bold')
     for counter = 1: length(estim.state_names)
         
@@ -204,7 +204,7 @@ if KO_Nodes_Analysis_eff
 %         matrix_split = squeeze(big_matrix(:,counter,:))
         var = ((counter1 - 1) * length(Nodes)) + 1
          figure;
-         h= suptitle(['Effect of condition', num2str((counter1)), ' Knock-out on:'])
+         h= sgtitle(['Effect of condition', num2str((counter1)), ' Knock-out on:'])
          set(h,'FontSize',20,'FontWeight','bold')
     for counter = 1: length(estim.state_names)
         subplot(round(length(estim.state_names)/6), 6, counter)

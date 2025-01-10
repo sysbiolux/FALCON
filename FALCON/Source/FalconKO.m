@@ -36,7 +36,7 @@ SSthresh = estim.SSthresh;
 %%% parameter perturbation and refitting
 thisfig = figure; hold on
 set(gca, 'TickLabelInterpreter', 'none')
-suptitle('Virtual Interaction KO');
+sgtitle('Virtual Interaction KO');
 BICs = BIC_complete;
 if size(BICs,1) < estim.optRound_KO
     BICs = [BICs ; NaN((estim.optRound_KO - size(BICs,1)), 1)];

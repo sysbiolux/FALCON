@@ -138,7 +138,7 @@ xlabel('log_2(\lambda_{cluster})')
 subplot(2,2,4)
 plot(NPs,'k', 'linewidth', 2), set(gca, 'xtick', 1:2:length(ListLambdaCluster)), set(gca, 'xticklabel', {PowerLambdaCluster(1:2:end)}), set(gca, 'xticklabelrotation', 90), title('#Parameters')
 xlabel('log_2(\lambda_{cluster})')
-suptitle('Model characteristics across regularization strengths')
+sgtitle('Model characteristics across regularization strengths')
 
 M=estim.RegMatrix.Cluster;
 figure,
@@ -424,7 +424,7 @@ for c=1:length(ListLambda12)
     set(gca, 'xticklabelrotation', 90)
     title(['\lambda_{1/2}= 2^{', num2str(PowerLambda12(c)), '}'])
 end
-suptitle('Regularization paths')
+sgtitle('Regularization paths')
 
 
 
@@ -444,7 +444,7 @@ for c=1:length(ListLambda12)
     set(gca, 'xticklabelrotation', 90)
     title(['\lambda_{1/2}= 2^{', num2str(PowerLambda12(c)), '}'])
 end
-suptitle('Regularization paths, diff versus unregularized')
+sgtitle('Regularization paths, diff versus unregularized')
 
 
 
